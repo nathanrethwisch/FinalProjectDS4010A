@@ -11,6 +11,7 @@ To achieve this, we are pulling data from the United States Forest Service (USFS
   
 ## Folders
 The current folder structure contains a `/data` folder where our raw data and descriptions of the data are being housed. Future folders will be added to house the dashboard and data processing code.
+Certain data sets involve API calls, such as the Open-Meteo Historical Weather data. The Python code for these API calls are located in `/py-notebooks` 
 
 ## Data Processing
 The following steps highlight how we are planning to process the data used for this project:
