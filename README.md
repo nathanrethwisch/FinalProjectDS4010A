@@ -17,6 +17,4 @@ Certain data sets involve API calls, such as the Open-Meteo Historical Weather d
 The following steps highlight how we are planning to process the data used for this project:
 1. Add raw data to `/data/raw` using LFS if necessary
 2. Read data into pandas and set datatypes
-3. Export pandas dataframes as parquet to preserve data.
-
-
+3. Export pandas dataframes as parquet to preserve datatypes in `/data/raw`.
