@@ -6,6 +6,8 @@ library(dplyr)
 
 #Initial importing and selecting rows
 occur <- read.csv("C:/Users/colin/Downloads/National_USFS_Fire_Occurrence_Point_(Feature_Layer) (1).csv")
+fire <- read.csv("data/raw/National_USFS_Fire_Occurrence_Point_(Feature_Layer).csv")
+
 occurDF <- fire %>%
   select(UNIQFIREID, FIREYEAR, DISCOVERYDATETIME, FIREOUTDATETIME, SIZECLASS, TOTALACRES, STATCAUSE,
          LATDD83, LONGDD83)
@@ -66,12 +68,22 @@ sum(occurDF$LONGDD83 == "", na.rm=TRUE) #0
 
 
 
-
-
 ####################
 #Exploring the data#
 ####################
 
 #samp <- occurDF[sample(nrow(occurDF), 10, replace=FALSE), ]
 
+
+###########################
+# Data Visualization #
+###########################
+#install.packages(c("leaflet", "sp"))
+library(sp)
+library(leaflet)
+library(dplyr)
+library(tidyr)
+
+source("src/dataVisualization.R")
+fireDataMap(occurDF)
 
