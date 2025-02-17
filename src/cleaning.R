@@ -5,12 +5,12 @@ library(dplyr)
 #################
 
 #Initial importing and selecting rows
-occur <- read.csv("C:/Users/colin/Downloads/National_USFS_Fire_Occurrence_Point_(Feature_Layer) (1).csv")
+#occur <- read.csv("C:/Users/colin/Downloads/National_USFS_Fire_Occurrence_Point_(Feature_Layer) (1).csv")
 fire <- read.csv("data/raw/National_USFS_Fire_Occurrence_Point_(Feature_Layer).csv")
 
 occurDF <- fire %>%
   select(UNIQFIREID, FIREYEAR, DISCOVERYDATETIME, FIREOUTDATETIME, SIZECLASS, TOTALACRES, STATCAUSE,
-         LATDD83, LONGDD83)
+         LATDD83, LONGDD83, X, Y)
 occurDF <- na.omit(occurDF)
 
 min <- min(occurDF$FIREYEAR, na.rm=FALSE)
@@ -49,7 +49,18 @@ sum(occurDF$STATCAUSE == "", na.rm=TRUE) #552
 sum(occurDF$FIREOUTDATETIME == "", na.rm=TRUE) #412582
 sum(occurDF$LATDD83 == "", na.rm=TRUE) #0
 sum(occurDF$LONGDD83 == "", na.rm=TRUE) #0
+sum(occurDF$X == "", na.rm=TRUE) #0
+sum(occurDF$Y == "", na.rm=TRUE) #0
 
+#Looking at cleaning coordinates 
+max(occurDF$X) #100.7429
+min(occurDF$X) #-150.4332
+
+max(occurDF$Y) #90
+min(occurDF$Y) #-89.99805
+
+occurDF <- occurDF %>% filter(X < -60)
+occurDF <- occurDF %>% filter(Y < 62)
 
 
 ###########################
@@ -75,6 +86,7 @@ sum(occurDF$LONGDD83 == "", na.rm=TRUE) #0
 #samp <- occurDF[sample(nrow(occurDF), 10, replace=FALSE), ]
 
 
+
 ###########################
 # Data Visualization #
 ###########################
@@ -86,4 +98,5 @@ library(tidyr)
 
 source("src/dataVisualization.R")
 fireDataMap(occurDF)
+
 
