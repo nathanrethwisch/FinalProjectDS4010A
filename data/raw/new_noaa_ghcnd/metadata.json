@@ -1,0 +1,118 @@
+{
+  "stations": {
+    "variables": [
+      {
+        "name": "station_id",
+        "start": 1,
+        "end": 11,
+        "description": "The station identification code. Note that the first two characters denote the FIPS country code, the third character is a network code that identifies the station numbering system used, and the remaining eight characters contain the actual station ID."
+      },
+      {
+        "name": "latitude",
+        "start": 13,
+        "end": 20,
+        "description": "Latitude of the station (in decimal degrees)."
+      },
+      {
+        "name": "longitude",
+        "start": 22,
+        "end": 30,
+        "description": "Longitude of the station (in decimal degrees)."
+      },
+      {
+        "name": "elevation",
+        "start": 32,
+        "end": 37,
+        "description": "Elevation of the station (in meters)."
+      },
+      {
+        "name": "state",
+        "start": 39,
+        "end": 40,
+        "description": "U.S. postal code for the state (for U.S. stations only)."
+      },
+      {
+        "name": "name",
+        "start": 42,
+        "end": 71,
+        "description": "Name of the station."
+      },
+      {
+        "name": "gsn_flag",
+        "start": 73,
+        "end": 75,
+        "description": "A flag that indicates whether the station is part of the GCOS\n           Surface Network (GSN). The flag is assigned by cross-referencing \n           the number in the WMOID field with the official list of GSN \n           stations. There are two possible values:\n\n           Blank = non-GSN station or WMO Station number not available\n           GSN   = GSN station"
+      },
+      {
+        "name": "hcn_crn_flag",
+        "start": 77,
+        "end": 79,
+        "description": "A flag that indicates whether the station is part of the U.S.\nCRN FLAG  Historical Climatology Network (HCN) or U.S. Climate Refererence\n          Network (CRN).  There are three possible values:\n\n           Blank = Not a member of the U.S. Historical Climatology \n\t           or U.S. Climate Reference Networks\n           HCN   = U.S. Historical Climatology Network station\n\t   CRN   = U.S. Climate Reference Network or U.S. Regional Climate \n\t           Network Station"
+      },
+      {
+        "name": "wmo_id",
+        "start": 81,
+        "end": 85,
+        "description": "The World Meteorological Organization (WMO) number for the\n           station.  If the station has no WMO number (or one has not yet \n\t   been matched to this station), then the field is blank."
+      }
+    ]
+  },
+  "daily": {
+    "variables": [
+      {
+        "name": "station_id",
+        "type": "categorical",
+        "categories": null,
+        "description": "The station identification code. Note that the first two characters denote the FIPS country code, the third character is a network code that identifies the station numbering system used, and the remaining eight characters contain the actual station ID."
+      },
+      {
+        "name": "date",
+        "type": "date",
+        "categories": null,
+        "description": "Date of observation"
+      },
+      {
+        "name": "element",
+        "type": "categorical",
+        "categories": [
+          "PRCP",
+          "SNOW",
+          "SNQD",
+          "TMAX",
+          "TMIN"
+        ],
+        "description": "See core elements: https://docs.opendata.aws/noaa-ghcn-pds/readme.html"
+      },
+      {
+        "name": "value",
+        "type": "numeric",
+        "categories": null,
+        "description": "The Value"
+      },
+      {
+        "name": "m_flag",
+        "type": "categorical",
+        "categories": null,
+        "description": "Measurement Flag"
+      },
+      {
+        "name": "q_flag",
+        "type": "categorical",
+        "categories": null,
+        "description": "Quality Flag"
+      },
+      {
+        "name": "s_flag",
+        "type": "categorical",
+        "categories": null,
+        "description": "Source Flag"
+      },
+      {
+        "name": "obs_time",
+        "type": "time",
+        "categories": null,
+        "description": "Time of Observation"
+      }
+    ]
+  }
+}
