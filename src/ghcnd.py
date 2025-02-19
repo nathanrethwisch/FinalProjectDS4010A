@@ -27,10 +27,12 @@ class GHCND():
             "bucket": "http://noaa-ghcn-pds.s3.amazonaws.com"
         }
 
-    def init_datalake(self):
+    def init_datalake(self, overwrite=False):
         """
         Check for existing Directory structure. Create it if it doesn't exist. only overwrite if overwrite=True
         """
+
+
         if not os.path.exists(self.datalake_root):
             os.makedirs(self.datalake_root)
         self._create_sub_directory('raw')
@@ -176,8 +178,12 @@ class GHCND():
         self._download_file(self.sources['readme'], self.datalake_root / 'metadata' / 'daily.html')
 
 
-def build_datalake(datalake_root, start_year, end_year):
+def build_datalake(datalake_root, start_year, end_year, overwrite=False):
     ghcnd = GHCND(Path(datalake_root))
+
+    if not overwrite:
+        print("WARNING: Existing dataset detected, set overwrite=True to overwrite. Exiting!")
+        return 0
 
     # Initialize Datalake and download raw data
     ghcnd.init_datalake()
