@@ -61,7 +61,7 @@ class GHCND():
         Download the yearly data inside the data range given. Both start year and end year are inclusive.
         """
         for year in range(start_year, end_year + 1):
-            file_url = f'{self.sources['bucket']}/csv.gz/by_year/{year}.csv.gz'
+            file_url = f'{self.sources["bucket"]}/csv.gz/by_year/{year}.csv.gz'
             dest_path = self.datalake_root / 'raw/daily' / f'{year}.csv.gz'
             self._download_file(file_url, dest_path)
 
