@@ -26,9 +26,9 @@ class GHCND():
 
         # load sources
         self.sources = {"readme": "https://docs.opendata.aws/noaa-ghcn-pds/readme.html",
-            "stations": "http://noaa-ghcn-pds.s3.amazonaws.com/ghcnd-stations.txt",
-            "inventory": "http://noaa-ghcn-pds.s3.amazonaws.com/ghcnd-inventory.txt",
-            "bucket": "http://noaa-ghcn-pds.s3.amazonaws.com"}
+                        "stations": "http://noaa-ghcn-pds.s3.amazonaws.com/ghcnd-stations.txt",
+                        "inventory": "http://noaa-ghcn-pds.s3.amazonaws.com/ghcnd-inventory.txt",
+                        "bucket": "http://noaa-ghcn-pds.s3.amazonaws.com"}
 
     def init_datalake(self, overwrite=False):
         """
@@ -94,15 +94,19 @@ class GHCND():
         """
         stations = pd.read_fwf(self.raw_stations_path, header=None,
                                colspecs=[(0, 11), (12, 20), (21, 30), (31, 37), (38, 40), (41, 71), (72, 75), (76, 79),
-                                   (80, 85)])
+                                         (80, 85)])
         stations.columns = ['station_id', 'latitude', 'longitude', 'elevation', 'state', 'name', 'gsn_flag',
-            'hcn_crn_flag', 'wmo_id']
+                            'hcn_crn_flag', 'wmo_id']
         stations['station_id'] = stations['station_id'].astype(str)
         stations['latitude'] = stations['latitude'].astype(float)
         stations['longitude'] = stations['longitude'].astype(float)
         stations['elevation'] = stations['elevation'].astype(float)
         stations['name'] = stations['name'].astype(str)
         stations.drop(columns=['state', 'gsn_flag', 'hcn_crn_flag', 'wmo_id'], inplace=True)
+        us_stations = stations[stations['station_id'].str[:2] == 'US']
+        ca_stations = stations[stations['station_id'].str[:2] == 'CA']
+        mx_stations = stations[stations['station_id'].str[:2] == 'MX']
+        stations = pd.concat([us_stations, ca_stations, mx_stations])
         stations.to_parquet(self.datalake_root / 'clean' / 'stations.parquet')
 
     def clean_daily(self):
@@ -121,8 +125,8 @@ class GHCND():
         :param year:
         """
         daily_dtypes = {'station_id': 'str', 'element': pd.CategoricalDtype(), 'm_flag': pd.CategoricalDtype(),
-            'q_flag': pd.CategoricalDtype(), 's_flag': pd.CategoricalDtype(), 'date': str, 'time': str,
-            'value': 'float'}
+                        'q_flag': pd.CategoricalDtype(), 's_flag': pd.CategoricalDtype(), 'date': str, 'time': str,
+                        'value': 'float'}
         file = self.datalake_root / 'raw' / 'daily' / f'{year}.csv.gz'
         df = None
         try:
@@ -161,6 +165,13 @@ class GHCND():
             table = pq.read_table(self.datalake_root / 'curated' / self.elements[0] / f'{year}.parquet')
             for i in range(1, len(self.elements)):
                 t2 = pq.read_table(self.datalake_root / 'curated' / self.elements[i] / f'{year}.parquet')
-                table = table.join(t2, keys=['station_id', 'year', 'month', 'day'], join_type='full outer')
+                table = table.join(t2, keys=['station_id', 'year', 'month', 'day'], join_type='full outer') #TODO CHECK THIS JOIN LOGIC
 
-            pq.write_table(table, self.datalake_root / 'curated' / 'combined' / f'{year}.parquet')
+            pq.write_table(table, self.datalake_root / 'curated' / 'combined' / f'{year}.parquet') #TODO move this to self.join_stations_elements()
+
+    def join_stations_elements(self):
+        self.create_sub_directory('curated/final')
+        stations = pq.read_table(self.datalake_root / 'clean' / 'stations.parquet')
+        for year in range(self.start_year, self.end_year + 1):
+            table = pq.read_table(self.datalake_root / 'curated' / 'combined' / f'{year}.parquet')
+            joined = table.join(stations, keys='station_id')
