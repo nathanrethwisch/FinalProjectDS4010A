@@ -163,11 +163,9 @@ class GHCND:
             for year in range(self.start_year, self.end_year + 1):  # Process a single year at a time
                 print(f'PROCESSING {element}, {year} ')
 
-                query = (
-                        (pc.is_in(pc.field('station_id'), value_set=stations_na_ids))  # Filter for NA stations
-                        & (pc.field('element') == element)  # Filter for desired element
-                        & (pc.field('year') == year)
-                )
+                query = ((pc.is_in(pc.field('station_id'), value_set=stations_na_ids))  # Filter for NA stations
+                         & (pc.field('element') == element)  # Filter for desired element
+                         & (pc.field('year') == year))
 
                 table = dataset.filter(query).to_table(columns=['station_id', 'year', 'month', 'day', 'value'])
                 table = table.rename_columns(['station_id', 'year', 'month', 'day', element])
@@ -188,14 +186,10 @@ class GHCND:
             for i in range(1,
                            len(self.elements)):  # Iteratively join rest of the given year's elements to the first element's table
                 t2 = pq.read_table(self.datalake_root / 'curated' / self.elements[i] / f'{year}.parquet')
-                table = table.join(
-                    t2,
-                    keys=['station_id', 'year', 'month', 'day'],  # "Primary key" is a tuple of these
-                    join_type='full outer'
-                )  # Return all records(some station/date combinations may have N/A values for element columns) # TODO CHECK THIS JOIN LOGIC
+                table = table.join(t2, keys=['station_id', 'year', 'month', 'day'],  # "Primary key" is a tuple of these
+                    join_type='full outer')  # Return all records(some station/date combinations may have N/A values for element columns) # TODO CHECK THIS JOIN LOGIC
 
-            pq.write_table(table,
-                           self.datalake_root / 'curated' / 'combined' / f'{year}.parquet') 
+            pq.write_table(table, self.datalake_root / 'curated' / 'combined' / f'{year}.parquet')
 
     def join_stations_elements(self):
         """
@@ -205,11 +199,12 @@ class GHCND:
         stations = pq.read_table(self.datalake_root / 'curated' / 'stations.parquet')
         for year in range(self.start_year, self.end_year + 1):
             print(f'JOINING: STATIONS & {year}')
-            
+
             table = pq.read_table(self.datalake_root / 'curated' / 'combined' / f'{year}.parquet')
-            
-            joined = stations.join(table, keys='station_id', join_type='inner') # inner join means that stations without records will be dropped. #TODO CHECK THIS JOIN LOGIC
-            pq.write_table(joined, self.datalake_root /'curated' / 'final' / f'{year}.parquet')
+
+            joined = stations.join(table, keys='station_id',
+                                   join_type='inner')  # inner join means that stations without records will be dropped. #TODO CHECK THIS JOIN LOGIC
+            pq.write_table(joined, self.datalake_root / 'curated' / 'final' / f'{year}.parquet')
 
     def filter_na_stations(self):
         """
@@ -233,7 +228,7 @@ class GHCND:
         """
         dataset = ds.dataset(self.datalake_root / 'curated' / 'final')
         df = dataset.filter(query_expression).to_table(columns=columns).to_pandas()
-        
+
         return df
 
     def clean_data(self):
@@ -246,10 +241,7 @@ class GHCND:
         """
         Clean up intermediate tables. Optionally delete the raw data(NOT RECOMMENDED!).
         """
-        paths = [
-            'clean/',
-            'curated/combined'
-        ]
+        paths = ['clean/', 'curated/combined']
         for element in self.elements:
             paths.append(f'curated/{element}')
 
