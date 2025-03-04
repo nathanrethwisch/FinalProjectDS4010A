@@ -223,13 +223,12 @@ class GHCND:
     def query(self, query_expression: ds.Expression, columns: list[str] = None):
         """
         A helper function which queries the GHCND dataset. Use this to generate pandas dataframes with the desired columns and records 
-        :param filter: A pyarrow filter(https://arrow.apache.org/docs/python/generated/pyarrow.dataset.Expression.html#pyarrow.dataset.Expression)
+        :param query_expression: A pyarrow filter(https://arrow.apache.org/docs/python/generated/pyarrow.dataset.Expression.html#pyarrow.dataset.Expression)
         :param columns: A list of column names
         """
         dataset = ds.dataset(self.datalake_root / 'curated' / 'final')
-        df = dataset.filter(query_expression).to_table(columns=columns).to_pandas()
+        return dataset.filter(query_expression).to_table(columns=columns).to_pandas()
 
-        return df
 
     def clean_data(self):
         """
