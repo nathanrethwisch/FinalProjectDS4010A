@@ -57,3 +57,39 @@ So far, we are progressing nicely towards our project goals – we have started 
   - We have a lot of research ahead of us in modeling GIS data. 
 
   - The team is communicating very well and everyone knows what they need to do for the next week or so. 
+
+## 2025-03-03: Exploratory Analysis Milestone
+### Project Progress
+Individual Progress: 
+
+- Nathan – This week, I worked on learning ArcGIS. I created a sample dashboard for use going forward and created some summary statistics using the software. 
+- Dhruv – This week, I have been working on reducing the size of the NOAA weather data by removing unneeded variables and records. I want to have finalized read-only tables uploaded to onedrive and github by 2025/03/04 
+- Colin - This week, I finalized the Fire Occurrence data by cleaning the cause of fires and adjusting the lon/lat of origin. I also have done some exploratory analysis in R using the packages ‘sp’ (which is compatible with ArcGIS) and ‘leaflet’. 
+- Thanh - This week, I worked on exploratory data analysis for the USFS fire occurrence and perimeter datasets. I created several preliminary visualizations to examine the climate conditions around when wildfires begin to spread. 
+ 
+Every team member has access to the ArcGIS dashboard and will have access to the weather data by the end of this weekend. Going forward, we are going to try to load the weather data in ArcGIS to be sure that ArcGIS can handle this large dataset and create visualizations around them. We will also start running simple models in Python to see what kinds of predictions we get. In terms of roadblocks, we are going pretty smoothly. There may be some anticipated roadblocks with the size of the data, but we’re prepared to face these by reducing the size of the data, and using libraries which lazy-load data. Going forward, each member has a role – Dhruv is exploring the weather data in ArcGIS, Nathan is doing some simple dashboarding, Colin is cleaning the weather data and looking into models, and Thanh is pulling soil data via an API. 
+
+We have also switched from a sms group chat to MS Teams to avoid some communication issues. 
+
+### Exploratory Analysis 
+We’ve had to do some cleaning with the wildfire data. Specifically, we’ve had to remove outliers for the longitude and latitude coordinates that were inaccurate or outside of the United States. We’ve visualized historical wildfires, and this will likely be added as a final layer to our dashboard. Other summary statistics, such as the total number of acres burned, wildfires by year, and wildfires by cause, were also graphed. We were surprised to find less wildfires in recent years, as well as not many fires caused by arson (only 23 in the dataset). The two exploratory plots shown are examples of some of the cleaning that we did for wildfire causes.
+![Exploratory Analysis 1](https://github.com/user-attachments/assets/4badd6f6-23f9-4a76-aa71-625d828941d5) ![Exploratory Analysis 2](https://github.com/user-attachments/assets/103cc9f5-f510-4308-a687-d55c2b954350)
+
+### Brainstorm Dashboard
+Our dashboard is trying to identify areas where wildfires are predicted to happen and potentially the severity of such wildfires. We are looking at using heatmaps within ArcGIS to achieve this goal. Ideally, a user could select an area on the map and pull up summary statistics for that area from weather patterns, soil, and historical wildfires. It will also give a number or summary statistic from our machine-learning model summarizing the likelihood of a fire. We have started to play with the dashboarding tool in ArcGIS, which also has been nice for creating summary statistics. The attached image shows an example of what the dashboard could look like. Right now, it just shows summaries of historical wildfires, but our goal would be to have it show future wildfire predictions. There are also filtering tools that we may want to include, like filtering by areas of high/low precipitation, high/low wind, etc. 
+![example dashboard](https://github.com/user-attachments/assets/2d4e5ee8-7a55-4a81-92a4-cb4bae34ee75)
+
+### Data Report 
+One struggle that we’ve been facing is that the data we have, specifically the weather data is very large. However, we’ve been able to load this data and get it in a somewhat manageable format.  
+
+NOAA Global Historical Climatology Network daily(GHCNd) data: 
+The raw data has been downloaded and processed into a typed format. We have also filtered weather station location for US, Canadian, and Mexican stations. The final 2 steps are to join the North American stations with the weather records, and to filter nulls and convert value units to US Imperial Units 
+Sources/tables: 
+Stations.txt: fixed-width file processed by pandas and stored as parquet 
+Superghcnd: a directory of csv.gz files, each representing a single year of observations. Has been processed into parquets, and transformed to include each type of observation as a separate variable. 
+Finalized data: drop all superghcnd record not from North America  
+Once completed a final metadata/codebook will be placed in repo. 
+
+USFS Wildfire data:  The data has been downloaded as a csv and cleaned. We have plotted it via ArcGIS, and it is in a usable format for further work/predictions. 
+
+
