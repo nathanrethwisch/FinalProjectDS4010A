@@ -176,3 +176,4 @@ cython_debug/
 .vs/
 .code/
 
+data/ghcnd/
