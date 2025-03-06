@@ -1,0 +1,314 @@
+[33mcommit 640c5fb55fdd599f8770b9eeedf859442cda6f0f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfire-join[m[33m)[m
+Author: tanh-x <kewber0@gmail.com>
+Date:   Thu Mar 6 23:02:14 2025 +0000
+
+    sync
+
+[33mcommit 0bc2d7fae09a73e920929a7e7748f31f8ebc2ef5[m
+Author: tanh-x <kewber0@gmail.com>
+Date:   Thu Mar 6 23:00:47 2025 +0000
+
+    Track NE1_50M_SR_W.tif with Git LFS
+
+[33mcommit f086c020ad35cd3aa38cf962bff9f9d456ea0465[m
+Author: tanh-x <kewber0@gmail.com>
+Date:   Thu Mar 6 22:59:30 2025 +0000
+
+    setup for gNATSGO soil data, prepare for join
+
+[33mcommit 8010f0f66260323abf191198b1ff8d196288b529[m[33m ([m[1;31morigin/fire-join[m[33m)[m
+Author: tanh-x <kewber0@gmail.com>
+Date:   Thu Mar 6 15:27:03 2025 -0600
+
+    Fire occurrence data visualization in py
+
+[33mcommit 4d60f3dc0f55f2d4426ddf39d1a1ca847d94f2f1[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m
+Author: Dhruv Dole <dhruv.dole@sdole.com>
+Date:   Wed Feb 26 10:43:42 2025 -0600
+
+    added new scripts for ghcnd
+
+[33mcommit f1cfa8ae6bf70b501f74e0764f00c5edc9619faa[m
+Author: Nathan Rethwisch <90426583+nathanrethwisch@users.noreply.github.com>
+Date:   Fri Feb 21 16:26:08 2025 -0600
+
+    Update MILESTONE.md 2-21-2025
+
+[33mcommit c2d7cdf26dcf39d1e8b7e84c6951384af7052c7a[m
+Author: nathanrethwisch <nreth@iastate.edu>
+Date:   Thu Feb 20 10:01:34 2025 -0600
+
+    Updating ghcnd.py to have double quotes around bucket
+
+[33mcommit 8c680d9e7c18ed6098c79b9b8c66f02fef85ba5c[m
+Author: Dhruv Dole <dsdole@iastate.edu>
+Date:   Wed Feb 19 10:34:42 2025 -0600
+
+    removed old weather data.
+
+[33mcommit 845d9993dfefb3e1aa461e31982f807d30c9cd14[m
+Author: Dhruv Dole <dsdole@iastate.edu>
+Date:   Wed Feb 19 10:11:42 2025 -0600
+
+    added overwrite flag
+
+[33mcommit 851067a367d15b2f1803862d30b55c06007c172b[m
+Author: Dhruv Dole <dsdole@iastate.edu>
+Date:   Wed Feb 19 10:00:24 2025 -0600
+
+    restructure
+
+[33mcommit 625469413582713d40b74e3458d6c518d7aeaabc[m
+Merge: a0bfa2c 86e8d59
+Author: Dhruv Dole <dhruv.dole@sdole.com>
+Date:   Mon Feb 17 19:12:14 2025 -0600
+
+    Merge branch 'ghcnd'
+
+[33mcommit 86e8d59e0227daebcdb8e2741b0d62b8903d10b5[m[33m ([m[1;31morigin/ghcnd[m[33m)[m
+Author: Dhruv Dole <dhruv.dole@sdole.com>
+Date:   Mon Feb 17 19:10:35 2025 -0600
+
+    Created script to download and process GHCND data
+
+[33mcommit a0bfa2c635bd7b91bcc1719ad9ef90dbfc2f0178[m
+Merge: d1159b9 c7b8a28
+Author: nathanrethwisch <nreth@iastate.edu>
+Date:   Mon Feb 17 12:38:36 2025 -0600
+
+    Merge branch 'main' of https://github.com/nathanrethwisch/FinalProjectDS4010A
+
+[33mcommit d1159b97a9b43158cf9bea7ca793b39cb34d295c[m
+Author: nathanrethwisch <nreth@iastate.edu>
+Date:   Mon Feb 17 12:38:33 2025 -0600
+
+    Cleaning points that do not exist within the US
+
+[33mcommit b355c0998ca22da270f53f42db545dbc3c06221f[m
+Author: Dhruv Dole <dsdole@iastate.edu>
+Date:   Mon Feb 17 10:35:51 2025 -0600
+
+    working on downloads
+
+[33mcommit 2728474c42c5bbf91a6a9b51dd8739dff1d27182[m
+Author: Dhruv Dole <dsdole@iastate.edu>
+Date:   Sat Feb 15 10:42:27 2025 -0600
+
+    added csv streaming
+
+[33mcommit 4c3b7c73a492b0c0a1134452004b61e152fcc343[m
+Author: Dhruv Dole <dsdole@iastate.edu>
+Date:   Sat Feb 15 10:41:52 2025 -0600
+
+    added csv streaming
+
+[33mcommit c7b8a28ec3ebbfec7e1e2a802252966930df4c17[m
+Author: Nathan Rethwisch <90426583+nathanrethwisch@users.noreply.github.com>
+Date:   Fri Feb 14 10:44:30 2025 -0600
+
+    Update MILESTONE.md
+
+[33mcommit d31e5e9a1909f5035ed4e40bc4842168a72da1f8[m
+Author: Nathan Rethwisch <90426583+nathanrethwisch@users.noreply.github.com>
+Date:   Fri Feb 14 10:29:32 2025 -0600
+
+    Create README for src files
+
+[33mcommit d681feae37497cdb201321a1947cec3a3a4f9ba0[m
+Author: Nathan Rethwisch <90426583+nathanrethwisch@users.noreply.github.com>
+Date:   Fri Feb 14 09:54:16 2025 -0600
+
+    Update README.md
+
+[33mcommit 546a840b5593e92d1859ef3bd01edee87877ed96[m
+Author: Nathan Rethwisch <90426583+nathanrethwisch@users.noreply.github.com>
+Date:   Fri Feb 14 09:52:57 2025 -0600
+
+    Create MILESTONE.md
+
+[33mcommit b4f628c45ea5cc9397ac5b5a0cec62b545807403[m
+Author: nathanrethwisch <nreth@iastate.edu>
+Date:   Fri Feb 14 01:17:50 2025 -0600
+
+    Adding some basic data visualization and converting the cleaning file to a .R file
+
+[33mcommit 53b7a54659f315380706cc406c8fb654ab7e1cce[m
+Author: Dhruv Dole <dsdole@iastate.edu>
+Date:   Wed Feb 12 14:06:49 2025 -0600
+
+    removed unnecessary abstraction
+
+[33mcommit 8f34aee6b61f8a5923c9b6353bc073bc36ffc8f8[m
+Merge: 5bd11db d1328ff
+Author: Dhruv Dole <dsdole@iastate.edu>
+Date:   Wed Feb 12 14:05:16 2025 -0600
+
+    Merge remote-tracking branch 'origin/main'
+
+[33mcommit 5bd11dbb98f49e34a2f5e6587faf5799fed8247b[m
+Author: Dhruv Dole <dsdole@iastate.edu>
+Date:   Wed Feb 12 14:05:07 2025 -0600
+
+    Added script to download superghcnd.
+
+[33mcommit d1328fff9544193b213cf800b45edb0a95e404af[m
+Author: colinrussell5 <123406012+colinrussell5@users.noreply.github.com>
+Date:   Wed Feb 12 10:44:59 2025 -0600
+
+    Update cleaning
+
+[33mcommit 349d6e69a8de53fec67cdfc3779642e151708fd3[m
+Author: colinrussell5 <123406012+colinrussell5@users.noreply.github.com>
+Date:   Wed Feb 12 10:43:33 2025 -0600
+
+    Create cleaning
+
+[33mcommit 544f7ac91b76e858c6637bc9f5d1f1e22220380d[m
+Author: colinrussell5 <123406012+colinrussell5@users.noreply.github.com>
+Date:   Wed Feb 12 10:38:40 2025 -0600
+
+    Delete data/raw/fireClean.R
+
+[33mcommit eea1d088d1c8bf038e5f6b23e6c79220ea6e09d8[m
+Author: colinrussell5 <123406012+colinrussell5@users.noreply.github.com>
+Date:   Wed Feb 12 10:31:17 2025 -0600
+
+    Add files via upload
+
+[33mcommit a1764cabf77bb71925f3fd1473c38490205211b7[m
+Author: Dhruv Dole <dsdole@iastate.edu>
+Date:   Wed Feb 12 10:06:52 2025 -0600
+
+    deleted LFS .dlys
+
+[33mcommit 8364c033ea6f9bc6ae2714fbc438e4ff5cac3c1e[m
+Author: Dhruv Dole <dsdole@iastate.edu>
+Date:   Wed Feb 12 10:02:37 2025 -0600
+
+    added pip requirements.txt
+
+[33mcommit 438de40eaf44936fd8d59dbd8615252dc26d207a[m
+Author: Dhruv Dole <dsdole@iastate.edu>
+Date:   Wed Feb 12 09:55:52 2025 -0600
+
+    created pipelines dir
+
+[33mcommit 4f7cf16987013f790ca810f011a0b17505835b5c[m
+Author: Nathan Rethwisch <90426583+nathanrethwisch@users.noreply.github.com>
+Date:   Sun Feb 9 21:53:12 2025 -0600
+
+    Update README.md
+
+[33mcommit 299a8eff6f3a7edd49e2f3ea77b24b78e02c61a1[m
+Author: Thanh <kewber0@gmail.com>
+Date:   Sun Feb 9 19:54:50 2025 -0600
+
+    API description
+
+[33mcommit 993b4a0cb8e653c84fd531902882bfbb3fee728f[m
+Author: Thanh <kewber0@gmail.com>
+Date:   Sun Feb 9 19:46:28 2025 -0600
+
+    Open-Meteo API call + updated .gitignore
+
+[33mcommit 022a73c3ffb615c5f571bfd29d1c27942cd27ef7[m
+Author: Dhruv Dole <dhruv@ddole.net>
+Date:   Sun Feb 9 16:08:36 2025 -0600
+
+    Update README.md
+
+[33mcommit 7e0abbc0c7eb5d8aab95ea4f938589a4a127081d[m
+Author: Nathan Rethwisch <90426583+nathanrethwisch@users.noreply.github.com>
+Date:   Sun Feb 9 11:16:15 2025 -0600
+
+    Update README.md for data folder
+
+[33mcommit a04e996938a3fda4b9a42ddaf4f7582a5fe1653a[m
+Author: Nathan Rethwisch <90426583+nathanrethwisch@users.noreply.github.com>
+Date:   Sun Feb 9 11:14:55 2025 -0600
+
+    README.md project summary
+
+[33mcommit 8ba17ccac7770681e2599f4f2fab018b37de6e0c[m
+Author: Dhruv Dole <dsdole@iastate.edu>
+Date:   Sun Feb 9 10:31:51 2025 -0600
+
+    added readme
+
+[33mcommit a927efc50b688aea58111d604e33237c195e16df[m
+Author: Dhruv Dole <dsdole@iastate.edu>
+Date:   Sun Feb 9 10:28:31 2025 -0600
+
+    added noaa ghcnd metadata and sample
+
+[33mcommit 3afe6717b1dcc289ca098fb4bbb26fa343e4bac7[m
+Author: colinrussell5 <123406012+colinrussell5@users.noreply.github.com>
+Date:   Fri Feb 7 11:40:59 2025 -0600
+
+    Create Fire_Perimiter_README.md
+
+[33mcommit 2f769cfea8269a54dfb7d174c590d21ad4733fff[m
+Author: colinrussell5 <123406012+colinrussell5@users.noreply.github.com>
+Date:   Fri Feb 7 11:39:05 2025 -0600
+
+    Update and rename README.md to Fire_Occurence_README.md
+
+[33mcommit 5a7bd39c6544c9e4b83b1d0bc9a46c8689f5843c[m
+Author: Dhruv Dole <dsdole@iastate.edu>
+Date:   Fri Feb 7 10:38:20 2025 -0600
+
+    Added steps for data processing to README.md.
+
+[33mcommit 13e05aefb14d2bfca430da6f4adbe8aa8325e3e3[m
+Author: Nathan Rethwisch <90426583+nathanrethwisch@users.noreply.github.com>
+Date:   Fri Feb 7 10:34:50 2025 -0600
+
+    Create README.md
+
+[33mcommit a0a35ba37758a82e2ca76b1300c893917fef15d1[m
+Author: Nathan Rethwisch <90426583+nathanrethwisch@users.noreply.github.com>
+Date:   Fri Feb 7 10:27:03 2025 -0600
+
+    Create METADATA.md
+
+[33mcommit b611d9193bed8354e70142872fedb1b24cba254c[m
+Author: Nathan Rethwisch <90426583+nathanrethwisch@users.noreply.github.com>
+Date:   Fri Feb 7 10:26:08 2025 -0600
+
+    Create README.md
+
+[33mcommit 5e2d76f458c90c219a313676c845e6bac6e0af7e[m
+Author: Nathan Rethwisch <90426583+nathanrethwisch@users.noreply.github.com>
+Date:   Fri Feb 7 10:24:41 2025 -0600
+
+    Delete data/National_USFS_Fire_Occurrence_Point_(Feature_Layer).csv
+
+[33mcommit d8a1d2d4874f1fdd437bb7f1f5c49a5165ca3701[m
+Author: Nathan Rethwisch <90426583+nathanrethwisch@users.noreply.github.com>
+Date:   Fri Feb 7 10:24:21 2025 -0600
+
+    Delete data/National_USFS_Final_Fire_Perimeter_(Feature_Layer).csv
+
+[33mcommit db7b795fe2a61c34caa1461a438bb09a50671016[m
+Author: nathanrethwisch <nreth@iastate.edu>
+Date:   Fri Feb 7 10:18:35 2025 -0600
+
+    Adding a raw folder for the data
+
+[33mcommit 1efc000a3fe28740b729b1ada54be07ab6b2285d[m
+Author: nathanrethwisch <nreth@iastate.edu>
+Date:   Thu Feb 6 00:02:39 2025 -0600
+
+    Adding the wildfire datasets
+
+[33mcommit fbaabb86cf5a45528ccf0eb54eb5ea37c803e793[m
+Author: Nathan Rethwisch <90426583+nathanrethwisch@users.noreply.github.com>
+Date:   Wed Feb 5 10:29:42 2025 -0600
+
+    Update README.md
+
+[33mcommit 4729f49ca13748bee56a5619726bce02b548cbda[m
+Author: Nathan Rethwisch <90426583+nathanrethwisch@users.noreply.github.com>
+Date:   Fri Jan 31 10:06:34 2025 -0600
+
+    Initial commit
