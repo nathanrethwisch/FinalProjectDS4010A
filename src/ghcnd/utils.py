@@ -259,3 +259,14 @@ class GHCND:
             if os.path.exists(self.datalake_root / 'raw'):
                 print(f'REMOVING: {self.datalake_root / "raw"}')
                 shutil.rmtree(self.datalake_root / 'raw')
+
+# # Count the maximum memory usage of all the datafiles
+# mem_usage = []
+# years = range(1900, 2025+1)
+# for year in years:
+#     query = pc.field('year') == year
+#     mem_usage.append(ghcnd.query(query).memory_usage(deep=True))
+#
+# mem_usage = pd.DataFrame(mem_usage, index=years)
+# f'NOAA GHCND Max Memory Usage: {mem_usage.sum().sum() / 10 ** 9} GB'
+# data.memory_usage(deep=True).sum() / 10 ** 9

@@ -2,3 +2,5 @@
 data/truncated/* filter=lfs diff=lfs merge=lfs -text
 data/maps/* filter=lfs diff=lfs merge=lfs -text
 data/maps/NE1_50M_SR_W/NE1_50M_SR_W.tif filter=lfs diff=lfs merge=lfs -text
+*.csv.gz filter=lfs diff=lfs merge=lfs -text
+*.parquet filter=lfs diff=lfs merge=lfs -text
