@@ -1,22 +1,27 @@
 import os
 from pathlib import Path
-import pandas as pd
 
+import geopandas as gpd
+import pandas as pd
+import pyarrow.dataset as ds
 import requests
 
 paths = {"ghcnd_raw_stations": "raw/ghcnd/stations.txt", "ghcnd_raw_daily": "raw/ghcnd/daily/",
-    "ghcnd_clean_stations": "clean/ghcnd/stations.parquet", "ghcnd_clean_daily": "clean/ghcnd/daily/"}
+         "ghcnd_clean_stations": "clean/ghcnd/stations.parquet", "ghcnd_metadata": "clean/ghcnd/metadata.html",
+         "ghcnd_clean_daily": "clean/ghcnd/daily/"}
+
 ghcnd_sources = {"readme": "https://docs.opendata.aws/noaa-ghcn-pds/readme.html",
                  "stations": "https://noaa-ghcn-pds.s3.amazonaws.com/ghcnd-stations.txt",
                  "inventory": "https://noaa-ghcn-pds.s3.amazonaws.com/ghcnd-inventory.txt",
                  "bucket": "https://noaa-ghcn-pds.s3.amazonaws.com"}
-years = (2000, 2002)
+years = (2000, 2025)
+elements = ['PRCP', 'SNOW', 'SNWD', 'TMAX', 'TMIN', 'AWND']
+datalake_root = Path('../lake')
 
 
 class Datalake:
     def __init__(self):
-        # self.datalake_root = Path(input("where?"))
-        self.datalake_root = Path('../lake')
+        pass  # self.datalake_root = Path(input("where?"))
 
     def initialize(self):
         self._create_subdirectory('raw')
@@ -49,45 +54,65 @@ class Datalake:
                     file.write(chunk)
         pass
 
-    def _create_subdirectory(self, relative_path):
+    @staticmethod
+    def _create_subdirectory(relative_path):
         """
         Creates a directory using paths relative to the datalake root
         :param relative_path:
         """
-        path = self.datalake_root / relative_path
+        path = datalake_root / relative_path
         if not os.path.exists(path):
             os.makedirs(path)
             print(f'{relative_path} folder created')
         else:
             print(f'{relative_path} folder already exists')
 
-    def get_final_dataset_path(self):
-        return self.datalake_root / paths["ghcnd_clean_stations"]
-
     def erase(self):
         pass
 
     def download_ghcnd(self):
+        self._download_file(ghcnd_sources["readme"], datalake_root / paths["ghcnd_metadata"])
         # download stations
-        self._download_file(ghcnd_sources['stations'], self.datalake_root / paths["ghcnd_raw_stations"])
+        self._download_file(ghcnd_sources['stations'], datalake_root / paths["ghcnd_raw_stations"])
         # download daily
         for year in range(years[0], years[1] + 1):
             file_url = f'{ghcnd_sources["bucket"]}/csv.gz/by_year/{year}.csv.gz'
-            dest_path = self.datalake_root / paths['ghcnd_raw_daily'] / f'{year}.csv.gz'
+            dest_path = datalake_root / paths['ghcnd_raw_daily'] / f'{year}.csv.gz'
             self._download_file(file_url, dest_path)
 
-    def clean_ghcnd_stations(self):
-        clean_stations_file(self.datalake_root / paths["ghcnd_raw_stations"],
-                            self.datalake_root / paths["ghcnd_clean_stations"])
+    @staticmethod
+    def clean_ghcnd_stations():
+        print('CLEANING GHCND STATIONS')
+        clean_stations_file(datalake_root / paths["ghcnd_raw_stations"], datalake_root / paths["ghcnd_clean_stations"])
 
-    def clean_daily(self):
+    @staticmethod
+    def clean_daily():
         for year in range(years[0], years[1] + 1):
-            clean_daily_file(self.datalake_root / paths["ghcnd_raw_daily"] / f'{year}.csv.gz',
-                             self.datalake_root / paths["ghcnd_clean_daily"] / f'{year}.parquet')
+            print(f'CLEANING DAILY: {year}')
+            clean_daily_file(datalake_root / paths["ghcnd_raw_daily"] / f'{year}.csv.gz',
+                             datalake_root / paths["ghcnd_clean_daily"] / f'{year}.parquet')
 
-    def query(self):
-        pass
+    @staticmethod
+    def query_ghcnd(query_expression, columns=None):
+        if columns and 'geometry' not in columns:
+            return ValueError("Columns list is provided but does not contain 'geometry'!")
+        else:
+            dataset = ds.dataset(datalake_root / paths["ghcnd_clean_daily"])
+            return gpd.GeoDataFrame.from_arrow(dataset.filter(query_expression).to_table(columns=columns)).set_crs(
+                epsg=4326)
 
+    @staticmethod
+    def query_fire_point(query_expression, columns=None):
+        return NotImplemented
+
+    @staticmethod
+    def query_fire_perimeter(query_expression, columns=None):
+        return NotImplemented
+
+    @staticmethod
+    def get_us_states():
+        return gpd.read_file(datalake_root / "clean/maps/cb_2023_us_all_500k.gdb",
+                             layer='cb_2023_us_state_500k').to_crs(epsg=4326)
 
 def clean_stations_file(raw_path, clean_path):
     """
@@ -113,32 +138,61 @@ def clean_stations_file(raw_path, clean_path):
     stations.to_parquet(clean_path)
 
 
-def drop_stations(df):
-    # stations = pd.read_parquet(lake.)
-    pass
-
-
-def drop_daily_columns(df):
-    pass
+def get_stations():
+    stations = pd.read_parquet(datalake_root / paths["ghcnd_clean_stations"])
+    us_stations = stations[stations['station_id'].str.startswith('US')]
+    ca_stations = stations[stations['station_id'].str.startswith('CA')]
+    mx_stations = stations[stations['station_id'].str.startswith('MX')]
+    wanted = pd.concat([us_stations, ca_stations, mx_stations])
+    return wanted
 
 
 def process_dates(df):
-    pass
+    df['date'] = pd.to_datetime(df['date'], format='%Y%m%d')
+    df['year'] = df['date'].dt.year
+    df['month'] = df['date'].dt.month
+    df['day'] = df['date'].dt.day
+    return df
+
+
+def drop_daily_columns(df):
+    df.drop(columns=['time', 'date', 'm_flag', 'q_flag', 's_flag'], inplace=True)
+    return df
+
 
 def create_element_tables(df):
-    pass
+    element_tables = []
+    for element in elements:
+        element_df = df[df['element'] == element].drop(columns=['element'])
+        element_df = element_df[['station_id', 'year', 'month', 'day', 'value']]
+        element_df.columns = ['station_id', 'year', 'month', 'day', element.lower()]
+        element_tables.append(element_df)
+    return element_tables
 
-def join_element_tables(df):
-    pass
 
-def join_stations_elements(df):
-    pass
+def join_element_tables(element_tables):
+    left = element_tables[0]
+    for i in range(1, len(element_tables)):
+        right = element_tables[i]
+        left = pd.merge(left, right, on=['station_id', 'year', 'month', 'day'], how='outer')
+    return left
+
+
+def join_stations_elements(df, stations):
+    df = pd.merge(df, stations, how='inner', on='station_id')
+    return df
+
 
 def drop_station_columns(df):
-    pass
+    df.drop(columns=['name'], inplace=True)
+    return df
+
 
 def generate_geometries(df):
-    pass
+    gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs='EPSG:4326')
+    gdf.drop(columns=['longitude', 'latitude'], inplace=True)
+    return gdf
+
 
 def clean_daily_file(raw_path, clean_path):
     """
@@ -153,22 +207,20 @@ def clean_daily_file(raw_path, clean_path):
                      names=['station_id', 'date', 'element', 'value', 'm_flag', 'q_flag', 's_flag', 'time'],
                      dtype=daily_dtypes, engine='pyarrow')
     # daily file cleaning steps:
-    # 1. drop all non-North_American Stations
-    df = drop_stations(df)
-    # 2. drop unwanted columns
-    df = drop_daily_columns(df)
     # 4. process dates
     df = process_dates(df)
+    # 2. drop unwanted columns
+    df = drop_daily_columns(df)
     # 5. create element table
     df = create_element_tables(df)
     # 6. join elements into single table
     df = join_element_tables(df)
     # 7. join with stations
-    df = join_stations_elements(df)
+    df = join_stations_elements(df, get_stations())
     # 8. drop unwanted columns
     df = drop_station_columns(df)
     # 9. generate geometries
     gdf = generate_geometries(df)
-    gdf.to_parquet()
+    gdf.to_parquet(clean_path)
 
     # 10. write to disk
