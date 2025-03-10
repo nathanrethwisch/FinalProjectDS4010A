@@ -40,6 +40,7 @@ So far, we are progressing nicely towards our project goals – we have started 
 
 ### Exploratory Analysis
 - So far, we have been plotting the wildfire data using R’s leaflet package. Here’s an example of the plotting of some wildfire location
+
 ![wildfire locations](https://github.com/user-attachments/assets/b7140fe6-b3e6-416f-b2a3-90fbd20693a8)
 - However, going forward, we probably want to move towards using geopandas in Python and more ArcGIS tools, as that is what we want our dashboard to run on. Therefore, this specific plot will probably not be included in our final dashboard, but we will have very similar plots that overlay predictions and/or past data. 
 
@@ -95,13 +96,15 @@ USFS Wildfire data:  The data has been downloaded as a csv and cleaned. We have 
 ## 2025-03-09: Brainstorm Dashboard Milestone
 
 ### Project Progress
-This week, we worked on getting ready to run some models. Although we don’t have a model picked out, we wanted to get to a point where we could start thinking about what types of models we want to use. First, all of the weather and fire data is cleaned and pushed, and we have been able to query both by year and location. One idea that we had was to use a box around fire locations and create summary statistics within that box to predict whether or not a fire would occur. 
+This week, we worked on getting ready to run some models. Although we don’t have a model picked out, we wanted to get to a point where we could start thinking about what types of models we want to use. First, all of the weather and fire data is cleaned and pushed, and we have been able to query both by year and location. One idea that we had was to use a box around fire locations and create summary statistics within that box to predict whether or not a fire would occur.
+
 ![ProjectProgress3-9](https://github.com/user-attachments/assets/645a4470-cc9d-4410-a36b-c6f605427c3a)
 
 In this upcoming week, we hope to have a model picked out and run to analyze the results and see what changes we need to make. We also have talked about limiting our data to a specific area such as California, so we may start with modeling that small area to see what results we get. Overall, the team is communicating well when moving to Teams. Everyone has put in good work this week and understands what they need to do to keep moving forward. We have all been researching models to use and hope to start running in the next few weeks.
 
 ### Brainstorm Dashboard
 A few things have changed on our dashboard, but it remains relatively similar. We have updated the sample dashboard with the cleaned fire data, and this can be seen below:
+
 ![ExampleDashboard3-9](https://github.com/user-attachments/assets/30a18b5c-7de3-441a-b268-1741c5710399)
 
 We’re interested in using ArcGIS Pro for dashboarding as this will have better functionality for loading in this large dataset. Because the large size of our data, we are likely going to have to use Geopandas or an R alternative to plot locally. We then will be creating models and plotting the output of our predictions using ArcGIS. This will limit the amount of data that will needed to be pushed to ArcGIS while still allowing us to use its dashboard functionality. 
@@ -113,6 +116,7 @@ We’re interested in using ArcGIS Pro for dashboarding as this will have better
 -	Our biggest issue right now is finding a way to relate our predictor and response datasets together. We need to spatially join records. This is complicated due to the fact that many different dates’ weather records will be directly related to a single fire occurrence.
 -	We are considering two questions(we will choose based on which one is more achievable): What is the probability of a fire occurring at a given point and time? What is the predicted severity of a fire?
 - Sketch:
+
 ![SketchModel3-9](https://github.com/user-attachments/assets/80711d96-e966-4b19-9b99-56b915ddb10a)
  
 ### Team Mini Milestone - Finalize Data
