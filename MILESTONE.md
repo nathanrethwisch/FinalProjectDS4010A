@@ -40,6 +40,7 @@ So far, we are progressing nicely towards our project goals – we have started 
 
 ### Exploratory Analysis
 - So far, we have been plotting the wildfire data using R’s leaflet package. Here’s an example of the plotting of some wildfire location
+
 ![wildfire locations](https://github.com/user-attachments/assets/b7140fe6-b3e6-416f-b2a3-90fbd20693a8)
 - However, going forward, we probably want to move towards using geopandas in Python and more ArcGIS tools, as that is what we want our dashboard to run on. Therefore, this specific plot will probably not be included in our final dashboard, but we will have very similar plots that overlay predictions and/or past data. 
 
@@ -87,9 +88,40 @@ The raw data has been downloaded and processed into a typed format. We have also
 Sources/tables: 
 Stations.txt: fixed-width file processed by pandas and stored as parquet 
 Superghcnd: a directory of csv.gz files, each representing a single year of observations. Has been processed into parquets, and transformed to include each type of observation as a separate variable. 
-Finalized data: drop all superghcnd record not from North America  
-Once completed a final metadata/codebook will be placed in repo. 
+Finalized data: drop all superghcnd records not from North America  
+Once completed, a final metadata/codebook will be placed in the repo. 
 
 USFS Wildfire data:  The data has been downloaded as a csv and cleaned. We have plotted it via ArcGIS, and it is in a usable format for further work/predictions. 
+
+## 2025-03-09: Brainstorm Dashboard Milestone
+
+### Project Progress
+This week, we worked on getting ready to run some models. Although we don’t have a model picked out, we wanted to get to a point where we could start thinking about what types of models we want to use. First, all of the weather and fire data is cleaned and pushed, and we have been able to query both by year and location. One idea that we had was to use a box around fire locations and create summary statistics within that box to predict whether or not a fire would occur.
+
+![ProjectProgress3-9](https://github.com/user-attachments/assets/645a4470-cc9d-4410-a36b-c6f605427c3a)
+
+In this upcoming week, we hope to have a model picked out and run to analyze the results and see what changes we need to make. We also have talked about limiting our data to a specific area such as California, so we may start with modeling that small area to see what results we get. Overall, the team is communicating well when moving to Teams. Everyone has put in good work this week and understands what they need to do to keep moving forward. We have all been researching models to use and hope to start running in the next few weeks.
+
+### Brainstorm Dashboard
+A few things have changed on our dashboard, but it remains relatively similar. We have updated the sample dashboard with the cleaned fire data, and this can be seen below:
+
+![ExampleDashboard3-9](https://github.com/user-attachments/assets/30a18b5c-7de3-441a-b268-1741c5710399)
+
+We’re interested in using ArcGIS Pro for dashboarding as this will have better functionality for loading in this large dataset. Because the large size of our data, we are likely going to have to use Geopandas or an R alternative to plot locally. We then will be creating models and plotting the output of our predictions using ArcGIS. This will limit the amount of data that will needed to be pushed to ArcGIS while still allowing us to use its dashboard functionality. 
+
+### Finalize Data Models
+-	We have not yet begun modelling, so we have nothing to say yet on model types or hyperparameters.
+-	The response is numeric: either the size of the fire or the probability of a fire occurring.
+-	There are many predictors: at least 5 different weather measurements including precipitation, temperatures, and humidity. We also have variables for soil moisture content.
+-	Our biggest issue right now is finding a way to relate our predictor and response datasets together. We need to spatially join records. This is complicated due to the fact that many different dates’ weather records will be directly related to a single fire occurrence.
+-	We are considering two questions(we will choose based on which one is more achievable): What is the probability of a fire occurring at a given point and time? What is the predicted severity of a fire?
+- Sketch:
+
+![SketchModel3-9](https://github.com/user-attachments/assets/80711d96-e966-4b19-9b99-56b915ddb10a)
+ 
+### Team Mini Milestone - Finalize Data
+MILESTONE: Finalize all data access: make sure variable datatypes are set. All datasets should be stored as parquet (preserves types). Data(except for ghcnd) should be uploaded to Github. NOAA GHCND pipeline scripts should be working for all team members and helper functions for querying should be tested and uploaded to github.
+
+PROGRESS: The NOAA GHCND dataset’s pipelines and helpers are working. As we write reports and test models, we will upload the subset of data used for that report into the github repo. The fire data has been cleaned and saved as a parquet file as well. We have successfully been able to query both datasets, and data types seem to be set. We are now ready to start running models and see how our data responds.
 
 
