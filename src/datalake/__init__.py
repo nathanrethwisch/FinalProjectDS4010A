@@ -1,6 +1,9 @@
+import json
 import os
+from io import StringIO
 from pathlib import Path
-
+from shapely.geometry import shape, Polygon, mapping
+from shapely.validation import make_valid
 import geopandas as gpd
 import pandas as pd
 import pyarrow.dataset as ds
@@ -8,7 +11,10 @@ import requests
 
 paths = {"ghcnd_raw_stations": "raw/ghcnd/stations.txt", "ghcnd_raw_daily": "raw/ghcnd/daily/",
          "ghcnd_clean_stations": "clean/ghcnd/stations.parquet", "ghcnd_metadata": "clean/ghcnd/metadata.html",
-         "ghcnd_clean_daily": "clean/ghcnd/daily/"}
+         "ghcnd_clean_daily": "clean/ghcnd/daily/",
+         "fire_point_raw": "raw/fire_occurrence_point/National_USFS_Fire_Occurrence_Point_(Feature_Layer).geojson",
+         "fire_perimeter_raw": "raw/fire_perimeter/National_USFS_Fire_Perimeter_(Feature_Layer).geojson",
+         "fire_perimeter_cleaned" : "clean/fire_perimeter/National_USFS_Fire_Perimeter_(Feature_Layer).parquet",}
 
 ghcnd_sources = {"readme": "https://docs.opendata.aws/noaa-ghcn-pds/readme.html",
                  "stations": "https://noaa-ghcn-pds.s3.amazonaws.com/ghcnd-stations.txt",
@@ -17,6 +23,25 @@ ghcnd_sources = {"readme": "https://docs.opendata.aws/noaa-ghcn-pds/readme.html"
 years = (2000, 2025)
 elements = ['PRCP', 'SNOW', 'SNWD', 'TMAX', 'TMIN', 'AWND']
 datalake_root = Path('../lake')
+
+
+def read_geojson(path):
+    print("READING/REPAIRING GEOJSON ")
+    with open(path, 'r') as f:
+        data = json.load(f)
+    for feature in data['features']:
+        try:
+            geometry = shape(feature['geometry'])
+            if not geometry.is_valid:
+                geometry = make_valid(geometry)
+            feature['geometry'] = mapping(geometry)
+        except Exception as e:
+            print(f"Error processing geometry: {e}")
+            feature['geometry'] = mapping(Polygon())  # Replace with an empty polygon
+    geojson_str = json.dumps(data)
+    geojson_file = StringIO(geojson_str)
+    gdf = gpd.read_file(geojson_file).to_crs(epsg=4326)
+    return gdf
 
 
 class Datalake:
@@ -30,6 +55,10 @@ class Datalake:
         self._create_subdirectory('clean')
         self._create_subdirectory('clean/ghcnd')
         self._create_subdirectory('clean/ghcnd/daily')
+        self._create_subdirectory('raw/fire_occurrence_point')
+        self._create_subdirectory('raw/fire_perimeter')
+        self._create_subdirectory('clean/fire_occurrence_point')
+        self._create_subdirectory('clean/fire_perimeter')
 
     @staticmethod
     def _download_file(file_url, dest_path):
@@ -102,17 +131,28 @@ class Datalake:
                 epsg=4326)
 
     @staticmethod
-    def query_fire_point(query_expression, columns=None):
-        return NotImplemented
+    def query_fire_point(query_expression=None, columns=None):
+        return gpd.read_file(datalake_root / paths['fire_point_raw']).to_crs(
+            epsg=4326)  # TODO, wrap the r script and return the cleaned version
 
     @staticmethod
-    def query_fire_perimeter(query_expression, columns=None):
-        return NotImplemented
+    def query_fire_perimeter(query_expression=None, columns=None):
+        if columns and 'geometry' not in columns:
+            return ValueError("Columns list is provided but does not contain 'geometry'!")
+        else:
+            return gpd.read_parquet(datalake_root / paths['fire_perimeter_cleaned'], columns=columns)
 
     @staticmethod
     def get_us_states():
         return gpd.read_file(datalake_root / "clean/maps/cb_2023_us_all_500k.gdb",
                              layer='cb_2023_us_state_500k').to_crs(epsg=4326)
+
+    @staticmethod
+    def clean_fire_perimeter():
+        gdf = read_geojson(datalake_root / paths["fire_perimeter_raw"])
+
+        gdf.to_parquet(datalake_root / paths["fire_perimeter_cleaned"])
+
 
 def clean_stations_file(raw_path, clean_path):
     """
