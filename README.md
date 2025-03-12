@@ -13,6 +13,49 @@ To achieve this, we are pulling data from the United States Forest Service (USFS
 - The current folder structure contains a `/data` folder where our raw data and descriptions of the data are being housed.
 - Certain data sets involve API calls, such as the Open-Meteo Historical Weather data. The Python code for these API calls are located in `/py-notebooks`
 - Source code for cleaning and processing the data can be found under the `/src` folder.
+  .
+  └── root/
+  ├── .venv/
+  ├── data/
+  │   ├── raw/
+  │   │   ├── ghcnd/
+  │   │   │   ├── metadata.html
+  │   │   │   ├── daily/
+  │   │   │   │   ├── 1900.csv.gz
+  │   │   │   │   ├── ...
+  │   │   │   │   └── 2025.csv.gz
+  │   │   │   └── stations.txt
+  │   │   └── fire_point/
+  │   │       ├── raw.zip
+  │   │       └── "METADATA HERE!"
+  │   ├── curated/
+  │   │   ├── ghcnd/
+  │   │   │   ├── daily/
+  │   │   │   │   ├── 1900.parquet
+  │   │   │   │   ├── ...
+  │   │   │   │   └── 2025.parquet
+  │   │   │   ├── stations.parquet
+  │   │   │   └── METADATA.md
+  │   │   └── fire_point/
+  │   │       ├── fire_point.parquet
+  │   │       └── METADATA.md
+  │   └── tmp/
+  ├── py-notebooks/
+  ├── src/
+  │   ├── README.md
+  │   ├── ghcnd/
+  │   │   ├── README.md
+  │   │   ├── clean.py
+  │   │   ├── download.py
+  │   │   ├── transform.py
+  │   │   └── utils.py
+  │   └── fire-point/
+  │       └── ...
+  ├── MILESTONE.md
+  ├── README.md
+  ├── requirements.txt
+  ├── .gitignore
+  └── .gitattributes
 
 ## Data Processing
 The following steps highlight how we are planning to process the data used for this project:
