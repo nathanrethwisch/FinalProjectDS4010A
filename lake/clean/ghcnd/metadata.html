@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://assets.opendata.aws/css/bootstrap.min.css" integrity="sha384-QgMEqHzUTK+LoHUhEPkPPb5doQ7O2/sBRiq03GWdbo3k3eNPu/LMiRtrWI+SdVzu" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://assets.opendata.aws/css/awsod.css" integrity="sha384-R3tx9MF1TrCbr8BvINspZkVLKAXGzjuuWFAXRoySHLQ/YQ5gKwVZmaYOi9z1Or4D" crossorigin="anonymous">
+  <title>NOAA Global Historical Climatology Network Daily (GHCN-D)</title>
+</head>
+<body>
+  <div class="container">
+    <div class="col-md-8 col-md-offset-2">
+      <h1>NOAA Global Historical Climatology Network Daily (GHCN-D)</h1>
+
+<p>GHCN-Daily is a dataset that contains daily observations over global land areas. It contains station-based measurements from land-based stations worldwide, about two thirds of which are for precipitation measurements only (Menne et al., 2012). GHCN-Daily is a composite of climate records from numerous sources that were merged together and subjected to a common suite of quality assurance reviews (Durre et al., 2010). The archive includes the following meteorological elements:</p>
+
+<ul>
+<li>Daily maximum temperature</li>
+<li>Daily minimum temperature</li>
+<li>Temperature at the time of observation</li>
+<li>Precipitation (i.e., rain, melted snow)</li>
+<li>Snowfall</li>
+<li>Snow depth</li>
+<li>Other elements where available</li>
+</ul>
+
+<p>In this archive, the period of record station files are parsed into yearly files that contain all available GHCN-Daily station data for that year plus a time of observation field (where available—primarily for U.S. Cooperative Observers). The observation times for U.S. Cooperative Observer data come from the station history archived in NCDC’s Historical Observing Metadata Repository (HOMR). The files are updated daily on AWS to be in sync with updates to the GHCN-Daily dataset at NOAA.</p>
+
+<p>This document refers to two other files, ghcnd-stations.txt and ghcnd-inventory.txt, which are also stored in the noaa-ghcn-pds S3 bucket. You can get these files here:</p>
+
+<ul>
+<li><a href="http://noaa-ghcn-pds.s3.amazonaws.com/ghcnd-stations.txt">http://noaa-ghcn-pds.s3.amazonaws.com/ghcnd-stations.txt</a>: The ghcnd-stations file contains summary information for over 160000 stations used to create this dataset.</li>
+<li><a href="http://noaa-ghcn-pds.s3.amazonaws.com/ghcnd-inventory.txt">http://noaa-ghcn-pds.s3.amazonaws.com/ghcnd-inventory.txt</a>: The ghcnd-inventory file contains the periods of record for each station and element.</li>
+</ul>
+
+<h2 id="accessing-ghcn-d-data-on-aws">Accessing GHCN-D Data on AWS</h2>
+
+<p>The GHCH-D data are stored in the noaa-ghcn-pds bucket:</p>
+
+<p><a href="http://noaa-ghcn-pds.s3.amazonaws.com/">http://noaa-ghcn-pds.s3.amazonaws.com/</a></p>
+
+<p>The directory is structured by year from 1763 to present, with each file named after the respective year. The data are available in CSV file format and as .csv.gzip files, so any particular year will be named yyyy.csv and yyyy.csv.gz. For example to access the gziped version of the data for 1788 append 1788.csv.gz to the bucket URL:</p>
+
+<p><a href="http://noaa-ghcn-pds.s3.amazonaws.com/csv.gz/1788.csv.gz">http://noaa-ghcn-pds.s3.amazonaws.com/csv.gz/1788.csv.gz</a></p>
+
+<p>The uncompressed versions of the files can be accessed by using a slightly different URL and a filename ending with CSV. For example to access the uncompressed data for 1788 append 1788.csv to the bucket URL:</p>
+
+<p><a href="http://noaa-ghcn-pds.s3.amazonaws.com/csv/1788.csv">http://noaa-ghcn-pds.s3.amazonaws.com/csv/1788.csv</a></p>
+
+<p>If you use the AWS Command Line Interface, you can access the bucket with this command:</p>
+
+<p><code>aws s3 ls noaa-ghcn-pds</code></p>
+
+<p>The data set is updated daily.</p>
+
+<h2 id="summary-of-the-day-format">Summary of the Day Format</h2>
+
+<p>The yearly files are formatted so that every observation is represented by a single row with the following fields:</p>
+
+<ul>
+<li>ID = 11 character station identification code. Please see ghcnd-stations section below for an explantation</li>
+<li>YEAR/MONTH/DAY = 8 character date in YYYYMMDD format (e.g. 19860529 = May 29, 1986)</li>
+<li>ELEMENT = 4 character indicator of element type</li>
+<li>DATA VALUE = 5 character data value for ELEMENT</li>
+<li>M-FLAG = 1 character Measurement Flag</li>
+<li>Q-FLAG = 1 character Quality Flag</li>
+<li>S-FLAG = 1 character Source Flag</li>
+<li>OBS-TIME = 4-character time of observation in hour-minute format (i.e. 0700 =7:00 am)</li>
+</ul>
+
+<p>The fields are comma delimited and each row represents one station-day.</p>
+
+<h3 id="element-summary">ELEMENT Summary</h3>
+
+<p>The five core elements are:</p>
+
+<ul>
+<li>PRCP = Precipitation (tenths of mm)</li>
+<li>SNOW = Snowfall (mm)</li>
+<li>SNWD = Snow depth (mm)</li>
+<li>TMAX = Maximum temperature (tenths of degrees C)</li>
+<li>TMIN = Minimum temperature (tenths of degrees C)</li>
+</ul>
+
+<p>Please see the <strong>Full Explanation of Elements</strong> section below for a full description.</p>
+
+<h4 id="m-flag">M-FLAG</h4>
+
+<p>MFLAG is the measurement flag. There are ten possible values:</p>
+
+<ul>
+<li>Blank = no measurement information applicable</li>
+<li>B     = precipitation total formed from two 12-hour totals</li>
+<li>D     = precipitation total formed from four six-hour totals</li>
+<li>H     = represents highest or lowest hourly temperature (TMAX or TMIN) or the average of hourly values (TAVG)</li>
+<li>K     = converted from knots</li>
+<li>L     = temperature appears to be lagged with respect to reported hour of observation</li>
+<li>O     = converted from oktas</li>
+<li>P     = identified as &ldquo;missing presumed zero&rdquo; in DSI 3200 and 3206</li>
+<li>T     = trace of precipitation, snowfall, or snow depth</li>
+<li>W     = converted from 16-point WBAN code (for wind direction)</li>
+</ul>
+
+<h4 id="q-flag">Q-FLAG</h4>
+
+<p>Q-FLAG is the measurement quality flag. There are fourteen possible values:</p>
+
+<ul>
+<li>Blank = did not fail any quality assurance check</li>
+<li>D     = failed duplicate check</li>
+<li>G     = failed gap check</li>
+<li>I     = failed internal consistency check</li>
+<li>K     = failed streak/frequent-value check</li>
+<li>L     = failed check on length of multiday period</li>
+<li>M     = failed mega consistency check</li>
+<li>N     = failed naught check</li>
+<li>O     = failed climatological outlier check</li>
+<li>R     = failed lagged range check</li>
+<li>S     = failed spatial consistency check</li>
+<li>T     = failed temporal consistency check</li>
+<li>W     = temperature too warm for snow</li>
+<li>X     = failed bounds check</li>
+<li>Z     = flagged as a result of an official Datzilla Investigation</li>
+</ul>
+
+<h4 id="s-flag">S-FLAG</h4>
+
+<p>S-FLAG is the source flag for the observation. There are twenty nine possible values (including blank, upper and lower case letters):</p>
+
+<ul>
+<li>Blank = No source (i.e., data value missing)</li>
+<li>0     = U.S. Cooperative Summary of the Day (NCDC DSI-3200)</li>
+<li>6     = CDMP Cooperative Summary of the Day (NCDC DSI-3206)</li>
+<li>7     = U.S. Cooperative Summary of the Day &ndash; Transmitted via WxCoder3 (NCDC  SI-3207)</li>
+<li>A     = U.S. Automated Surface Observing System (ASOS) real-time data (since January 1, 2006)</li>
+<li>a     = Australian data from the Australian Bureau of Meteorology</li>
+<li>B     = U.S. ASOS data for October 2000-December 2005 (NCDC DSI-3211)</li>
+<li>b     = Belarus update</li>
+<li>C     = Environment Canada</li>
+<li>E     = European Climate Assessment and Dataset (Klein Tank et al., 2002)</li>
+<li>F     = U.S. Fort data</li>
+<li>G     = Official Global Climate Observing System (GCOS) or other government-supplied data</li>
+<li>H     = High Plains Regional Climate Center real-time data</li>
+<li>I     = International collection (non U.S. data received through personal contacts)</li>
+<li>K     = U.S. Cooperative Summary of the Day data digitized from paper observer forms (from 2011 to present)</li>
+<li>M     = Monthly METAR Extract (additional ASOS data)</li>
+<li>N     = Community Collaborative Rain, Hail,and Snow (CoCoRaHS)</li>
+<li>Q     = Data from several African countries that had been &ldquo;quarantined&rdquo;, that is, withheld from public release until permission was granted from the respective meteorological services</li>
+<li>R     = NCEI Reference Network Database (Climate Reference Network and Regional Climate Reference Network)</li>
+<li>r     = All-Russian Research Institute of Hydro-meteorological Information-World Data Center</li>
+<li>S     = Global Summary of the Day (NCDC DSI-9618)NOTE: &ldquo;S&rdquo; values are derived from hourly synoptic reports exchanged on the Global Telecommunications System (GTS). Daily values derived in this fashion may differ significantly from &ldquo;true&rdquo; daily data, particularly for precipitation (i.e., use with caution).</li>
+<li>s     = China Meteorological Administration/National Meteorological Information Center/Climatic Data Center (<a href="http://cdc.cma.gov.cn">http://cdc.cma.gov.cn</a>)</li>
+<li>T     = SNOwpack TELemtry (SNOTEL) data obtained from the U.S. Department of Agriculture&rsquo;s Natural Resources Conservation Service</li>
+<li>U     = Remote Automatic Weather Station (RAWS) data obtained from the Western Regional Climate Center</li>
+<li>u     = Ukraine update</li>
+<li>W     = WBAN/ASOS Summary of the Day from NCDC&rsquo;s Integrated          Surface Data (ISD).</li>
+<li>X     = U.S. First-Order Summary of the Day (NCDC DSI-3210)</li>
+<li>Z     = Datzilla official additions or replacements</li>
+<li>z     = Uzbekistan update</li>
+</ul>
+
+<p>When data are available for the same time from more than one source, the highest priority source is chosen according to the following priority order (from highest to lowest):
+ - Z,R,0,6,C,X,W,K,7,F,B,M,r,E,z,u,b,s,a,G,Q,I,A,N,T,U,H,S</p>
+
+<h2 id="full-explanation-of-the-elements-variable">Full Explanation of the Elements Variable</h2>
+
+<p>As mentioned above the five core elements are:</p>
+
+<ul>
+<li>PRCP = Precipitation (tenths of mm)</li>
+<li>SNOW = Snowfall (mm)</li>
+<li>SNWD = Snow depth (mm)</li>
+<li>TMAX = Maximum temperature (tenths of degrees C)</li>
+<li>TMIN = Minimum temperature (tenths of degrees C)</li>
+</ul>
+
+<p>The other elements are:</p>
+
+<ul>
+<li>ACMC = Average cloudiness midnight to midnight from 30-second ceilometer data (percent)</li>
+<li>ACMH = Average cloudiness midnight to midnight from manual observations (percent)</li>
+<li>ACSC = Average cloudiness sunrise to sunset from 30-second ceilometer data (percent)</li>
+<li>ACSH = Average cloudiness sunrise to sunset from manual observations (percent)</li>
+<li>AWDR = Average daily wind direction (degrees)</li>
+<li>AWND = Average daily wind speed (tenths of meters per second)</li>
+<li>DAEV = Number of days included in the multiday evaporation total (MDEV)</li>
+<li>DAPR = Number of days included in the multiday precipitation total (MDPR)</li>
+<li>DASF = Number of days included in the multiday snowfall total (MDSF)</li>
+<li>DATN = Number of days included in the multiday minimum temperature (MDTN)</li>
+<li>DATX = Number of days included in the multiday maximum temperature (MDTX)</li>
+<li>DAWM = Number of days included in the multiday wind movement     (MDWM)</li>
+<li>DWPR = Number of days with non-zero precipitation included in multiday precipitation total (MDPR)</li>
+<li>EVAP = Evaporation of water from evaporation pan (tenths of mm)</li>
+<li>FMTM = Time of fastest mile or fastest 1-minute wind (hours and minutes,i.e., HHMM)</li>
+<li>FRGB = Base of frozen ground layer (cm)</li>
+<li>FRGT = Top of frozen ground layer (cm)</li>
+<li>FRTH = Thickness of frozen ground layer (cm)</li>
+<li>GAHT = Difference between river and gauge height (cm)</li>
+<li>MDEV = Multiday evaporation total (tenths of mm; use with DAEV)</li>
+<li>MDPR = Multiday precipitation total (tenths of mm; use with DAPR and DWPR, if available)</li>
+<li>MDSF = Multiday snowfall total</li>
+<li>MDTN = Multiday minimum temperature (tenths of degrees C; use with DATN)</li>
+<li>MDTX = Multiday maximum temperature (tenths of degrees C; use with DATX)</li>
+<li>MDWM = Multiday wind movement (km)</li>
+<li>MNPN = Daily minimum temperature of water in an evaporation pan (tenths of degrees C)</li>
+<li>MXPN = Daily maximum temperature of water in an evaporation pan (tenths of degrees C)</li>
+<li>PGTM = Peak gust time (hours and minutes, i.e., HHMM)</li>
+<li>PSUN = Daily percent of possible sunshine (percent)</li>
+
+<li><p>SN*# = Minimum soil temperature (tenths of degrees C) where:</p>
+
+<ul>
+<li>* corresponds to a code for ground cover</li>
+<li>0 = unknown</li>
+<li>1 = grass</li>
+<li>2 = fallow</li>
+<li>3 = bare ground</li>
+<li>4 = brome grass</li>
+<li>5 = sod</li>
+<li>6 = straw mulch</li>
+<li>7 = grass muck</li>
+
+<li><p>8 = bare muck</p></li>
+
+<li><p># corresponds to a code for soil depth.</p></li>
+
+<li><p>1 = 5 cm</p></li>
+
+<li><p>2 = 10 cm</p></li>
+
+<li><p>3 = 20 cm</p></li>
+
+<li><p>4 = 50 cm</p></li>
+
+<li><p>5 = 100 cm</p></li>
+
+<li><p>6 = 150 cm</p></li>
+
+<li><p>7 = 180 cm</p></li>
+</ul></li>
+
+<li><p>SX*# = Maximum soil temperature (tenths of degrees C) where:</p>
+
+<ul>
+<li>* corresponds to a code for ground cover (see above)</li>
+<li># corresponds to a code for soil depth (see above)</li>
+</ul></li>
+
+<li><p>TAVG = Average temperature (tenths of degrees C) [Note that TAVG from source &rsquo;S&rsquo;  corresponds to an average for the period ending at 2400 UTC rather than local midnight]</p></li>
+
+<li><p>THIC = Thickness of ice on water (tenths of mm)</p></li>
+
+<li><p>TOBS = Temperature at the time of observation (tenths of degrees C)</p></li>
+
+<li><p>TSUN = Daily total sunshine (minutes)</p></li>
+
+<li><p>WDF1 = Direction of fastest 1-minute wind (degrees)</p></li>
+
+<li><p>WDF2 = Direction of fastest 2-minute wind (degrees)</p></li>
+
+<li><p>WDF5 = Direction of fastest 5-second wind (degrees)</p></li>
+
+<li><p>WDFG = Direction of peak wind gust (degrees)</p></li>
+
+<li><p>WDFI = Direction of highest instantaneous wind (degrees)</p></li>
+
+<li><p>WDFM = Fastest mile wind direction (degrees)</p></li>
+
+<li><p>WDMV = 24-hour wind movement (km)</p></li>
+
+<li><p>WESD = Water equivalent of snow on the ground (tenths of mm)</p></li>
+
+<li><p>WESF = Water equivalent of snowfall (tenths of mm)</p></li>
+
+<li><p>WSF1 = Fastest 1-minute wind speed (tenths of meters per second)</p></li>
+
+<li><p>WSF2 = Fastest 2-minute wind speed (tenths of meters per second)</p></li>
+
+<li><p>WSF5 = Fastest 5-second wind speed (tenths of meters per second)</p></li>
+
+<li><p>WSFG = Peak gust wind speed (tenths of meters per second)</p></li>
+
+<li><p>WSFI = Highest instantaneous wind speed (tenths of meters per second)</p></li>
+
+<li><p>WSFM = Fastest mile wind speed (tenths of meters per second)</p></li>
+
+<li><p>WT** = Weather Type where ** has one of the following values:</p>
+
+<ul>
+<li>01 = Fog, ice fog, or freezing fog (may include heavy fog)</li>
+<li>02 = Heavy fog or heaving freezing fog (not always distinguished from fog)</li>
+<li>03 = Thunder</li>
+<li>04 = Ice pellets, sleet, snow pellets, or small hail</li>
+<li>05 = Hail (may include small hail)</li>
+<li>06 = Glaze or rime</li>
+<li>07 = Dust, volcanic ash, blowing dust, blowing sand, or blowing obstruction</li>
+<li>08 = Smoke or haze</li>
+<li>09 = Blowing or drifting snow</li>
+<li>10 = Tornado, waterspout, or funnel cloud</li>
+<li>11 = High or damaging winds</li>
+<li>12 = Blowing spray</li>
+<li>13 = Mist</li>
+<li>14 = Drizzle</li>
+<li>15 = Freezing drizzl</li>
+<li>16 = Rain (may include freezing rain, drizzle, and freezing drizzle)</li>
+<li>17 = Freezing rain</li>
+<li>18 = Snow, snow pellets, snow grains, or ice crystals</li>
+<li>19 = Unknown source of precipitation</li>
+<li>21 = Ground fog</li>
+<li>22 = Ice fog or freezing fog</li>
+</ul></li>
+
+<li><p>WV** = Weather in the Vicinity where ** has one of the following values:</p>
+
+<ul>
+<li>01 = Fog, ice fog, or freezing fog (may include heavy fog)</li>
+<li>03 = Thunder</li>
+<li>07 = Ash, dust, sand, or other blowing obstruction</li>
+<li>18 = Snow or ice crystals</li>
+<li>20 = Rain or snow shower</li>
+</ul></li>
+</ul>
+
+<h2 id="format-of-ghcnd-stations-txt-file">FORMAT OF &ldquo;ghcnd-stations.txt&rdquo; file</h2>
+
+<p>There are over 106200 stations listed in a seperate file. Found here:</p>
+
+<p><a href="http://noaa-ghcn-pds.s3.amazonaws.com/ghcnd-stations.txt">http://noaa-ghcn-pds.s3.amazonaws.com/ghcnd-stations.txt</a></p>
+
+<p>The table below describes the structure of each row of ghcnd-stations.txt
+<table class="table table-striped">
+<thead>
+<tr>
+<th>Variable</th>
+<th>Columns</th>
+<th>Type</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ID</td>
+<td>1-11</td>
+<td>Character</td>
+<td>EI000003980</td>
+</tr>
+<tr>
+<td>LATITUDE</td>
+<td>13-20</td>
+<td>Real</td>
+<td>55.3717</td>
+</tr>
+<tr>
+<td>LONGITUDE</td>
+<td>22-30</td>
+<td>Real</td>
+<td>-7.3400</td>
+</tr>
+<tr>
+<td>ELEVATION</td>
+<td>32-37</td>
+<td>Real</td>
+<td>21.0</td>
+</tr>
+<tr>
+<td>STATE</td>
+<td>39-40</td>
+<td>Character</td>
+</tr>
+<tr>
+<td>NAME</td>
+<td>42-71</td>
+<td>Character</td>
+<td>MALIN HEAD</td>
+</tr>
+<tr>
+<td>GSN FLAG</td>
+<td>73-75</td>
+<td>Character</td>
+<td>GSN</td>
+</tr>
+<tr>
+<td>HCN/CRN FLAG</td>
+<td>77-79</td>
+<td>Character</td>
+</tr>
+<tr>
+<td>WMO ID</td>
+<td>81-85</td>
+<td>Character</td>
+<td>03980</td>
+</tr>
+</tbody>
+</table></p>
+
+<p>These variables have the following definitions:</p>
+
+<ul>
+<li>ID = the station identification code.
+
+<ul>
+<li>The first two characters denote the FIPS country code</li>
+<li>The third character is a network code that identifies the station numbering system used</li>
+<li>0 = unspecified (station identified by up to eight alphanumeric characters)</li>
+<li>1 = Community Collaborative Rain, Hail,and Snow (CoCoRaHS) based identification number.  To ensure consistency with with GHCN Daily, all numbers in the original CoCoRaHS IDs have been left-filled to make them all four digits long. In addition, the characters &ldquo;-&rdquo; and &ldquo;_&rdquo; have been removed to ensure that the IDs do not exceed 11 characters when preceded by &ldquo;US1&rdquo;. For example, the CoCoRaHS ID &ldquo;AZ-MR-156&rdquo; becomes &ldquo;US1AZMR0156&rdquo; in GHCN-Daily</li>
+<li>C = U.S. Cooperative Network identification number (last six characters of the GHCN-Daily ID)</li>
+<li>E = Identification number used in the ECA&amp;D non-blended dataset</li>
+<li>M = World Meteorological Organization ID (last five characters of the GHCN-Daily ID)</li>
+<li>N = Identification number used in data supplied by a National Meteorological or Hydrological Center</li>
+<li>R = U.S. Interagency Remote Automatic Weather Station (RAWS) identifier</li>
+<li>S = U.S. Natural Resources Conservation Service SNOwpack TELemtry (SNOTEL) station identifier</li>
+<li>W = WBAN identification number (last five characters of the GHCN-Daily ID)</li>
+<li>The remaining eight characters contain the actual station ID.</li>
+</ul></li>
+<li>LATITUDE = latitude of the station (in decimal degrees).</li>
+<li>LONGITUDE = longitude of the station (in decimal degrees).</li>
+<li>STATE = U.S. postal code for the state (for U.S. and Canadian stations only).</li>
+<li>NAME = name of the station.</li>
+
+<li><p>GSN FLAG = flag that indicates whether the station is part of the GCOS Surface Network (GSN). The flag is assigned by cross-referencing the number in the WMOID field with the official list of GSN stations. There are two possible values:</p>
+
+<ul>
+<li>Blank = non-GSN station or WMO Station number not available</li>
+<li>GSN   = GSN station</li>
+</ul></li>
+
+<li><p>HCN/CRN FLAG = flag that indicates whether the station is part of the U.S. Historical Climatology Network (HCN).  There are three possible values:</p>
+
+<ul>
+<li>Blank = Not a member of the U.S. Historical Climatology or U.S. Climate Reference Networks</li>
+<li>HCN = U.S. Historical Climatology Network station</li>
+<li>CRN = U.S. Climate Reference Network or U.S. Regional Climate Network Station</li>
+</ul></li>
+
+<li><p>WMO ID is the World Meteorological Organization (WMO) number for the station.  If the station has no WMO number (or one has not yet been matched to this station), then the field is blank.</p></li>
+</ul>
+
+<h3 id="lookup-table-of-country-codes">Lookup Table of Country Codes</h3>
+
+<p>The table of the country is derived from the ghcnd-countries.txt file available at the link below:</p>
+
+<p><a href="http://noaa-ghcn-pds.s3.amazonaws.com/ghcnd-countries.txt">http://noaa-ghcn-pds.s3.amazonaws.com/ghcnd-countries.txt</a></p>
+
+<p>The state codes are used in the station identification number. In the table below CODE is the FIPS country code of the country where the station is located.</p>
+
+<table class="table table-striped">
+<thead>
+<tr>
+<th>Code</th>
+<th>Country</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AC</td>
+<td>Antigua and Barbuda</td>
+</tr>
+<tr>
+<td>AE</td>
+<td>United Arab Emirates</td>
+</tr>
+<tr>
+<td>AF</td>
+<td>Afghanistan</td>
+</tr>
+<tr>
+<td>AG</td>
+<td>Algeria</td>
+</tr>
+<tr>
+<td>AJ</td>
+<td>Azerbaijan</td>
+</tr>
+<tr>
+<td>AL</td>
+<td>Albania</td>
+</tr>
+<tr>
+<td>AM</td>
+<td>Armenia</td>
+</tr>
+<tr>
+<td>AO</td>
+<td>Angola</td>
+</tr>
+<tr>
+<td>AQ</td>
+<td>American Samoa [United States]</td>
+</tr>
+<tr>
+<td>AR</td>
+<td>Argentina</td>
+</tr>
+<tr>
+<td>AS</td>
+<td>Australia</td>
+</tr>
+<tr>
+<td>AU</td>
+<td>Austria</td>
+</tr>
+<tr>
+<td>AY</td>
+<td>Antarctica</td>
+</tr>
+<tr>
+<td>BA</td>
+<td>Bahrain</td>
+</tr>
+<tr>
+<td>BB</td>
+<td>Barbados</td>
+</tr>
+<tr>
+<td>BC</td>
+<td>Botswana</td>
+</tr>
+<tr>
+<td>BD</td>
+<td>Bermuda [United Kingdom]</td>
+</tr>
+<tr>
+<td>BE</td>
+<td>Belgium</td>
+</tr>
+<tr>
+<td>BF</td>
+<td>Bahamas, The</td>
+</tr>
+<tr>
+<td>BG</td>
+<td>Bangladesh</td>
+</tr>
+<tr>
+<td>BH</td>
+<td>Belize</td>
+</tr>
+<tr>
+<td>BK</td>
+<td>Bosnia and Herzegovina</td>
+</tr>
+<tr>
+<td>BL</td>
+<td>Bolivia</td>
+</tr>
+<tr>
+<td>BM</td>
+<td>Burma</td>
+</tr>
+<tr>
+<td>BN</td>
+<td>Benin</td>
+</tr>
+<tr>
+<td>BO</td>
+<td>Belarus</td>
+</tr>
+<tr>
+<td>BP</td>
+<td>Solomon Islands</td>
+</tr>
+<tr>
+<td>BR</td>
+<td>Brazil</td>
+</tr>
+<tr>
+<td>BU</td>
+<td>Bulgaria</td>
+</tr>
+<tr>
+<td>BX</td>
+<td>Brunei</td>
+</tr>
+<tr>
+<td>BY</td>
+<td>Burundi</td>
+</tr>
+<tr>
+<td>CA</td>
+<td>Canada</td>
+</tr>
+<tr>
+<td>CB</td>
+<td>Cambodia</td>
+</tr>
+<tr>
+<td>CD</td>
+<td>Chad</td>
+</tr>
+<tr>
+<td>CE</td>
+<td>Sri Lanka</td>
+</tr>
+<tr>
+<td>CF</td>
+<td>Congo (Brazzaville)</td>
+</tr>
+<tr>
+<td>CG</td>
+<td>Congo (Kinshasa)</td>
+</tr>
+<tr>
+<td>CH</td>
+<td>China</td>
+</tr>
+<tr>
+<td>CI</td>
+<td>Chile</td>
+</tr>
+<tr>
+<td>CJ</td>
+<td>Cayman Islands [United Kingdom]</td>
+</tr>
+<tr>
+<td>CK</td>
+<td>Cocos (Keeling) Islands [Australia]</td>
+</tr>
+<tr>
+<td>CM</td>
+<td>Cameroon</td>
+</tr>
+<tr>
+<td>CO</td>
+<td>Colombia</td>
+</tr>
+<tr>
+<td>CQ</td>
+<td>Northern Mariana Islands [United States]</td>
+</tr>
+<tr>
+<td>CS</td>
+<td>Costa Rica</td>
+</tr>
+<tr>
+<td>CT</td>
+<td>Central African Republic</td>
+</tr>
+<tr>
+<td>CU</td>
+<td>Cuba</td>
+</tr>
+<tr>
+<td>CV</td>
+<td>Cape Verde</td>
+</tr>
+<tr>
+<td>CW</td>
+<td>Cook Islands [New Zealand]</td>
+</tr>
+<tr>
+<td>CY</td>
+<td>Cyprus</td>
+</tr>
+<tr>
+<td>DA</td>
+<td>Denmark</td>
+</tr>
+<tr>
+<td>DO</td>
+<td>Dominica</td>
+</tr>
+<tr>
+<td>DR</td>
+<td>Dominican Republic</td>
+</tr>
+<tr>
+<td>EC</td>
+<td>Ecuador</td>
+</tr>
+<tr>
+<td>EG</td>
+<td>Egypt</td>
+</tr>
+<tr>
+<td>EI</td>
+<td>Ireland</td>
+</tr>
+<tr>
+<td>EK</td>
+<td>Equatorial Guinea</td>
+</tr>
+<tr>
+<td>EN</td>
+<td>Estonia</td>
+</tr>
+<tr>
+<td>ER</td>
+<td>Eritrea</td>
+</tr>
+<tr>
+<td>ES</td>
+<td>El Salvador</td>
+</tr>
+<tr>
+<td>ET</td>
+<td>Ethiopia</td>
+</tr>
+<tr>
+<td>EU</td>
+<td>Europa Island [France]</td>
+</tr>
+<tr>
+<td>EZ</td>
+<td>Czech Republic</td>
+</tr>
+<tr>
+<td>FG</td>
+<td>French Guiana [France]</td>
+</tr>
+<tr>
+<td>FI</td>
+<td>Finland</td>
+</tr>
+<tr>
+<td>FJ</td>
+<td>Fiji</td>
+</tr>
+<tr>
+<td>FK</td>
+<td>Falkland Islands (Islas Malvinas) [United Kingdom]</td>
+</tr>
+<tr>
+<td>FM</td>
+<td>Federated States of Micronesia</td>
+</tr>
+<tr>
+<td>FP</td>
+<td>French Polynesia</td>
+</tr>
+<tr>
+<td>FR</td>
+<td>France</td>
+</tr>
+<tr>
+<td>FS</td>
+<td>French Southern and Antarctic Lands [France]</td>
+</tr>
+<tr>
+<td>GA</td>
+<td>Gambia, The</td>
+</tr>
+<tr>
+<td>GB</td>
+<td>Gabon</td>
+</tr>
+<tr>
+<td>GG</td>
+<td>Georgia</td>
+</tr>
+<tr>
+<td>GH</td>
+<td>Ghana</td>
+</tr>
+<tr>
+<td>GI</td>
+<td>Gibraltar [United Kingdom]</td>
+</tr>
+<tr>
+<td>GL</td>
+<td>Greenland [Denmark]</td>
+</tr>
+<tr>
+<td>GM</td>
+<td>Germany</td>
+</tr>
+<tr>
+<td>GP</td>
+<td>Guadeloupe [France]</td>
+</tr>
+<tr>
+<td>GQ</td>
+<td>Guam [United States]</td>
+</tr>
+<tr>
+<td>GR</td>
+<td>Greece</td>
+</tr>
+<tr>
+<td>GT</td>
+<td>Guatemala</td>
+</tr>
+<tr>
+<td>GV</td>
+<td>Guinea</td>
+</tr>
+<tr>
+<td>GY</td>
+<td>Guyana</td>
+</tr>
+<tr>
+<td>HO</td>
+<td>Honduras</td>
+</tr>
+<tr>
+<td>HR</td>
+<td>Croatia</td>
+</tr>
+<tr>
+<td>HU</td>
+<td>Hungary</td>
+</tr>
+<tr>
+<td>IC</td>
+<td>Iceland</td>
+</tr>
+<tr>
+<td>ID</td>
+<td>Indonesia</td>
+</tr>
+<tr>
+<td>IN</td>
+<td>India</td>
+</tr>
+<tr>
+<td>IO</td>
+<td>British Indian Ocean Territory [United Kingdom]</td>
+</tr>
+<tr>
+<td>IR</td>
+<td>Iran</td>
+</tr>
+<tr>
+<td>IS</td>
+<td>Israel</td>
+</tr>
+<tr>
+<td>IT</td>
+<td>Italy</td>
+</tr>
+<tr>
+<td>IV</td>
+<td>Cote D’Ivoire</td>
+</tr>
+<tr>
+<td>IZ</td>
+<td>Iraq</td>
+</tr>
+<tr>
+<td>JA</td>
+<td>Japan</td>
+</tr>
+<tr>
+<td>JM</td>
+<td>Jamaica</td>
+</tr>
+<tr>
+<td>JN</td>
+<td>Jan Mayen [Norway]</td>
+</tr>
+<tr>
+<td>JO</td>
+<td>Jordan</td>
+</tr>
+<tr>
+<td>JQ</td>
+<td>Johnston Atoll [United States]</td>
+</tr>
+<tr>
+<td>JU</td>
+<td>Juan De Nova Island [France]</td>
+</tr>
+<tr>
+<td>KE</td>
+<td>Kenya</td>
+</tr>
+<tr>
+<td>KG</td>
+<td>Kyrgzstan</td>
+</tr>
+<tr>
+<td>KN</td>
+<td>Korea, South</td>
+</tr>
+<tr>
+<td>KR</td>
+<td>Kiribati</td>
+</tr>
+<tr>
+<td>S</td>
+<td>Korea,South</td>
+</tr>
+<tr>
+<td>K</td>
+<td>Christmas Island [Australia]</td>
+</tr>
+<tr>
+<td>KU</td>
+<td>Kuwait</td>
+</tr>
+<tr>
+<td>KZ</td>
+<td>Kazakhstan</td>
+</tr>
+<tr>
+<td>LA</td>
+<td>Laos</td>
+</tr>
+<tr>
+<td>LE</td>
+<td>Lebanon</td>
+</tr>
+<tr>
+<td>LG</td>
+<td>Latvia</td>
+</tr>
+<tr>
+<td>LH</td>
+<td>Lithuania</td>
+</tr>
+<tr>
+<td>LI</td>
+<td>Liberia</td>
+</tr>
+<tr>
+<td>LO</td>
+<td>Slovakia</td>
+</tr>
+<tr>
+<td>LQ</td>
+<td>Palmyra Atoll [United States]</td>
+</tr>
+<tr>
+<td>LT</td>
+<td>Lesotho</td>
+</tr>
+<tr>
+<td>LU</td>
+<td>Luxembourg</td>
+</tr>
+<tr>
+<td>LY</td>
+<td>Libya</td>
+</tr>
+<tr>
+<td>MA</td>
+<td>Madagascar</td>
+</tr>
+<tr>
+<td>MB</td>
+<td>Martinique [France]</td>
+</tr>
+<tr>
+<td>MC</td>
+<td>Macau S.A.R</td>
+</tr>
+<tr>
+<td>MD</td>
+<td>Moldova</td>
+</tr>
+<tr>
+<td>MF</td>
+<td>Mayotte [France]</td>
+</tr>
+<tr>
+<td>MG</td>
+<td>Mongolia</td>
+</tr>
+<tr>
+<td>MI</td>
+<td>Malawi</td>
+</tr>
+<tr>
+<td>MJ</td>
+<td>Montenegro</td>
+</tr>
+<tr>
+<td>MK</td>
+<td>Macedonia</td>
+</tr>
+<tr>
+<td>ML</td>
+<td>Mali</td>
+</tr>
+<tr>
+<td>MO</td>
+<td>Morocco</td>
+</tr>
+<tr>
+<td>MP</td>
+<td>Mauritius</td>
+</tr>
+<tr>
+<td>MQ</td>
+<td>Midway Islands [United States]</td>
+</tr>
+<tr>
+<td>MR</td>
+<td>Mauritania</td>
+</tr>
+<tr>
+<td>MT</td>
+<td>Malta</td>
+</tr>
+<tr>
+<td>MU</td>
+<td>Oman</td>
+</tr>
+<tr>
+<td>MV</td>
+<td>Maldives</td>
+</tr>
+<tr>
+<td>MX</td>
+<td>Mexico</td>
+</tr>
+<tr>
+<td>MY</td>
+<td>Malaysia</td>
+</tr>
+<tr>
+<td>MZ</td>
+<td>Mozambique</td>
+</tr>
+<tr>
+<td>NC</td>
+<td>New Caledonia [France]</td>
+</tr>
+<tr>
+<td>NE</td>
+<td>Niue [New Zealand]</td>
+</tr>
+<tr>
+<td>NF</td>
+<td>Norfolk Island [Australia]</td>
+</tr>
+<tr>
+<td>NG</td>
+<td>Niger</td>
+</tr>
+<tr>
+<td>NH</td>
+<td>Vanuatu</td>
+</tr>
+<tr>
+<td>NI</td>
+<td>Nigeria</td>
+</tr>
+<tr>
+<td>NL</td>
+<td>Netherlands</td>
+</tr>
+<tr>
+<td>NO</td>
+<td>Norway</td>
+</tr>
+<tr>
+<td>NP</td>
+<td>Nepal</td>
+</tr>
+<tr>
+<td>NS</td>
+<td>Suriname</td>
+</tr>
+<tr>
+<td>NT</td>
+<td>Netherlands Antilles [Netherlands]</td>
+</tr>
+<tr>
+<td>NU</td>
+<td>Nicaragua</td>
+</tr>
+<tr>
+<td>NZ</td>
+<td>New Zealand</td>
+</tr>
+<tr>
+<td>PA</td>
+<td>Paraguay</td>
+</tr>
+<tr>
+<td>PC</td>
+<td>Pitcairn Islands [United Kingdom]</td>
+</tr>
+<tr>
+<td>PE</td>
+<td>Peru</td>
+</tr>
+<tr>
+<td>PK</td>
+<td>Pakistan</td>
+</tr>
+<tr>
+<td>PL</td>
+<td>Poland</td>
+</tr>
+<tr>
+<td>PM</td>
+<td>Panama</td>
+</tr>
+<tr>
+<td>PO</td>
+<td>Portugal</td>
+</tr>
+<tr>
+<td>PP</td>
+<td>Papua New Guinea</td>
+</tr>
+<tr>
+<td>PS</td>
+<td>Palau</td>
+</tr>
+<tr>
+<td>PU</td>
+<td>Guinea-Bissau</td>
+</tr>
+<tr>
+<td>QA</td>
+<td>Qatar</td>
+</tr>
+<tr>
+<td>RE</td>
+<td>Reunion [France]</td>
+</tr>
+<tr>
+<td>RI</td>
+<td>Serbia</td>
+</tr>
+<tr>
+<td>RM</td>
+<td>Marshall Islands</td>
+</tr>
+<tr>
+<td>RO</td>
+<td>Romania</td>
+</tr>
+<tr>
+<td>RP</td>
+<td>Philippines</td>
+</tr>
+<tr>
+<td>RQ</td>
+<td>Puerto Rico [United States]</td>
+</tr>
+<tr>
+<td>RS</td>
+<td>Russia</td>
+</tr>
+<tr>
+<td>RW</td>
+<td>Rwanda</td>
+</tr>
+<tr>
+<td>SA</td>
+<td>Saudi Arabia</td>
+</tr>
+<tr>
+<td>SB</td>
+<td>Saint Pierre and Miquelon [France]</td>
+</tr>
+<tr>
+<td>SE</td>
+<td>Seychelles</td>
+</tr>
+<tr>
+<td>SF</td>
+<td>South Africa</td>
+</tr>
+<tr>
+<td>SG</td>
+<td>Senegal</td>
+</tr>
+<tr>
+<td>SH</td>
+<td>Saint Helena [United Kingdom]</td>
+</tr>
+<tr>
+<td>SI</td>
+<td>Slovenia</td>
+</tr>
+<tr>
+<td>SL</td>
+<td>Sierra Leone</td>
+</tr>
+<tr>
+<td>SN</td>
+<td>Singapore</td>
+</tr>
+<tr>
+<td>SP</td>
+<td>Spain</td>
+</tr>
+<tr>
+<td>ST</td>
+<td>Saint Lucia</td>
+</tr>
+<tr>
+<td>SU</td>
+<td>Sudan</td>
+</tr>
+<tr>
+<td>SV</td>
+<td>Svalbard [Norway]</td>
+</tr>
+<tr>
+<td>SW</td>
+<td>Sweden</td>
+</tr>
+<tr>
+<td>SX</td>
+<td>South Georgia and the South Sandwich Islands [United Kingdom]</td>
+</tr>
+<tr>
+<td>SY</td>
+<td>Syria</td>
+</tr>
+<tr>
+<td>SZ</td>
+<td>Switzerland</td>
+</tr>
+<tr>
+<td>TD</td>
+<td>Trinidad and Tobago</td>
+</tr>
+<tr>
+<td>TE</td>
+<td>Tromelin Island [France]</td>
+</tr>
+<tr>
+<td>TH</td>
+<td>Thailand</td>
+</tr>
+<tr>
+<td>TI</td>
+<td>Tajikistan</td>
+</tr>
+<tr>
+<td>TL</td>
+<td>Tokelau [New Zealand]</td>
+</tr>
+<tr>
+<td>TN</td>
+<td>Tonga</td>
+</tr>
+<tr>
+<td>TO</td>
+<td>Togo</td>
+</tr>
+<tr>
+<td>TS</td>
+<td>Tunisia</td>
+</tr>
+<tr>
+<td>TU</td>
+<td>Turkey</td>
+</tr>
+<tr>
+<td>TV</td>
+<td>Tuvalu</td>
+</tr>
+<tr>
+<td>TX</td>
+<td>Turkmenistan</td>
+</tr>
+<tr>
+<td>TZ</td>
+<td>Tanzania</td>
+</tr>
+<tr>
+<td>UG</td>
+<td>Uganda</td>
+</tr>
+<tr>
+<td>UK</td>
+<td>United Kingdom</td>
+</tr>
+<tr>
+<td>UP</td>
+<td>Ukraine</td>
+</tr>
+<tr>
+<td>US</td>
+<td>United States</td>
+</tr>
+<tr>
+<td>UV</td>
+<td>Burkina Faso</td>
+</tr>
+<tr>
+<td>UY</td>
+<td>Uruguay</td>
+</tr>
+<tr>
+<td>UZ</td>
+<td>Uzbekistan</td>
+</tr>
+<tr>
+<td>VE</td>
+<td>Venezuela</td>
+</tr>
+<tr>
+<td>VM</td>
+<td>Vietnam</td>
+</tr>
+<tr>
+<td>VQ</td>
+<td>Virgin Islands [United States]</td>
+</tr>
+<tr>
+<td>WA</td>
+<td>Namibia</td>
+</tr>
+<tr>
+<td>WF</td>
+<td>Wallis and Futuna [France]</td>
+</tr>
+<tr>
+<td>WI</td>
+<td>Western Sahara</td>
+</tr>
+<tr>
+<td>WQ</td>
+<td>Wake Island [United States]</td>
+</tr>
+<tr>
+<td>WZ</td>
+<td>Swaziland</td>
+</tr>
+<tr>
+<td>ZA</td>
+<td>Zambia</td>
+</tr>
+<tr>
+<td>ZI</td>
+<td>Zimbabwe</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="look-up-table-of-state-codes">Look Up Table of State Codes</h3>
+
+<p>The table of the state codes below is a derived from the ghcnd-states.txt file which is available at the link below</p>
+
+<p><a href="http://noaa-ghcn-pds.s3.amazonaws.com/ghcnd-states.txt">http://noaa-ghcn-pds.s3.amazonaws.com/ghcnd-states.txt</a></p>
+
+<p>The state codes are used in the station identification number, the table below CODE = is the POSTAL code of the U.S. state/territory or Canadian province where the station is located.
+<table class="table table-striped">
+<thead>
+<tr>
+<th>Code</th>
+<th>State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AB</td>
+<td>ALBERTA</td>
+</tr>
+<tr>
+<td>AB</td>
+<td>ALBERTA</td>
+</tr>
+<tr>
+<td>AK</td>
+<td>ALASKA</td>
+</tr>
+<tr>
+<td>AL</td>
+<td>ALABAMA</td>
+</tr>
+<tr>
+<td>AR</td>
+<td>ARKANSAS</td>
+</tr>
+<tr>
+<td>AS</td>
+<td>AMERICAN SAMOA</td>
+</tr>
+<tr>
+<td>AZ</td>
+<td>ARIZONA</td>
+</tr>
+<tr>
+<td>BC</td>
+<td>BRITISH COLUMBIA</td>
+</tr>
+<tr>
+<td>CA</td>
+<td>CALIFORNIA</td>
+</tr>
+<tr>
+<td>CO</td>
+<td>COLORADO</td>
+</tr>
+<tr>
+<td>CT</td>
+<td>CONNECTICUT</td>
+</tr>
+<tr>
+<td>DC</td>
+<td>DISTRICT OF COLUMBIA</td>
+</tr>
+<tr>
+<td>DE</td>
+<td>DELAWARE</td>
+</tr>
+<tr>
+<td>FL</td>
+<td>FLORIDA</td>
+</tr>
+<tr>
+<td>FM</td>
+<td>MICRONESIA</td>
+</tr>
+<tr>
+<td>GA</td>
+<td>GEORGIA</td>
+</tr>
+<tr>
+<td>GU</td>
+<td>GUAM</td>
+</tr>
+<tr>
+<td>HI</td>
+<td>HAWAII</td>
+</tr>
+<tr>
+<td>IA</td>
+<td>IOWA</td>
+</tr>
+<tr>
+<td>ID</td>
+<td>IDAHO</td>
+</tr>
+<tr>
+<td>IL</td>
+<td>ILLINOIS</td>
+</tr>
+<tr>
+<td>IN</td>
+<td>INDIANA</td>
+</tr>
+<tr>
+<td>KS</td>
+<td>KANSAS</td>
+</tr>
+<tr>
+<td>KY</td>
+<td>KENTUCKY</td>
+</tr>
+<tr>
+<td>LA</td>
+<td>LOUISIANA</td>
+</tr>
+<tr>
+<td>MA</td>
+<td>MASSACHUSETTS</td>
+</tr>
+<tr>
+<td>MB</td>
+<td>MANITOBA</td>
+</tr>
+<tr>
+<td>MD</td>
+<td>MARYLAND</td>
+</tr>
+<tr>
+<td>ME</td>
+<td>MAINE</td>
+</tr>
+<tr>
+<td>MH</td>
+<td>MARSHALL ISLANDS</td>
+</tr>
+<tr>
+<td>MI</td>
+<td>MICHIGAN</td>
+</tr>
+<tr>
+<td>MN</td>
+<td>MINNESOTA</td>
+</tr>
+<tr>
+<td>MO</td>
+<td>MISSOURI</td>
+</tr>
+<tr>
+<td>MP</td>
+<td>NORTHERN MARIANA ISLANDS</td>
+</tr>
+<tr>
+<td>MS</td>
+<td>MISSISSIPPI</td>
+</tr>
+<tr>
+<td>MT</td>
+<td>MONTANA</td>
+</tr>
+<tr>
+<td>NB</td>
+<td>NEW BRUNSWICK</td>
+</tr>
+<tr>
+<td>NC</td>
+<td>NORTH CAROLINA</td>
+</tr>
+<tr>
+<td>ND</td>
+<td>NORTH DAKOTA</td>
+</tr>
+<tr>
+<td>NE</td>
+<td>NEBRASKA</td>
+</tr>
+<tr>
+<td>NH</td>
+<td>NEW HAMPSHIRE</td>
+</tr>
+<tr>
+<td>NJ</td>
+<td>NEW JERSEY</td>
+</tr>
+<tr>
+<td>NL</td>
+<td>NEWFOUNDLAND AND LABRADOR</td>
+</tr>
+<tr>
+<td>NM</td>
+<td>NEW MEXICO</td>
+</tr>
+<tr>
+<td>NS</td>
+<td>NOVA SCOTIA</td>
+</tr>
+<tr>
+<td>NT</td>
+<td>NORTHWEST TERRITORIES</td>
+</tr>
+<tr>
+<td>NU</td>
+<td>NUNAVUT</td>
+</tr>
+<tr>
+<td>NV</td>
+<td>NEVADA</td>
+</tr>
+<tr>
+<td>NY</td>
+<td>NEW YORK</td>
+</tr>
+<tr>
+<td>OH</td>
+<td>OHIO</td>
+</tr>
+<tr>
+<td>OK</td>
+<td>OKLAHOMA</td>
+</tr>
+<tr>
+<td>ON</td>
+<td>ONTARIO</td>
+</tr>
+<tr>
+<td>OR</td>
+<td>OREGON</td>
+</tr>
+<tr>
+<td>PA</td>
+<td>PENNSYLVANIA</td>
+</tr>
+<tr>
+<td>PE</td>
+<td>PRINCE EDWARD ISLAND</td>
+</tr>
+<tr>
+<td>PI</td>
+<td>PACIFIC ISLANDS</td>
+</tr>
+<tr>
+<td>PR</td>
+<td>PUERTO RICO</td>
+</tr>
+<tr>
+<td>PW</td>
+<td>PALAU</td>
+</tr>
+<tr>
+<td>QC</td>
+<td>QUEBEC</td>
+</tr>
+<tr>
+<td>RI</td>
+<td>RHODE ISLAND</td>
+</tr>
+<tr>
+<td>SC</td>
+<td>SOUTH CAROLINA</td>
+</tr>
+<tr>
+<td>SD</td>
+<td>SOUTH DAKOTA</td>
+</tr>
+<tr>
+<td>SK</td>
+<td>SASKATCHEWAN</td>
+</tr>
+<tr>
+<td>TN</td>
+<td>TENNESSEE</td>
+</tr>
+<tr>
+<td>TX</td>
+<td>TEXAS</td>
+</tr>
+<tr>
+<td>UM</td>
+<td>U.S. MINOR OUTLYING ISLANDS</td>
+</tr>
+<tr>
+<td>UT</td>
+<td>UTAH</td>
+</tr>
+<tr>
+<td>VA</td>
+<td>VIRGINIA</td>
+</tr>
+<tr>
+<td>VI</td>
+<td>VIRGIN ISLANDS</td>
+</tr>
+<tr>
+<td>VT</td>
+<td>VERMONT</td>
+</tr>
+<tr>
+<td>WA</td>
+<td>WASHINGTON</td>
+</tr>
+<tr>
+<td>WI</td>
+<td>WISCONSIN</td>
+</tr>
+<tr>
+<td>WV</td>
+<td>WEST VIRGINIA</td>
+</tr>
+<tr>
+<td>WY</td>
+<td>WYOMING</td>
+</tr>
+<tr>
+<td>YT</td>
+<td>YUKON TERRITORY</td>
+</tr>
+</tbody>
+</table></p>
+
+<h2 id="format-of-ghcnd-inventory-txt">FORMAT OF &ldquo;ghcnd-inventory.txt&rdquo;</h2>
+
+<p>This is a file listing the periods of record for each station and element. The file is located here:</p>
+
+<p><a href="http://noaa-ghcn-pds.s3.amazonaws.com/ghcnd-inventory.txt">http://noaa-ghcn-pds.s3.amazonaws.com/ghcnd-inventory.txt</a></p>
+
+<p>The file structure  is described in the table below.
+<table class="table table-striped">
+<thead>
+<tr>
+<th>Variable</th>
+<th>Columns</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ID</td>
+<td>1-11</td>
+<td>CHARACTER</td>
+</tr>
+<tr>
+<td>LATITUDE</td>
+<td>13-20</td>
+<td>REAL</td>
+</tr>
+<tr>
+<td>LONGITUDE</td>
+<td>22-30</td>
+<td>REAL</td>
+</tr>
+<tr>
+<td>ELEMENT</td>
+<td>32-35</td>
+<td>CHARACTER</td>
+</tr>
+<tr>
+<td>FIRSTYEAR</td>
+<td>37-40</td>
+<td>INTEGER</td>
+</tr>
+<tr>
+<td>LASTYEAR</td>
+<td>42-45</td>
+<td>INTEGER</td>
+</tr>
+</tbody>
+</table></p>
+
+<ul>
+<li>ID = the station identification code.  Please see &ldquo;ghcnd-stations.txt&rdquo; for a complete list of stations and their metadata.</li>
+<li>LATITUDE = the latitude of the station (in decimal degrees).</li>
+<li>LONGITUDE = the longitude of the station (in decimal degrees).</li>
+<li>ELEMENT = the element type.  See section III for a definition of elements.</li>
+<li>FIRSTYEAR = the first year of unflagged data for the given element.</li>
+<li>LASTYEAR = the last year of unflagged data for the given element.</li>
+</ul>
+
+<h2 id="contact">Contact</h2>
+
+<p>For questions regarding data content or quality, go <a href="https://www.ncdc.noaa.gov/ghcn-daily-description">here</a>. For any questions regarding data delivery not associated with this platform or any general questions regarding the NOAA Big Data Project, email noaa.bdp@noaa.gov.</p>
+
+<h2 id="how-to-cite">HOW TO CITE:</h2>
+
+<p>Note that the GHCN-Daily dataset itself has a DOI (Digital Object Identifier) so it may be relevant to cite both the methods/overview journal article as well as the specific version of the dataset used.</p>
+
+<p>The journal article describing GHCN-Daily is:</p>
+
+<p>Menne, M.J., I. Durre, R.S. Vose, B.E. Gleason, and T.G. Houston, 2012:  An overview of the Global Historical Climatology Network-Daily Database.  Journal of Atmospheric and Oceanic Technology, 29, 897-910, <a href="doi:10.1175/JTECH-D-11-00103.1">doi:10.1175/JTECH-D-11-00103.1</a></p>
+
+<p>To acknowledge the specific version of the dataset used, please cite:</p>
+
+<p>Menne, M.J., I. Durre, B. Korzeniewski, S. McNeal, K. Thomas, X. Yin, S. Anthony, R. Ray, R.S. Vose, B.E.Gleason, and T.G. Houston, 2012: Global Historical Climatology Network - Daily (GHCN-Daily), Version 3. [indicate subset used following decimal, e.g. Version 3.25]. NOAA National Centers for Environmental Information. <a href="http://doi.org/10.7289/V5D21VHZ">http://doi.org/10.7289/V5D21VHZ</a> [access date]</p>
+
+<h2 id="references">REFERENCES</h2>
+
+<p>Durre, I., M. J. Menne, B. E. Gleason, T. G. Houston, and R. S. Vose (2010), Comprehensive automated quality assurance of daily surface observations, J. Appl. Meteorol. Climatol., 49, 1615–1633, <a href="https://doi:10.1175/2010JAMC2375.1">doi:10.1175/2010JAMC2375.1</a></p>
+
+<p>Klein Tank, A.M.G. and Coauthors, 2002. Daily dataset of 20th-century surface
+air temperature and precipitation series for the European Climate Assessment.
+Int. J. of Climatol., 22, 1441-1453.
+Data and metadata available at <a href="http://eca.knmi.nl">http://eca.knmi.nl</a></p>
+
+<p>Menne, M.J., I. Durre, R.S. Vose, B.E. Gleason, and T.G. Houston, 2012:  An overview of the Global Historical Climatology Network-Daily Database.  Journal of Atmospheric and Oceanic Technology, 29, 897-910, <a href="doi.10.1175/JTECH-D-11-00103.1">doi.10.1175/JTECH-D-11-00103.1</a></p>
+
+      <footer>
+        <hr>
+        <a href="http://aws.amazon.com/opendata/public-datasets">AWS Public Datasets</a>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>
