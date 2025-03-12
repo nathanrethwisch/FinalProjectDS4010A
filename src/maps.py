@@ -1,5 +1,5 @@
 from datalake import Datalake
 
 if __name__ == "__main__":
-    data = Datalake()
-    data.clean_states()
+    data = Datalake('../lake')
+    data.process_states()
