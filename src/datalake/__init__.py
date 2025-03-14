@@ -80,13 +80,17 @@ class Datalake:
             table = pq.read_table(self.datalake_root / self.paths["fire_point_clean"], columns=columns)
             return gpd.GeoDataFrame.from_arrow(table).to_crs(epsg=4326)
 
-    def query_stations(self):
+    def query_stations(self) -> gpd.GeoDataFrame:
         stations = pd.read_parquet(self.datalake_root / self.paths["ghcnd_clean_stations"])
         us_stations = stations[stations['station_id'].str.startswith('US')]
         ca_stations = stations[stations['station_id'].str.startswith('CA')]
         mx_stations = stations[stations['station_id'].str.startswith('MX')]
-        wanted = pd.concat([us_stations, ca_stations, mx_stations])
-        return wanted
+        result = pd.concat([us_stations, ca_stations, mx_stations])
+
+        # Encode as shapely point object
+        result["geometry"] = result.apply(lambda row: Point(row["longitude"], row["latitude"]), axis=1)
+
+        return gpd.GeoDataFrame(result, geometry="geometry", crs="EPSG:4326")
 
     def process_ghcnd_stations(self):
         print('CLEANING GHCND STATIONS')
