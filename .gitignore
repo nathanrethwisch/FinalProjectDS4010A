@@ -175,5 +175,5 @@ cython_debug/
 .idea/
 .vs/
 .code/
-
-data/ghcnd/
+data/
+data
