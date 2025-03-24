@@ -13,6 +13,8 @@ import requests
 from shapely.geometry import shape, Polygon, mapping, Point
 from shapely.validation import make_valid
 
+import h3
+
 
 class Datalake:
 
@@ -308,6 +310,7 @@ class Datalake:
     def join_stations_elements(df, stations):
         df = pd.merge(df, stations, how='inner', on='station_id')
         return df
+    
 
     @staticmethod
     def drop_station_columns(df):
@@ -317,8 +320,45 @@ class Datalake:
     @staticmethod
     def generate_geometries(df):
         gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs='EPSG:4326')
-        gdf.drop(columns=['longitude', 'latitude'], inplace=True)
+        #gdf.drop(columns=['longitude', 'latitude'], inplace=True)
         return gdf
+    
+    @staticmethod
+    def generate_hexes(gdf):
+        # Creation of the hexagonal grid 
+        #The input lat and lng are where the grid is centered- this can be moved to any lat, long - for example, over Califonia (lng = -119.45, lat = 37.17) 
+        input_lng = -103
+        input_lat = 44
+        
+        # Generate H3 hexagons at a specified resolution - a larger resolution means smaller cell size
+        resolution = 3
+        
+        # Indicate the number of rings around the central hexagon - larger ring size means more area of the map will be covered
+        ring_size = 25
+        
+        # Get the H3 hexagon for the center point
+        center_h3 = h3.latlng_to_cell(input_lat, input_lng, resolution)
+          
+        # Generate hexagons within a disk around the center (instead of just rings)
+        hexagons = list(h3.grid_disk(center_h3, ring_size))  # All hexagons within the distance
+          
+        # Create a GeoDataFrame with hexagons and their corresponding geometries
+        hexagon_geometries = [Polygon(h3.cell_to_boundary(hexagon)) for hexagon in hexagons]
+          
+        # Create the GeoDataFrame
+        hexagon_df = gpd.GeoDataFrame({'Hexagon_ID': hexagons, 'geometry': hexagon_geometries},  crs="EPSG:4326")        
+        
+        #gdf = gpd.GeoDataFrame(gdf, geometry=gpd.points_from_xy(gdf['Latitude'], gdf['Longitude']),  crs="EPSG:4326")
+       
+        if gdf.crs != hexagon_df.crs:
+            gdf = gdf.to_crs(hexagon_df.crs)
+        # Perform spatial join
+        joined = gpd.sjoin(gdf, hexagon_df, how='left', predicate='intersects')
+       
+        # Return only the original DataFrame with the new Hexagon_ID column
+        gdf['Hexagon_ID'] = joined['Hexagon_ID'].values
+       
+        return gdf            
 
     def clean_daily_file(self, raw_path, clean_path):
         """
@@ -347,4 +387,6 @@ class Datalake:
         df = self.drop_station_columns(df)
         # 9. generate geometries
         gdf = self.generate_geometries(df)
+        #10. Generate h3 cells
+        gdf = self.generate_hexes(gdf)
         gdf.to_parquet(clean_path)
