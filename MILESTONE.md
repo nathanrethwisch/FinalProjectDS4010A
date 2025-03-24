@@ -124,4 +124,34 @@ MILESTONE: Finalize all data access: make sure variable datatypes are set. All d
 
 PROGRESS: The NOAA GHCND dataset’s pipelines and helpers are working. As we write reports and test models, we will upload the subset of data used for that report into the github repo. The fire data has been cleaned and saved as a parquet file as well. We have successfully been able to query both datasets, and data types seem to be set. We are now ready to start running models and see how our data responds.
 
+## 2025-03-15: Finalize Data Models
+
+### Project Progress
+We have decided to split our data into two separate models and made progress on both aspects: 
+-	For the fire severity model, Thanh worked on looking at the geographic boundaries of fires and pulling data from the fire stations that lie within those boundaries. For fires that were too small, he extended the boundary so that every fire had at least one weather station.
+-	For the fire prediction model, Nathan worked on overlaying cells on a map of the US and assigning both fires and weather stations in the US to a respective cell. Based on the cell, we can then aggregate weather data to predict whether or not a fire occurred in the cell at a given point.
+This week, we also had trouble running out of space with Git LFS. Dhruv set up a Symlink to OneDrive that allows us to access data outside of the repo without having to use LFS space every time we pull the files. Dhruv also was able to get geometries for each state, meaning that we are able to limit our predictions to California to start with, giving us less data as we begin to train models.
+In addition, Collin has worked on cleaning the fire data as a parquet shape file and pushing that back to the repo.
+The team is working together very well, we’ve managed to organically work on multiple portions of the project at once instead of fixating on a single part and neglecting others.
+
+### Dashboard Sketch
+Because a majority of our data exists in Python, as well as our models, we are moving towards Dash instead of ArcGIS. The main goals and sketches from ArcGIS are still what we want to represent, but we will use Dash instead. Dhruv has done some exploratory work in Dash and has shown that it will work for our purposes. In terms of our dashboard, we want to display two maps – one that has a heatmap with the probability of a fire occuring, and the other that has a prediction of fire severity. We could also have overlaying maps that could be filtered by weather patterns, soil, etc. 
+Our current thinking is to have a full page interactive map, with a sidebar that allows selecting the elements to view. There should also be zoom/scale map controls, and a detail view for specific hex cells. 
+
+### Finalize Data Models
+At this point, we are splitting into two separate models – one that predicts fire severity and the other that predicts whether or not a fire will occur in a given area. Both are based on historical weather and soil patterns. 
+
+_Fire Severity Model_: This model is meant to grade fire severity. We are planning on a clustering algorithm. Using the H3 hex cells, we will aggregate weather data for 3 or so days around a fire. Then given the size of the fire, and how long it took to extinguish, we will cluster the fires and assign severity grades. 
+
+_Fire Prediction Model_: For this model, we are planning on doing a random forest/xgboost or a logistic regression – type model. We have created a geofence around the US using Uber’s H3 cells. Then, using these cells, we can aggregate weather data for the 3 or so days before a fire from all weather stations in a cell. This also gives us negative data, as places were fires did not occur are input with a 0, whereas a fire occurring will be a 1. By the end of spring break, we hope to have those aggregate statistics so we can actually run some of these models.
+
+![Picture1](https://github.com/user-attachments/assets/61c18b3e-db29-42e2-b123-de83a1f9ae13)
+
+
+### Spring Break Plans
+Over spring break, we will continue to work individually and share our progress on teams. The following is each person’s plans:
+-	Nathan: I am going to be out of the country over most of Spring Break. I have pushed the file that creates H3 cells for each geolocation of the United States for both the fire and weather data, allowing us to join the data easily and calculate aggregate statistics needed for modeling
+-	Dhruv: I plan on using the H3 grid to begin aggregating the data, creating hex plots, and viewing them in dash. 
+
+
 
