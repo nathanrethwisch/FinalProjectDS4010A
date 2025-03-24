@@ -22,6 +22,7 @@ class Datalake:
         self.paths = {"ghcnd_raw_stations": "raw/ghcnd/stations.txt", "ghcnd_raw_daily": "raw/ghcnd/daily/",
                       "ghcnd_clean_stations": "clean/ghcnd/stations.parquet",
                       "ghcnd_metadata": "clean/ghcnd/metadata.html", "ghcnd_clean_daily": "clean/ghcnd/daily/",
+                      "ghcnd_statistics": "curated/ghcnd/statistics.parquet",
                       "fire_point_raw": "raw/fire_occurrence_point/National_USFS_Fire_Occurrence_Point_(Feature_Layer).geojson",
                       "fire_point_clean": "clean/fire_occurrence_point/National_USFS_Fire_Occurrence_Point_(Feature_Layer).parquet",
                       "fire_perimeter_raw": "raw/fire_perimeter/National_USFS_Fire_Perimeter_(Feature_Layer).geojson",
@@ -119,6 +120,12 @@ class Datalake:
         states.columns = ['name', 'geometry']
         states = states.to_crs(epsg=4326)
         states = states.reset_index(drop=True)
+        states['code'] = [
+            'NM', 'SD', 'CA', 'KY', 'AL', 'GA', 'AR', 'PA', 'MO', 'CO', 'UT', 'OK', 'TN', 'WY', 'NY', 'IN', 'KS', 'ID', 'NV', 'IL',
+            'VT', 'MN', 'IA', 'SC', 'NH', 'DE', 'CT', 'MI', 'MA', 'FL', 'NJ', 'ND', 'MD', 'ME', 'RI', 'MT', 'AZ', 'NE', 'WA', 'TX',
+            'OH', 'WI', 'OR', 'MS', 'NC', 'VA', 'WV', 'LA'
+        ]
+        states = states[['name', 'code', 'geometry']]
         states.to_parquet(clean_path)
 
     def process_fire_point(self):
@@ -270,7 +277,7 @@ class Datalake:
         stations['longitude'] = stations['longitude'].astype(float)
         stations['elevation'] = stations['elevation'].astype(float)
         stations['name'] = stations['name'].astype(str)
-        stations.drop(columns=['state', 'gsn_flag', 'hcn_crn_flag', 'wmo_id'], inplace=True)
+        stations.drop(columns=['gsn_flag', 'hcn_crn_flag', 'wmo_id'], inplace=True)
 
         stations.to_parquet(clean_path)
 
