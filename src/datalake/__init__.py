@@ -26,7 +26,7 @@ class Datalake:
                       "ghcnd_metadata": "clean/ghcnd/metadata.html", "ghcnd_clean_daily": "clean/ghcnd/daily/",
                       "ghcnd_statistics": "curated/ghcnd/statistics.parquet",
                       "fire_point_raw": "raw/fire_occurrence_point/National_USFS_Fire_Occurrence_Point_(Feature_Layer).geojson",
-                      "fire_point_clean": "clean/fire_occurrence_point/National_USFS_Fire_Occurrence_Point_(Feature_Layer).parquet",
+                      "fire_point_clean": "clean/fire_occurrence_point/Fire_Occurence.parquet",
                       "fire_perimeter_raw": "raw/fire_perimeter/National_USFS_Fire_Perimeter_(Feature_Layer).geojson",
                       "fire_perimeter_cleaned": "clean/fire_perimeter/National_USFS_Fire_Perimeter_(Feature_Layer).parquet",
                       "states_raw": "raw/maps/cb_2023_us_all_500k.zip",
@@ -355,7 +355,7 @@ class Datalake:
         # Create the GeoDataFrame
         hexagon_df = gpd.GeoDataFrame({'Hexagon_ID': hexagons, 'geometry': hexagon_geometries},  crs="EPSG:4326")        
         
-        #gdf = gpd.GeoDataFrame(gdf, geometry=gpd.points_from_xy(gdf['Latitude'], gdf['Longitude']),  crs="EPSG:4326")
+        gdf = gpd.GeoDataFrame(gdf, geometry=gpd.points_from_xy(gdf['latitude'], gdf['longitude']),  crs="EPSG:4326")
        
         if gdf.crs != hexagon_df.crs:
             gdf = gdf.to_crs(hexagon_df.crs)
