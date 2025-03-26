@@ -25,7 +25,7 @@ class Datalake:
                       "ghcnd_clean_stations": "clean/ghcnd/stations.parquet",
                       "ghcnd_metadata": "clean/ghcnd/metadata.html", "ghcnd_clean_daily": "clean/ghcnd/daily/",
                       "fire_point_raw": "raw/fire_occurrence_point/National_USFS_Fire_Occurrence_Point_(Feature_Layer).geojson",
-                      "fire_point_clean": "clean/fire_occurrence_point/National_USFS_Fire_Occurrence_Point_(Feature_Layer).parquet",
+                      "fire_point_clean": "clean/fire_occurrence_point/Fire_Occurence.parquet",
                       "fire_perimeter_raw": "raw/fire_perimeter/National_USFS_Fire_Perimeter_(Feature_Layer).geojson",
                       "fire_perimeter_cleaned": "clean/fire_perimeter/National_USFS_Fire_Perimeter_(Feature_Layer).parquet",
                       "states_raw": "raw/maps/cb_2023_us_all_500k.zip",
