@@ -2,14 +2,16 @@ from datetime import date
 
 from dash import dcc
 
-field_selection = dcc.Checklist(
+field_selection = dcc.RadioItems(
     id='field-checklist',
     options=[
-        {'label': 'Precipitation', 'value': 'precipitation'},
-        {'label': 'Max Temperature', 'value': 'max_temp'},
-        {'label': 'Min Temperature', 'value': 'min_temp'}
+        {'label': 'Precipitation', 'value': 'prcp'},
+        {'label': 'Max Temperature', 'value': 'tmax'},
+        {'label': 'Min Temperature', 'value': 'tmin'},
+        {'label': 'Snowfall', 'value': 'snow'},
+        {'label': 'Wind', 'value': 'snwd'}
     ],
-    value=[]
+    value=None
 )
 
 date_picker = dcc.DatePickerSingle(
@@ -19,3 +21,6 @@ date_picker = dcc.DatePickerSingle(
     initial_visible_month=date(2020, 1, 1),
     date=date(2020, 1, 1),
 )
+
+def get_layer(selected_field, date):
+    pass

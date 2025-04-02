@@ -89,7 +89,7 @@ app.layout = html.Div([
               Input('field-checklist', 'value'),
               Input('date-picker', 'date'), )
 def update_diagnostics(selected_fields, date):
-    return f"Selected Fields: {', '.join(selected_fields)} on {date} "
+    return f"Selected Fields: {selected_fields} on {date} "
 
 # Reenters Map
 @app.callback(Output("map", "viewport"),
@@ -98,6 +98,15 @@ def update_diagnostics(selected_fields, date):
 def recenter(_):
     return dict(center=[40, -95], zoom=4, transition="flyTo")
 
+@app.callback(Output('map', 'children'),
+              Input('field-checklist', 'value'),
+              Input('date-picker', 'date'), )
+def update_map(selected_field, date):
+    layers = [dl.TileLayer()]
+    layers.append(get_layer(selected_field, date))
+    print(date)
+    # layers.append(example_layer)
+    return layers
 
 if __name__ == "__main__":
     app.run(debug=True, dev_tools_hot_reload=True)
