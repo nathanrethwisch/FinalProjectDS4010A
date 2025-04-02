@@ -31,7 +31,7 @@ class Datalake:
                       "fire_perimeter_cleaned": "clean/fire_perimeter/National_USFS_Fire_Perimeter_(Feature_Layer).parquet",
                       "states_raw": "raw/maps/cb_2023_us_all_500k.zip",
                       "states_clean": "clean/maps/cb_2023_us_states_500k.parquet", }
-        self.ghcnd_elements = ['PRCP', 'SNOW', 'SNWD', 'TMAX', 'TMIN', 'AWND']
+        self.ghcnd_elements = ['PRCP', 'SNOW', 'SNWD', 'TMAX', 'TMIN', 'AWND', 'AWDR', 'EVAP']
         self.ghcnd_sources = {"readme": "https://docs.opendata.aws/noaa-ghcn-pds/readme.html",
                               "stations": "https://noaa-ghcn-pds.s3.amazonaws.com/ghcnd-stations.txt",
                               "inventory": "https://noaa-ghcn-pds.s3.amazonaws.com/ghcnd-inventory.txt",
