@@ -1,4 +1,7 @@
 from datetime import date
+import geopandas as gpd
+import dash_leaflet as dl
+
 
 from dash import dcc
 
@@ -23,4 +26,20 @@ date_picker = dcc.DatePickerSingle(
 )
 
 def get_layer(selected_field, date):
-    pass
+    def gdf_to_geojson(gdf):
+        return {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": shapely.geometry.mapping(row.geometry),
+                    "properties": {}
+                } for _, row in gdf.iterrows()
+            ]
+        }
+    
+    output_data = read.parquet(gpd.read_parquet("../data/curated/hexagon_data.parquet"))
+
+    geojson_data = gdf_to_geojson(output_data)
+    return dl.GeoJSON(data=geojson_data, style={"color": "blue", "weight": 2, "fillOpacity": 0.4}, id="hexagons-layer")
+
