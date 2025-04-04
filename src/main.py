@@ -62,7 +62,10 @@ app.layout = html.Div([
             # Add main content components and plots here
             dl.Map(children=[
                 dl.TileLayer(),
-                dl.LayerGroup(id='hexes', interactive=True),
+
+                # dl.LayerGroup(id='hexes', interactive=True),
+                dl.LayersControl([], id="lc", collapsed=False, position="bottomright")
+
             ], center=[40, -95], zoom=4, style={'height': '50vh'}, id="map"),
             html.Button("Recenter", id="recenter")
         ], style={'width': '60%', 'display': 'inline-block', 'verticalAlign': 'top', 'padding': '10px'}
@@ -98,16 +101,15 @@ def recenter(_):
     return dict(center=[40, -95], zoom=4, transition="flyTo")
 
 # updates the map
-@app.callback(Output('hexes', 'children'),
+@app.callback(Output('lc', 'children'),
               Input('date-picker', 'date'),
-              Input('field-checklist', 'value'),
+              # Input('field-checklist', 'value'),
                )
-def update_map(date, field):
-    gdf = read_data(date, field)
-    gdf = normalize(gdf, field)
-    polys = generate_polys(gdf, field)
-    # print(polys[5])
-    return polys
+def update_map(date):
+    # gdf = read_data(date, field)
+    # gdf = normalize(gdf, field)
+    # polys = generate_polys(gdf, field)
+    return generate_layers(date)
 
 # @app.callback(
 #     [Output('hexes', 'children'),

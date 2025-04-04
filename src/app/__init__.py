@@ -45,7 +45,7 @@ def normalize(gdf, field):
     gdf[field] = np.clip(gdf[field], 0, 1)
     return gdf
 
-def read_data(date, field):
+def read_data(date):
     """
     read the plot_{date}.parquet for the correct date, return a colorized gdf
     :rtype: gpd.GeoDataFrame
@@ -72,3 +72,14 @@ def generate_polys(gdf, field):
         # color = mcolors.to_hex(cmap(row['tmax_avg']))
         polygons.append(dl.Polygon(positions=coordinates, color=color, fillColor=color, fillOpacity=0.6, weight=1))
     return polygons
+
+def generate_layers(date):
+    gdf = read_data(date)
+    overlays = []
+    for field in ['normalized_probabilities', 'prcp_avg', 'tmax_avg', 'tmin_avg', 'snow_avg']:
+        gdf = normalize(gdf, field)
+        polys = generate_polys(gdf, field)
+        poly_layer = dl.LayerGroup(polys)
+        over = dl.BaseLayer(poly_layer, name = field, checked=False)
+        overlays.append(over)
+    return overlays
