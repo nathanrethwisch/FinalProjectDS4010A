@@ -27,11 +27,6 @@ lake = Datalake('../data')
 
 app = dash.Dash(external_stylesheets=[dbc.themes.JOURNAL])
 
-# Base Map without
-map_context = [
-    dl.TileLayer()  # base map raster
-]
-
 theme = {
     # Define colorscheme here: https://coolors.co/07020d-5db7de-f25757-f1e9db-716a5c
     "Black": "07020d",
@@ -65,7 +60,10 @@ app.layout = html.Div([
         html.Div([
             html.H3("Map"),
             # Add main content components and plots here
-            dl.Map(map_context, center=[40, -95], zoom=4, style={'height': '50vh'}, id="map"),
+            dl.Map(children=[
+                dl.TileLayer(),
+                dl.LayerGroup(id='hexes', interactive=True),
+            ], center=[40, -95], zoom=4, style={'height': '50vh'}, id="map"),
             html.Button("Recenter", id="recenter")
         ], style={'width': '60%', 'display': 'inline-block', 'verticalAlign': 'top', 'padding': '10px'}
         ),
@@ -99,15 +97,39 @@ def update_diagnostics(selected_fields, date):
 def recenter(_):
     return dict(center=[40, -95], zoom=4, transition="flyTo")
 
-@app.callback(Output('map', 'children'),
+# updates the map
+@app.callback(Output('hexes', 'children'),
+              Input('date-picker', 'date'),
               Input('field-checklist', 'value'),
-              Input('date-picker', 'date'), )
-def update_map(selected_field, date):
-    layers = [dl.TileLayer()]
-    layers.append(get_layer(selected_field, date))
-    print(date)
-    # layers.append(example_layer)
-    return layers
+               )
+def update_map(date, field):
+    gdf = read_data(date, field)
+    gdf = normalize(gdf, field)
+    polys = generate_polys(gdf, field)
+    # print(polys[5])
+    return polys
+
+# @app.callback(
+#     [Output('hexes', 'children'),
+#      Output("map", "viewport"),
+#      Output('diagnostics', 'children')],
+#     [Input('field-checklist', 'value'),
+#      Input('date-picker', 'date'),
+#      Input("recenter", "n_clicks")]
+# )
+# def update_map(field, date, n_clicks):
+#     gdf = read_data(date)
+#     gdf = normalize(gdf, field)
+#     polys = generate_polys(gdf, field)
+#
+#     diagnostics = f"Selected Fields: {field} on {date}"
+#
+#     if n_clicks:
+#         viewport = dict(center=[40, -95], zoom=4, transition="flyTo")
+#     else:
+#         viewport = dash.no_update
+#
+#     return polys, viewport, diagnostics
 
 if __name__ == "__main__":
     app.run(debug=True, dev_tools_hot_reload=True)
