@@ -74,6 +74,7 @@ app.layout = html.Div([
         html.Div([
             # Add components for the right sidebar here
             html.H3("Model"),
+            # TODO HEX DETAILED TABLE
         ], style={'width': '20%', 'display': 'inline-block', 'verticalAlign': 'top', 'backgroundColor': '#e9ecef', 'padding': '10px'}
         ),
     ], style={'width': '100%', 'display': 'block'}),
