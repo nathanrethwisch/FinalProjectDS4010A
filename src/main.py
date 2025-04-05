@@ -26,6 +26,7 @@ from datalake import Datalake
 lake = Datalake('../data')
 
 app = dash.Dash(external_stylesheets=[dbc.themes.JOURNAL])
+server = app.server 
 
 theme = {
     # Define colorscheme here: https://coolors.co/07020d-5db7de-f25757-f1e9db-716a5c
