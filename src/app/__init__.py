@@ -7,7 +7,7 @@ import matplotlib.colors as mcolors
 import numpy as np
 from dash import dcc
 
-PLOT_DATA_ROOT = Path('C:/Users/dhruv/IdeaProjects/capstone/data') # READ FROM ENV VAR
+PLOT_DATA_ROOT = Path('../data') # READ FROM ENV VAR
 
 # Field Selection Component
 field_selection = dcc.RadioItems(
