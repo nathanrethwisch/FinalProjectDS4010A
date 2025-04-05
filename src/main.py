@@ -1,10 +1,14 @@
 from datetime import date
 
+import sys
+from pathlib import Path
 import dash
 from dash import html, dcc, Output, Input
 import dash_bootstrap_components as dbc
 import dash_leaflet as dl
 
+sys.path.append(str(Path(__file__).parent))
+sys.path.append(str(Path(__file__).parent / 'app'))
 from app import *
 
 from datalake import Datalake
@@ -26,6 +30,7 @@ from datalake import Datalake
 lake = Datalake('../data')
 
 app = dash.Dash(external_stylesheets=[dbc.themes.JOURNAL])
+server = app.server 
 
 theme = {
     # Define colorscheme here: https://coolors.co/07020d-5db7de-f25757-f1e9db-716a5c
