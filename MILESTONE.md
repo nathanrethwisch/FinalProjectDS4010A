@@ -160,6 +160,10 @@ Below is an example sketch of our Dashboard in Dash. The main focus of the dashb
 If we have time, we may add a 2nd tab to the app to view weather and wildfire trends over time(not mapped).  
 ![image](https://github.com/user-attachments/assets/7e668dc3-10fc-4b9e-b2f8-cbc5d3950d2b)
 
+ ![image](https://github.com/user-attachments/assets/12f3361d-17cb-41cf-8e74-8890822bbb1f)
+
+For each date, our random forest model currently outputs a probability of a fire occurring. We then normalized that score from 0 to 1. Each hex is plotted on a map of the US, with the idea that a slider can be used to change the prediction date.
+
 ## 2025-04-06: Minimum Viable Dashboard
 Our current dashboard is in a working state but allows the user to select different summary statistics and see the output change on a map of the US divided by hexes. Currently, the user can see model predictions, as well as 3-day output for precipitation, snowfall, minimum temperature, and maximum temperature. We are still working on things like making the dashboard look better, updating null values (which are the black hexes), etc. Furthermore, we are also fine-tuning the model and testing other modeling methods, so right now we just have example output from June 1, 2020, to June 10, 2020, that the user can select from. Going forward, we are going to finalize model output and push files for a larger number of years. We will also work on displaying summary statistics for each hex based on the hex that a user selects. Here is a link to the dashboard, which is now hosted on Render: 
 https://wildfire-predictions-finalprojectds4010a.onrender.com/ 
@@ -167,8 +171,6 @@ NOTE: YOU MUST SELECT MAP OVERLAYS FOR VIEWING IN THE MENU WHICH IS OVERLAYED ON
 
 Note that sometimes, switching between dates can be somewhat slow. Our plan to fix this is to precompute dataframes for each date. This dataframe can be loaded dynamically using the date field. Dash Leaflet will handle selection and display of different kinds of map layers. 
  We are currently working on getting a heatmap from our model output into Dash. Here is an example of what our model will output:  
- ![image](https://github.com/user-attachments/assets/12f3361d-17cb-41cf-8e74-8890822bbb1f)
 
-For each date, our random forest model currently outputs a probability of a fire occurring. We then normalized that score from 0 to 1. Each hex is plotted on a map of the US, with the idea that a slider can be used to change the prediction date.
 
 
