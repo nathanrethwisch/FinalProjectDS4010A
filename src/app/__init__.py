@@ -8,7 +8,7 @@ import numpy as np
 from dash import dcc
 import os
 
-PLOT_DATA_ROOT = Path(os.getenv('PLOT_DATA_ROOT', '../model_output'))
+PLOT_DATA_ROOT = Path(os.getenv('PLOT_DATA_ROOT', '../../model_output'))
 print(PLOT_DATA_ROOT.absolute())
 # Field Selection Component
 field_selection = dcc.RadioItems(
