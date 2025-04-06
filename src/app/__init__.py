@@ -8,7 +8,7 @@ import numpy as np
 from dash import dcc
 import os
 
-PLOT_DATA_ROOT = Path(os.getenv('PLOT_DATA_ROOT', './data'))
+PLOT_DATA_ROOT = Path(os.getenv('PLOT_DATA_ROOT', '../model_output'))
 print(PLOT_DATA_ROOT.absolute())
 # Field Selection Component
 field_selection = dcc.RadioItems(
@@ -41,8 +41,8 @@ def normalize(gdf, field):
     min_val = gdf[field].min()
     max_val = gdf[field].max()
     gdf[field] = (gdf[field] - min_val) / (max_val - min_val)
-    mean_shift = 0.5 - gdf[field].mean()
-    gdf[field] += mean_shift
+    #mean_shift = 0.5 - gdf[field].mean()
+    #gdf[field] += mean_shift
     gdf[field] = np.clip(gdf[field], 0, 1)
     return gdf
 
@@ -51,7 +51,7 @@ def read_data(date):
     read the plot_{date}.parquet for the correct date, return a colorized gdf
     :rtype: gpd.GeoDataFrame
     """
-    file_path = PLOT_DATA_ROOT / 'curated' / f'Model_Output_{date}.parquet'
+    file_path = PLOT_DATA_ROOT / f'Model_Output_{date}.parquet'
     print(f'READING DATA FROM {file_path}')
     return gpd.read_parquet(file_path,)
                             # columns=["Hexagon_ID", 'geometry', field])
