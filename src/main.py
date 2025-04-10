@@ -1,17 +1,13 @@
-from datetime import date
-
 import sys
 from pathlib import Path
+
 import dash
-from dash import html, dcc, Output, Input
 import dash_bootstrap_components as dbc
-import dash_leaflet as dl
+from dash import Output, Input
 
 sys.path.append(str(Path(__file__).parent))
 sys.path.append(str(Path(__file__).parent / "app"))
 from app import *
-
-from datalake import Datalake
 
 # TODO
 # 1. Define Base Layout
@@ -27,8 +23,7 @@ from datalake import Datalake
 
 
 # Initialization
-lake = Datalake("../data")
-
+# lake = Datalake("../data")
 app = dash.Dash(external_stylesheets=[dbc.themes.JOURNAL])
 server = app.server
 

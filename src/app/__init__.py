@@ -2,11 +2,10 @@ from datetime import date
 from pathlib import Path
 
 import geopandas as gpd
-import dash_leaflet as dl
-
 import matplotlib.colors as mcolors
-import numpy as np
+
 from dash import html, dcc
+import dash_leaflet as dl
 
 from .utils import *
 
@@ -122,6 +121,9 @@ def generate_colorbar(field, n_ticks):
             'textAlign': 'center'
         }
         tick_elements.append(html.Div([], style=tick_mark_style))
+
+        # noinspection PyTypeChecker
+        # type: ignore[assignment]
         tick_elements.append(html.Div(format_field_values(val, field), style=tick_label_style))
 
     ticks_container_style = {
