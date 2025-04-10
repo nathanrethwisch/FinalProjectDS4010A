@@ -64,7 +64,7 @@ app.layout = html.Div([
         # Center Content Area
         html.Div([
             html.H3("Map"),
-            # Add main content components and plots here
+            html.Div(id='colorbar', style={'height': '30px', 'marginTop': '10px'}),
             dl.Map(children=[
                 dl.TileLayer(),
 
@@ -106,15 +106,17 @@ def recenter(_):
     return dict(center=[40, -95], zoom=4, transition="flyTo")
 
 # updates the map
-@app.callback(Output('lc', 'children'),
-              Input('date-picker', 'date'),
-              # Input('field-checklist', 'value'),
-               )
-def update_map(date):
-    # gdf = read_data(date, field)
-    # gdf = normalize(gdf, field)
-    # polys = generate_polys(gdf, field)
-    return generate_layers(date)
+@app.callback(
+    Output('lc', 'children'),
+    Output('colorbar', 'children'),
+    Input('date-picker', 'date'),
+    Input('field-checklist', 'value')
+)
+def update_map(date, field):
+    layers, min_val, max_val = generate_layers(date, field)
+    colorbar = generate_colorbar(field, min_val, max_val)
+    return layers, colorbar
+
 
 # @app.callback(
 #     [Output('hexes', 'children'),

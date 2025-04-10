@@ -5,7 +5,7 @@ import geopandas as gpd
 import dash_leaflet as dl
 import matplotlib.colors as mcolors
 import numpy as np
-from dash import dcc
+from dash import html, dcc
 import os
 
 PLOT_DATA_ROOT = Path(__file__).resolve().parents[2] / 'model_output'
@@ -74,13 +74,44 @@ def generate_polys(gdf, field):
         polygons.append(dl.Polygon(positions=coordinates, color=color, fillColor=color, fillOpacity=0.6, weight=1))
     return polygons
 
-def generate_layers(date):
+def generate_layers(date, field):
     gdf = read_data(date)
-    overlays = []
-    for field in ['normalized_probabilities', 'prcp_avg', 'tmax_avg', 'tmin_avg', 'snow_avg']:
-        gdf = normalize(gdf, field)
-        polys = generate_polys(gdf, field)
-        poly_layer = dl.LayerGroup(polys)
-        over = dl.BaseLayer(poly_layer, name = field, checked=False)
-        overlays.append(over)
-    return overlays
+    min_val = gdf[field].min()
+    max_val = gdf[field].max()
+    gdf = normalize(gdf, field)
+    polys = generate_polys(gdf, field)
+    poly_layer = dl.LayerGroup(polys)
+    overlay = dl.BaseLayer(poly_layer, name=field, checked=True)
+    # return value range to support colorbar
+    return [overlay], float(min_val), float(max_val)
+
+
+def generate_colorbar(field, min_val, max_val):
+    colormap = {
+        'normalized_probabilities': ['green', 'yellow', 'red'],
+        'prcp_avg': ['white', 'blue'],
+        'tmax_avg': ['blue', 'red'],
+        'tmin_avg': ['purple', 'lightblue'],
+        'snow_avg': ['white', 'gray']
+    }
+
+    colors = colormap.get(field, ['white', 'black'])
+
+    style = {
+        'height': '20px',
+        'background': f'linear-gradient(to right, {", ".join(colors)})',
+        'marginBottom': '5px',
+        'width': '100%'
+    }
+
+    print("dssd", max_val, min_val)
+    ticks = html.Div([
+        html.Span(f"a{min_val:.2f}", style={'float': 'left'}),
+        html.Span(f"b{(min_val + max_val)/2:.2f}", style={'textAlign': 'center'}),
+        html.Span(f"c{max_val:.2f}", style={'float': 'right'})
+    ], style={'fontSize': '12px', 'width': '100%', 'display': 'flex', 'justifyContent': 'space-between'})
+
+    return html.Div([
+        html.Div(style=style),
+        ticks
+    ])
