@@ -5,6 +5,7 @@ import geopandas as gpd
 import dash_leaflet as dl
 
 import matplotlib.colors as mcolors
+import numpy as np
 from dash import html, dcc
 
 from .utils import *
@@ -64,42 +65,75 @@ def generate_polys(gdf, field):
     return polygons
 
 
-def generate_layers(dt, field):
-    gdf = read_data(dt)
-    min_val = gdf[field].min()
-    max_val = gdf[field].max()
-    gdf = normalize_to_field_range(gdf, field)
-    polys = generate_polys(gdf, field)
-    poly_layer = dl.LayerGroup(polys)
-    overlay = dl.BaseLayer(poly_layer, name=field, checked=True)
-    # return value range to support colorbar
-    return [overlay], float(min_val), float(max_val)
+def generate_layers(date):
+    gdf = read_data(date)
+    overlays = []
+    for field in field_identifiers:
+        gdf = normalize_to_field_range(gdf, field)
+        polys = generate_polys(gdf, field)
+        poly_layer = dl.LayerGroup(polys)
+        over = dl.BaseLayer(poly_layer, name=field, checked=False)
+        overlays.append(over)
+    return overlays
 
 
-def generate_colorbar(field, min_val, max_val):
+def generate_colorbar(field, n_ticks):
     cmap = get_colormap_choice(field)
+    min_val, max_val = get_field_range(field)
 
-    steps = [cmap(i / 10) for i in range(11)]
+    # Build a linear gradient with discrete steps
+    n_grad_steps = 24
+    steps = [cmap(i / (n_grad_steps - 1)) for i in range(n_grad_steps)]
     hex_colors = [mcolors.to_hex(c) for c in steps]
-
     gradient = f'linear-gradient(to right, {", ".join(hex_colors)})'
 
+    # The gradient bar with relative positioning
     gradient_style = {
         'height': '20px',
-        'background': gradient,
-        'marginBottom': '4px',
         'width': '100%',
+        'background': gradient,
         'border': '1px solid #ccc',
-        'borderRadius': '4px'
+        'borderRadius': '4px',
+        'position': 'relative'
     }
 
-    ticks = html.Div([
-        html.Div(f"{min_val:.2f}", style={'width': '33%', 'textAlign': 'left'}),
-        html.Div(f"{(min_val + max_val) / 2:.2f}", style={'width': '34%', 'textAlign': 'center'}),
-        html.Div(f"{max_val:.2f}", style={'width': '33%', 'textAlign': 'right'})
-    ], style={'display': 'flex', 'width': '100%', 'fontSize': '12px'})
+    # Container for tick marks and labels (absolute positioning relative to its own container)
+    tick_elements = []
+    for i, val in enumerate(np.linspace(min_val, max_val, n_ticks)):
+        # Compute left position as a percentage along the bar.
+        left_percent = (i / (n_ticks - 1)) * 100
+        # Tick mark: a short vertical line on the colorbar.
+        tick_mark_style = {
+            'position': 'absolute',
+            'top': '0px',
+            'left': f'{left_percent}%',
+            'width': '1px',
+            'height': '8px',
+            'background': 'black',
+            'transform': 'translateX(-50%)'
+        }
+        # Tick label: positioned below the colorbar.
+        tick_label_style = {
+            'position': 'absolute',
+            'top': '12px',
+            'left': f'{left_percent}%',
+            'transform': 'translateX(-50%)',
+            'fontSize': '12px',
+            'textAlign': 'center'
+        }
+        tick_elements.append(html.Div([], style=tick_mark_style))
+        tick_elements.append(html.Div(format_field_values(val, field), style=tick_label_style))
 
+    ticks_container_style = {
+        'position': 'relative',
+        'width': '100%',
+        'height': '40px'
+    }
+
+    ticks_container = html.Div(tick_elements, style=ticks_container_style)
+
+    # Assemble the colorbar with ticks below the gradient bar.
     return html.Div([
-        ticks,
-        html.Div(style=gradient_style)
+        html.Div(style=gradient_style),
+        ticks_container
     ])

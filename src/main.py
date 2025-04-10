@@ -62,26 +62,27 @@ app.layout = html.Div([
         ),
 
         # Center Content Area
-        html.Div([
-            html.H3("Map"),
-            html.Div(id="colorbar", style={"height": "30px", "marginTop": "10px"}),
-            dl.Map(children=[
-                dl.TileLayer(),
+        html.Div(
+            [
+                html.H3("Map"),
+                html.Button("Recenter", id="recenter"),
+                dl.Map(children=[
+                    dl.TileLayer(),
+                    # dl.LayerGroup(id="hexes", interactive=True),
+                    dl.LayersControl([], id="lc", collapsed=False, position="bottomright")
 
-                # dl.LayerGroup(id="hexes", interactive=True),
-                dl.LayersControl([], id="lc", collapsed=False, position="bottomright")
-
-            ], center=[40, -95], zoom=4, style={"height": "50vh"}, id="map"),
-            html.Button("Recenter", id="recenter")
-        ], style={"width": "60%", "display": "inline-block", "verticalAlign": "top", "padding": "10px"}
+                ], center=[40, -95], zoom=4, style={"height": "50vh"}, id="map"),
+                html.Div(id="colorbar", style={"height": "30px", "marginTop": "10px"}),
+            ],
+            style={"width": "60%", "display": "inline-block", "verticalAlign": "top", "padding": "10px"}
         ),
-
         # Right Sidebar
         html.Div([
             # Add components for the right sidebar here
             html.H3("Model"),
             # TODO HEX DETAILED TABLE
-        ], style={"width": "20%", "display": "inline-block", "verticalAlign": "top", "backgroundColor": "#e9ecef", "padding": "10px"}
+        ], style={"width": "20%", "display": "inline-block", "verticalAlign": "top", "backgroundColor": "#e9ecef",
+                  "padding": "10px"}
         ),
     ], style={"width": "100%", "display": "block"}),
     html.Div([
@@ -95,8 +96,9 @@ app.layout = html.Div([
 @app.callback(Output("diagnostics", "children"),
               Input("field-checklist", "value"),
               Input("date-picker", "date"), )
-def update_diagnostics(selected_fields, date):
-    return f"Selected Fields: {selected_fields} on {date} "
+def update_diagnostics(selected_field, date):
+    return f"Selected Fields: {selected_field} on {date} "
+
 
 # Reenters Map
 @app.callback(Output("map", "viewport"),
@@ -105,18 +107,26 @@ def update_diagnostics(selected_fields, date):
 def recenter(_):
     return dict(center=[40, -95], zoom=4, transition="flyTo")
 
+
 # updates the map
 @app.callback(
     Output("lc", "children"),
-    Output("colorbar", "children"),
+    # Output("colorbar", "children"),
     Input("date-picker", "date"),
-    Input("field-checklist", "value")
 )
-def update_map(date, field):
-    layers, min_val, max_val = generate_layers(date, field)
-    print(f"Map update for {field} on {date} — Min: {min_val}, Max: {max_val}")
-    colorbar = generate_colorbar(field, min_val, max_val)
-    return layers, colorbar
+def update_map(dt):
+    return generate_layers(dt)
+
+
+@app.callback(
+    Output("colorbar", "children"),
+    Input("lc", "baseLayer"),
+    Input("lc", "overlays"),
+    prevent_initial_call=True
+)
+def update_colorbar(base, overlays):
+    if base not in field_identifiers: return None
+    return generate_colorbar(base, n_ticks=11)
 
 
 # @app.callback(
