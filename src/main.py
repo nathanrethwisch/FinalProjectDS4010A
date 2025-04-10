@@ -8,7 +8,7 @@ import dash_bootstrap_components as dbc
 import dash_leaflet as dl
 
 sys.path.append(str(Path(__file__).parent))
-sys.path.append(str(Path(__file__).parent / 'app'))
+sys.path.append(str(Path(__file__).parent / "app"))
 from app import *
 
 from datalake import Datalake
@@ -27,10 +27,10 @@ from datalake import Datalake
 
 
 # Initialization
-lake = Datalake('../data')
+lake = Datalake("../data")
 
 app = dash.Dash(external_stylesheets=[dbc.themes.JOURNAL])
-server = app.server 
+server = app.server
 
 theme = {
     # Define colorscheme here: https://coolors.co/07020d-5db7de-f25757-f1e9db-716a5c
@@ -46,8 +46,8 @@ app.layout = html.Div([
     html.Div([
         html.H2("Wildfire"),
         # Add navigation links or components here
-    ], style={'width': '100%', 'display': 'block', 'backgroundColor': '#f8f9fa', 'padding': '10px',
-              'textAlign': 'center'}
+    ], style={"width": "100%", "display": "block", "backgroundColor": "#f8f9fa", "padding": "10px",
+              "textAlign": "center"}
     ),
     # Primary Content Area
     html.Div([
@@ -57,23 +57,23 @@ app.layout = html.Div([
             html.H3("Data"),
             field_selection,
             date_picker
-        ], style={'width': '20%', 'display': 'inline-block', 'verticalAlign': 'top', 'backgroundColor': '#e9ecef',
-                  'padding': '10px'}
+        ], style={"width": "20%", "display": "inline-block", "verticalAlign": "top", "backgroundColor": "#e9ecef",
+                  "padding": "10px"}
         ),
 
         # Center Content Area
         html.Div([
             html.H3("Map"),
-            html.Div(id='colorbar', style={'height': '30px', 'marginTop': '10px'}),
+            html.Div(id="colorbar", style={"height": "30px", "marginTop": "10px"}),
             dl.Map(children=[
                 dl.TileLayer(),
 
-                # dl.LayerGroup(id='hexes', interactive=True),
+                # dl.LayerGroup(id="hexes", interactive=True),
                 dl.LayersControl([], id="lc", collapsed=False, position="bottomright")
 
-            ], center=[40, -95], zoom=4, style={'height': '50vh'}, id="map"),
+            ], center=[40, -95], zoom=4, style={"height": "50vh"}, id="map"),
             html.Button("Recenter", id="recenter")
-        ], style={'width': '60%', 'display': 'inline-block', 'verticalAlign': 'top', 'padding': '10px'}
+        ], style={"width": "60%", "display": "inline-block", "verticalAlign": "top", "padding": "10px"}
         ),
 
         # Right Sidebar
@@ -81,20 +81,20 @@ app.layout = html.Div([
             # Add components for the right sidebar here
             html.H3("Model"),
             # TODO HEX DETAILED TABLE
-        ], style={'width': '20%', 'display': 'inline-block', 'verticalAlign': 'top', 'backgroundColor': '#e9ecef', 'padding': '10px'}
+        ], style={"width": "20%", "display": "inline-block", "verticalAlign": "top", "backgroundColor": "#e9ecef", "padding": "10px"}
         ),
-    ], style={'width': '100%', 'display': 'block'}),
+    ], style={"width": "100%", "display": "block"}),
     html.Div([
-        html.H3('Bottom Panel'),
-        html.Div(id='diagnostics')  # Displays Diagnostics on field/date selection
-    ], style={'padding': '10px'})
+        html.H3("Bottom Panel"),
+        html.Div(id="diagnostics")  # Displays Diagnostics on field/date selection
+    ], style={"padding": "10px"})
 ])
 
 
 # updates bottom panel's diagnostics
-@app.callback(Output('diagnostics', 'children'),
-              Input('field-checklist', 'value'),
-              Input('date-picker', 'date'), )
+@app.callback(Output("diagnostics", "children"),
+              Input("field-checklist", "value"),
+              Input("date-picker", "date"), )
 def update_diagnostics(selected_fields, date):
     return f"Selected Fields: {selected_fields} on {date} "
 
@@ -107,23 +107,24 @@ def recenter(_):
 
 # updates the map
 @app.callback(
-    Output('lc', 'children'),
-    Output('colorbar', 'children'),
-    Input('date-picker', 'date'),
-    Input('field-checklist', 'value')
+    Output("lc", "children"),
+    Output("colorbar", "children"),
+    Input("date-picker", "date"),
+    Input("field-checklist", "value")
 )
 def update_map(date, field):
     layers, min_val, max_val = generate_layers(date, field)
+    print(f"Map update for {field} on {date} — Min: {min_val}, Max: {max_val}")
     colorbar = generate_colorbar(field, min_val, max_val)
     return layers, colorbar
 
 
 # @app.callback(
-#     [Output('hexes', 'children'),
+#     [Output("hexes", "children"),
 #      Output("map", "viewport"),
-#      Output('diagnostics', 'children')],
-#     [Input('field-checklist', 'value'),
-#      Input('date-picker', 'date'),
+#      Output("diagnostics", "children")],
+#     [Input("field-checklist", "value"),
+#      Input("date-picker", "date"),
 #      Input("recenter", "n_clicks")]
 # )
 # def update_map(field, date, n_clicks):
