@@ -5,7 +5,7 @@ from pathlib import Path
 
 import dash
 import dash_bootstrap_components as dbc
-from dash import Output, Input, callback_context, State
+from dash import Output, Input
 
 sys.path.append(str(Path(__file__).parent))
 sys.path.append(str(Path(__file__).parent / 'app'))
@@ -133,11 +133,12 @@ def update_map(date):
     return generate_layers(date)
 
 
-
 @app.callback(Output('output-container', 'children'),
               Input('layer', 'clickData'))
 def show_hex_data(clickData):
     return json.dumps(clickData)
+
+
 if __name__ == "__main__":
 
     if os.getenv("ENVIRONMENT", "dev") == "prod":  # production mode
