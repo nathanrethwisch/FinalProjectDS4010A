@@ -1,31 +1,16 @@
+import datetime
 from datetime import date
 from pathlib import Path
 
-import geopandas as gpd
 import dash_leaflet as dl
-
+import geopandas as gpd
 import matplotlib.colors as mcolors
-import numpy as np
 from dash import html, dcc
 
 from .utils import *
 
 PLOT_DATA_ROOT = Path(__file__).resolve().parents[2] / "data" / "curated" / "ModelOutput"
 print(PLOT_DATA_ROOT.absolute())
-# Field Selection Component
-field_selection = dcc.RadioItems(
-    id="field-checklist",
-    options=[
-        {"label": "Fire Probability", "value": "Normalized Fire Probability"},
-        {"label": "Precipitation", "value": "Precipiation (3-Day Average)"},
-        {"label": "Max Temperature", "value": "Temperature Maximum (3-Day Average)"},
-        {"label": "Min Temperature", "value": "Temperature Minimum (3-Day Average)"},
-        {"label": "Snowfall", "value": "Snowfall (3-Day Avereage)"},
-        {"label": "Elevation", "value": "Average Elevation"}
-        # {"label": "Wind", "value": "snwd"}
-    ],
-    value="Normalized Fire Probability"
-)
 
 # Date Picker Component
 date_picker = dcc.DatePickerSingle(
@@ -34,6 +19,15 @@ date_picker = dcc.DatePickerSingle(
     max_date_allowed=date(2025, 2, 28),
     initial_visible_month=date(2020, 1, 1),
     date=date(2020, 1, 1),
+)
+
+date_slider = dcc.Slider(
+    id='date-picker',
+    min=0,
+    max=365,
+    value=0,
+    marks={i: (datetime.datetime(2023, 1, 1) + datetime.timedelta(days=i)).strftime('%Y-%m-%d') for i in range(0, 366)},
+    step=1
 )
 
 
@@ -62,8 +56,8 @@ def generate_polys(gdf, field):
         coordinates = [[lat, lon] for lat, lon in polygon.exterior.coords]  # TODO is this necessary
         color = mcolors.to_hex(cmap(row[field]))
         # color = mcolors.to_hex(cmap(row["tmax_avg"]))
-        polygons.append(dl.Polygon(positions=coordinates, color=color, fillColor=color, fillOpacity=0.6, weight=1))
-    return polygons
+        polygons.append(dl.Polygon(id=str(row['Hexagon_ID']),positions=coordinates, color=color, fillColor=color, fillOpacity=0.6, weight=1))
+    return polygons, gdf["Hexagon_ID"]
 
 
 def generate_layers(date):
@@ -71,11 +65,11 @@ def generate_layers(date):
     overlays = []
     for field in field_identifiers:
         gdf = normalize_to_field_range(gdf, field)
-        polys = generate_polys(gdf, field)
-        poly_layer = dl.LayerGroup(polys)
+        polys, hex_ids = generate_polys(gdf, field)
+        poly_layer = dl.LayerGroup(polys, id='layer', interactive=True, clickData={'test': "This is from generate_layers()"}) # TODO this clickData needs to be dynamically read in the show_hex_data() callback
         over = dl.BaseLayer(poly_layer, name=field, checked=False)
         overlays.append(over)
-    return overlays
+    return overlays, hex_ids
 
 
 def generate_colorbar(field, n_ticks):

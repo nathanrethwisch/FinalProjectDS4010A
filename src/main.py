@@ -1,12 +1,11 @@
+import json
 import os
-from datetime import date
-
 import sys
 from pathlib import Path
+
 import dash
-from dash import html, dcc, Output, Input
 import dash_bootstrap_components as dbc
-import dash_leaflet as dl
+from dash import Output, Input, callback_context, State
 
 sys.path.append(str(Path(__file__).parent))
 sys.path.append(str(Path(__file__).parent / 'app'))
@@ -29,15 +28,20 @@ from datalake import Datalake
 # Initialization
 lake = Datalake('../data')
 
-app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY], suppress_callback_exceptions=True) #suppress_callback_exceptions=True is needed
-server = app.server 
+_, hex_ids = generate_layers("2020-06-03")
+del (_)
+print(hex_ids)
+
+app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY],
+                suppress_callback_exceptions=True)  # suppress_callback_exceptions=True is needed
+server = app.server
 
 app.layout = html.Div([
     html.H2("Wildfire Dashboard", style={'textAlign': 'center'}),
 
-    dcc.Tabs(id = 'tabs', value='map-tab', children = [
-        dcc.Tab(label = 'Map View', value = 'map-tab'),
-        dcc.Tab(label = "Time Series Plot", value = 'plot-tab')
+    dcc.Tabs(id='tabs', value='map-tab', children=[
+        dcc.Tab(label='Map View', value='map-tab'),
+        dcc.Tab(label="Time Series Plot", value='plot-tab')
     ]),
 
     html.Div(id='tabs-content')  # content filled dynamically
@@ -52,6 +56,7 @@ theme = {
     "Dim gray": "716a5c"
 }
 
+
 @app.callback(
     Output('tabs-content', 'children'),
     Input('tabs', 'value')
@@ -60,12 +65,11 @@ def render_tab_content(tab):
     if tab == 'map-tab':
         return html.Div([
             html.Div([
-                html.Div([
-                    html.H3("Data"),
-                    field_selection,
-                    date_picker
-                ], style={'width': '20%', 'display': 'inline-block', 'verticalAlign': 'top',
-                          'backgroundColor': '#e9ecef', 'padding': '10px'}),
+                # html.Div([
+                #     html.H3("Data"),
+                #
+                # ], style={'width': '20%', 'display': 'inline-block', 'verticalAlign': 'top',
+                #           'backgroundColor': '#e9ecef', 'padding': '10px'}),
 
                 html.Div([
                     html.H3("Map"),
@@ -78,14 +82,17 @@ def render_tab_content(tab):
 
                 html.Div([
                     html.H3("Model"),
+                    html.Div(id='output-container'),
                     # Optionally add more output here
                 ], style={'width': '20%', 'display': 'inline-block', 'verticalAlign': 'top',
                           'backgroundColor': '#e9ecef', 'padding': '10px'})
             ], style={'width': '100%', 'display': 'block'}),
 
             html.Div([
-                html.H3('Bottom Panel'),
-                html.Div(id='diagnostics')
+                html.H3('Date'),
+                date_picker,
+                # html.Div(id='diagnostics'),
+                dcc.Store(id='hex_ids', storage_type='session'),
             ], style={'padding': '10px'})
         ])
 
@@ -99,15 +106,15 @@ def render_tab_content(tab):
         ])
 
 
-
-
-
 # updates bottom panel's diagnostics
-@app.callback(Output('diagnostics', 'children'),
-              Input('field-checklist', 'value'),
-              Input('date-picker', 'date'), )
-def update_diagnostics(selected_fields, date):
-    return f"Selected Fields: {selected_fields} on {date} "
+# @app.callback(Output('diagnostics', 'children'),
+#               Input('date-picker', 'date'), )
+# def update_diagnostics(date, ):
+#     diag = f"""
+#     Selected date: {date},
+#     """
+#     return diag
+
 
 # Reenters Map
 @app.callback(Output("map", "viewport"),
@@ -116,42 +123,24 @@ def update_diagnostics(selected_fields, date):
 def recenter(_):
     return dict(center=[40, -95], zoom=4, transition="flyTo")
 
+
 # updates the map
 @app.callback(Output('lc', 'children'),
+              Output('hex_ids', 'data'),
               Input('date-picker', 'date'),
-              # Input('field-checklist', 'value'),
-               )
+              )
 def update_map(date):
-    # gdf = read_data(date, field)
-    # gdf = normalize(gdf, field)
-    # polys = generate_polys(gdf, field)
     return generate_layers(date)
 
-# @app.callback(
-#     [Output('hexes', 'children'),
-#      Output("map", "viewport"),
-#      Output('diagnostics', 'children')],
-#     [Input('field-checklist', 'value'),
-#      Input('date-picker', 'date'),
-#      Input("recenter", "n_clicks")]
-# )
-# def update_map(field, date, n_clicks):
-#     gdf = read_data(date)
-#     gdf = normalize(gdf, field)
-#     polys = generate_polys(gdf, field)
-#
-#     diagnostics = f"Selected Fields: {field} on {date}"
-#
-#     if n_clicks:
-#         viewport = dict(center=[40, -95], zoom=4, transition="flyTo")
-#     else:
-#         viewport = dash.no_update
-#
-#     return polys, viewport, diagnostics
 
+
+@app.callback(Output('output-container', 'children'),
+              Input('layer', 'clickData'))
+def show_hex_data(clickData):
+    return json.dumps(clickData)
 if __name__ == "__main__":
 
-    if os.getenv("ENVIRONMENT", "dev") == "prod": # production mode
+    if os.getenv("ENVIRONMENT", "dev") == "prod":  # production mode
         app.run_server(host="0.0.0.0", port=8080, debug=False)
     else:
         app.run(debug=True, dev_tools_hot_reload=True)
