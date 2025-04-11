@@ -10,20 +10,21 @@ from dash import html, dcc
 
 from .utils import *
 
-PLOT_DATA_ROOT = Path(__file__).resolve().parents[2] / "model_output"
+PLOT_DATA_ROOT = Path(__file__).resolve().parents[2] / "data" / "curated" / "ModelOutput"
 print(PLOT_DATA_ROOT.absolute())
 # Field Selection Component
 field_selection = dcc.RadioItems(
     id="field-checklist",
     options=[
-        {"label": "Fire Probability", "value": "normalized_probabilities"},
-        {"label": "Precipitation", "value": "prcp_avg"},
-        {"label": "Max Temperature", "value": "tmax_avg"},
-        {"label": "Min Temperature", "value": "tmin_avg"},
-        {"label": "Snowfall", "value": "snow_avg"},
+        {"label": "Fire Probability", "value": "Normalized Fire Probability"},
+        {"label": "Precipitation", "value": "Precipiation (3-Day Average)"},
+        {"label": "Max Temperature", "value": "Temperature Maximum (3-Day Average)"},
+        {"label": "Min Temperature", "value": "Temperature Minimum (3-Day Average)"},
+        {"label": "Snowfall", "value": "Snowfall (3-Day Avereage)"},
+        {"label": "Elevation", "value": "Average Elevation"}
         # {"label": "Wind", "value": "snwd"}
     ],
-    value="normalized_probabilities"
+    value="Normalized Fire Probability"
 )
 
 # Date Picker Component
@@ -32,7 +33,7 @@ date_picker = dcc.DatePickerSingle(
     min_date_allowed=date(2000, 1, 1),
     max_date_allowed=date(2025, 2, 28),
     initial_visible_month=date(2020, 1, 1),
-    date=date(2020, 7, 1),
+    date=date(2020, 1, 1),
 )
 
 
