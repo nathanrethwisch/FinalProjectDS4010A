@@ -66,7 +66,9 @@ def generate_layers(date):
     for field in field_identifiers:
         gdf = normalize_to_field_range(gdf, field)
         polys, hex_ids = generate_polys(gdf, field)
-        poly_layer = dl.LayerGroup(polys, id='layer', interactive=True, clickData={'test': "This is from generate_layers()"}) # TODO this clickData needs to be dynamically read in the show_hex_data() callback
+        poly_layer = dl.FeatureGroup(polys, id='layer', interactive=True,
+                                     bubblingMouseEvents=True,
+                                     clickData={'test': "This is from generate_layers()"}) # TODO this clickData needs to be dynamically read in the show_hex_data() callback
         over = dl.BaseLayer(poly_layer, name=field, checked=False)
         overlays.append(over)
     return overlays, hex_ids

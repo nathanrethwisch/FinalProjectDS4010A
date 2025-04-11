@@ -134,9 +134,16 @@ def update_map(date):
 
 
 @app.callback(Output('output-container', 'children'),
-              Input('layer', 'clickData'))
-def show_hex_data(clickData):
-    return json.dumps(clickData)
+              Input('layer', 'clickData'),
+              Input('map', 'clickData'),
+              )
+def show_click_data(lclickData, mclickData):
+    result = f"""
+    layer: {json.dumps(lclickData)}
+    map: {json.dumps(mclickData)}
+    """
+    #TODO mclickdata has the coords
+    return result
 
 
 if __name__ == "__main__":
