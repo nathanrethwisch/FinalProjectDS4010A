@@ -5,25 +5,14 @@ from pathlib import Path
 
 import dash
 import dash_bootstrap_components as dbc
-from dash import Output, Input
+from dash import Output, Input, html, dcc
+import dash_leaflet as dl
 
 sys.path.append(str(Path(__file__).parent))
 sys.path.append(str(Path(__file__).parent / 'app'))
-from app import *
+from app import date_picker, generate_layers
 
 from datalake import Datalake
-
-# TODO
-# 1. Define Base Layout
-# 2. Add Checkboxes for Field Selection
-# 3. Add Date selection( Pick a resolution)
-# 5. Generate a callback function which generates a new map_context for each change
-
-# TODO Workflow
-# 1. User selects date and field
-# 2. User clicks Render button(or auto render)
-# 3. Callback function takes inputs, creates query/loads data
-# 4. Map Updates
 
 # Initialization
 lake = Datalake('../data')
@@ -33,7 +22,7 @@ del (_)
 print(hex_ids)
 
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY],
-                suppress_callback_exceptions=True)  # suppress_callback_exceptions=True is needed
+                suppress_callback_exceptions=True)
 server = app.server
 
 app.layout = html.Div([
@@ -41,14 +30,14 @@ app.layout = html.Div([
 
     dcc.Tabs(id='tabs', value='map-tab', children=[
         dcc.Tab(label='Map View', value='map-tab'),
-        dcc.Tab(label="Time Series Plot", value='plot-tab')
+        dcc.Tab(label="Time Series Plot", value='plot-tab'),
+        dcc.Tab(label="Dashboard Info", value='info-tab')
     ]),
 
-    html.Div(id='tabs-content')  # content filled dynamically
+    html.Div(id='tabs-content')
 ])
 
 theme = {
-    # Define colorscheme here: https://coolors.co/07020d-5db7de-f25757-f1e9db-716a5c
     "Black": "07020d",
     "Aero": "5db7de",
     "Bittersweet": "f25757",
@@ -65,12 +54,6 @@ def render_tab_content(tab):
     if tab == 'map-tab':
         return html.Div([
             html.Div([
-                # html.Div([
-                #     html.H3("Data"),
-                #
-                # ], style={'width': '20%', 'display': 'inline-block', 'verticalAlign': 'top',
-                #           'backgroundColor': '#e9ecef', 'padding': '10px'}),
-
                 html.Div([
                     html.H3("Map"),
                     dl.Map(children=[
@@ -83,7 +66,6 @@ def render_tab_content(tab):
                 html.Div([
                     html.H3("Model"),
                     html.Div(id='output-container'),
-                    # Optionally add more output here
                 ], style={'width': '20%', 'display': 'inline-block', 'verticalAlign': 'top',
                           'backgroundColor': '#e9ecef', 'padding': '10px'})
             ], style={'width': '100%', 'display': 'block'}),
@@ -91,7 +73,6 @@ def render_tab_content(tab):
             html.Div([
                 html.H3('Date'),
                 date_picker,
-                # html.Div(id='diagnostics'),
                 dcc.Store(id='hex_ids', storage_type='session'),
             ], style={'padding': '10px'})
         ])
@@ -100,23 +81,21 @@ def render_tab_content(tab):
         return html.Div([
             html.H3("Fire Occurrence Over Time"),
             html.Iframe(
-                src="/assets/fire_timeseries.html",  # Puts the file inside an `assets/` folder
+                src="/assets/fire_timeseries.html",
+                style={"width": "100%", "height": "600px", "border": "none"}
+            )
+        ])
+
+    elif tab == 'info-tab':  
+        return html.Div([
+            html.H3("Model Information"),
+            html.Iframe(
+                src="/assets/model_info.html",  # ✅ Your new HTML file
                 style={"width": "100%", "height": "600px", "border": "none"}
             )
         ])
 
 
-# updates bottom panel's diagnostics
-# @app.callback(Output('diagnostics', 'children'),
-#               Input('date-picker', 'date'), )
-# def update_diagnostics(date, ):
-#     diag = f"""
-#     Selected date: {date},
-#     """
-#     return diag
-
-
-# Reenters Map
 @app.callback(Output("map", "viewport"),
               Input("recenter", "n_clicks"),
               prevent_initial_call=True)
@@ -124,7 +103,6 @@ def recenter(_):
     return dict(center=[40, -95], zoom=4, transition="flyTo")
 
 
-# updates the map
 @app.callback(Output('lc', 'children'),
               Output('hex_ids', 'data'),
               Input('date-picker', 'date'),
@@ -142,13 +120,11 @@ def show_click_data(lclickData, mclickData):
     layer: {json.dumps(lclickData)}
     map: {json.dumps(mclickData)}
     """
-    #TODO mclickdata has the coords
     return result
 
 
 if __name__ == "__main__":
-
-    if os.getenv("ENVIRONMENT", "dev") == "prod":  # production mode
+    if os.getenv("ENVIRONMENT", "dev") == "prod":
         app.run_server(host="0.0.0.0", port=8080, debug=False)
     else:
         app.run(debug=True, dev_tools_hot_reload=True)
