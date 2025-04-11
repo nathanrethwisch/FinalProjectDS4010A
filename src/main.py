@@ -1,3 +1,4 @@
+import os
 from datetime import date
 
 import sys
@@ -139,4 +140,8 @@ def update_map(date):
 #     return polys, viewport, diagnostics
 
 if __name__ == "__main__":
-    app.run(debug=True, dev_tools_hot_reload=True)
+
+    if os.getenv("ENVIRONMENT", "dev") == "prod": # production mode
+        app.run_server(host="0.0.0.0", port=8080, debug=False)
+    else:
+        app.run(debug=True, dev_tools_hot_reload=True)
