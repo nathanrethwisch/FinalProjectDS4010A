@@ -88,9 +88,9 @@ def render_tab_content(tab):
 
     elif tab == 'info-tab':  
         return html.Div([
-            html.H3("Model Information"),
+            html.H3("Dashboard Information"),
             html.Iframe(
-                src="/assets/model_info.html",  # ✅ Your new HTML file
+                src="/assets/model-info.html", 
                 style={"width": "100%", "height": "600px", "border": "none"}
             )
         ])
