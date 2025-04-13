@@ -9,7 +9,7 @@ from dash import html, dcc
 
 from .utils import *
 
-PLOT_DATA_ROOT = Path(__file__).resolve().parents[2] / "data" / "curated" / "ModelOutput"
+PLOT_DATA_ROOT = Path(__file__).resolve().parents[2] / "model_output"
 print(PLOT_DATA_ROOT.absolute())
 
 # Date Picker Component
