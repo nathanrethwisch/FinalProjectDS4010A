@@ -184,7 +184,8 @@ Once we decided on a random forest model, a randomized grid search was performed
 
 Our model is shown on the dashboard by clicking on the “Normalized Probabilities” section of the map. We are planning to change this heading to “Relative Fire Risk” to prevent confusion as the values are currently normalized to range from 0-1, but the probability of a fire occurring is never 100%. The goal is to be able to click on an individual hex and have the probability from the random forest model as well as weather information be displayed on a table in the right sidebar. Right now, however, model output is just displayed by color on a hex map for dates from 2020-2025. 
 
-We haven’t yet packaged the app for deployment or for anyone else to run it locally. Once we know exactly which data the dashboard requires, it will be collated into a set of compressed files and packaged with the app code. This is what the dashboard currently looks like: 
+The dashboard is currently hosted at: https://wildfire-predictions-finalprojectds4010a.onrender.com
+This is what it currently looks like: 
  
  ![image](https://github.com/user-attachments/assets/693ebed9-c2ae-44f5-acb6-6f9f2adb0a7b)
 ![image](https://github.com/user-attachments/assets/996232d3-187b-4a3d-bb36-56ef317d0b31)
