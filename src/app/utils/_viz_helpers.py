@@ -1,7 +1,7 @@
 import matplotlib as mpl
 import numpy as np
 
-field_identifiers = ['Normalized Fire Probability', 'Precipitation (3-Day Average)', 'Temperature Maximum (3-Day Average)', 'Temperature Minimum (3-Day Average)', 'Snowfall (3-Day Average)']#, 'Average Elevation', 'Daily Average Wind (3-Day Avereage)']
+field_identifiers: [str] = ['Normalized Fire Probability', 'Precipitation (3-Day Average)', 'Temperature Maximum (3-Day Average)', 'Temperature Minimum (3-Day Average)', 'Snowfall (3-Day Average)']#, 'Average Elevation', 'Daily Average Wind (3-Day Avereage)']
 
 _field_colormaps = {
     "Normalized Fire Probability": mpl.cm.get_cmap("RdYlGn_r"),  # green = low, red = high

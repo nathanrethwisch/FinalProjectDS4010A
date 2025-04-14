@@ -1,0 +1,129 @@
+---
+format: 
+  html:
+    page-layout: full
+    self-contained: true
+---
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+body {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  max-width: 2000px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Smaller header sizes for cleaner dashboard style */
+h1 {
+  font-size: 1.8rem;
+}
+h2 {
+  font-size: 1.5rem;
+}
+h3 {
+  font-size: 1.2rem;
+}
+h4, h5, h6 {
+  font-size: 1rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  margin-bottom: 0.5em;
+  color: #222;
+}
+
+/* Equal-width columns with spacing */
+.column {
+  width: 45% !important;
+  padding: 0 2em;
+}
+
+ul {
+  margin-top: 0.5em;
+  margin-bottom: 1.5em;
+  padding-left: 1.5em;
+}
+
+code {
+  font-family: 'Courier New', monospace;
+  font-size: 0.95em;
+}
+</style>
+
+
+::::: columns
+::: {.column}
+## Map View
+
+The map view allows a user to filter by date to see model summary statistics.
+
+- The normalized probabilities (which will be changed to relative risk) show model output for how likely, relative to other locations on that day, a fire is to occur
+
+- Weather summary statistics show a 3-day average of the current day's weather and two previous days.
+
+Furthermore, selecting a hexagon within the map will bring up weather statistics and model output for that date.
+:::
+
+::: {.column}
+## Time Series View
+
+The time series plot shows wildfires over the course of time as collected by the United States Wildfire Service (USFS).
+
+- Hover over a certain area to get more information
+:::
+:::::
+
+## Model
+
+::::: columns
+::: {.column}
+
+A random forest model was used to predict wildfire probabilities for a given area.
+
+The model was trained on wildfire and weather data from 2000–2019 and tested on data from 2020–2025. Thresholds from 0–1 for wildfire classification were simulated and the threshold that maximized F1 score was selected for model summary statistics, corresponding to 0.22.
+
+The right table shows feature importance:
+:::
+
+::: {.column}
+
+```{r, echo = FALSE, warning = FALSE, message=FALSE}
+library(arrow)
+library(gt)
+library(dplyr)
+
+df <- read_parquet("C:/Users/natha/OneDrive - Iowa State University/FinalProjectDS4010A/src/feature_importances.parquet")
+
+df %>%
+    mutate(Feature = if_else(Feature == "Hexagon_ID_encoded", "Hexagon Location", Feature)) %>%
+   mutate(Feature = if_else(Feature == "month", "Month", Feature)) %>%
+  gt() %>%
+  fmt_number(
+    columns = where(is.numeric),
+    decimals = 4
+  ) %>%
+  cols_label(
+    Feature = md("**Feature**"),
+    Importance = md("**Importance Score**")
+  ) %>%
+  tab_options(
+    table.width = pct(80),
+    table.font.size = 10
+  )
+```
+:::
+::::
+
+## Background Data
+
+- The wildfire data was collected from the United States National Forest Service (USFS) and contains all recorded fire incidences in the United States up to
+- The weather pattern data was collected from all weather stations managed by the National Oceanic and Atmospheric Administration (NOAA) from 2000-2025.
+
+

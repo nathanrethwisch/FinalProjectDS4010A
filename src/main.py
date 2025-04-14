@@ -1,27 +1,28 @@
-import sys
 import json
 import os
+import sys
+from datetime import date
 from pathlib import Path
 
 import dash
 import dash_bootstrap_components as dbc
-from dash import Output, Input, html, dcc
 import dash_leaflet as dl
+from dash import Output, Input, html, dcc
 
-sys.path.append(str(Path(__file__).parent))
-sys.path.append(str(Path(__file__).parent / 'app'))
+from h3 import latlng_to_cell
 
-from app import read_data, generate_polys, generate_layers, generate_colorbar, date_picker
+# sys.path.append(str(Path(__file__).parent))
+# sys.path.append(str(Path(__file__).parent / 'app'))
+
+from app import generate_layers, generate_colorbar
 from app.utils import *
-
-from datalake import Datalake
+import geopandas as gpd
 
 # Initialization
-lake = Datalake('../data')
-
-_, hex_ids = generate_layers("2020-06-03")
-del (_)
-print(hex_ids)
+ASSETS_ROOT = Path(os.getenv('ASSETS_ROOT'))
+CELL_RESOLUTION = None
+data = gpd.read_parquet(ASSETS_ROOT / 'model_output.parquet')
+# hex_ids = data['Hexagon_ID'].unique().tolist()  # TODO DON'T THINK THIS IS NEEDED ANYMORE
 
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY],
                 suppress_callback_exceptions=True)
@@ -29,7 +30,6 @@ server = app.server
 
 app.layout = html.Div([
     html.H2("Wildfire Dashboard", style={'textAlign': 'center'}),
-
     dcc.Tabs(id='tabs', value='map-tab', children=[
         dcc.Tab(label='Map View', value='map-tab'),
         dcc.Tab(label="Time Series Plot", value='plot-tab'),
@@ -39,20 +39,17 @@ app.layout = html.Div([
     html.Div(id='tabs-content')
 ])
 
-theme = {
-    "Black": "07020d",
-    "Aero": "5db7de",
-    "Bittersweet": "f25757",
-    "Alabaster": "f1e9db",
-    "Dim gray": "716a5c"
-}
-
 
 @app.callback(
     Output('tabs-content', 'children'),
     Input('tabs', 'value')
 )
 def render_tab_content(tab):
+    """
+    Generates and returns Tabs
+    :param tab:
+    :return:
+    """
     if tab == 'map-tab':
         return html.Div([
             html.Div([
@@ -65,7 +62,6 @@ def render_tab_content(tab):
                     html.Div(id="colorbar", style={"height": "30px", "margin": "10px 0px"}),
                     html.Button("Recenter", id="recenter"),
                 ], style={'width': '60%', 'display': 'inline-block', 'verticalAlign': 'top', 'padding': '10px'}),
-
                 html.Div([
                     html.H3("Model"),
                     html.Div(id='output-container'),
@@ -74,9 +70,14 @@ def render_tab_content(tab):
             ], style={'width': '100%', 'display': 'block'}),
 
             html.Div([
-                html.H3('Date'),
-                date_picker,
-                dcc.Store(id='hex_ids', storage_type='session'),
+                html.H3('Select Date'),
+                dcc.DatePickerSingle(
+                    id="date-picker",
+                    min_date_allowed=date(2000, 1, 1),
+                    max_date_allowed=date(2025, 2, 28),
+                    initial_visible_month=date(2020, 1, 1),
+                    date=date(2020, 1, 1),
+                )
             ], style={'padding': '10px'})
         ])
 
@@ -84,7 +85,7 @@ def render_tab_content(tab):
         return html.Div([
             html.H3("Fire Occurrence Over Time"),
             html.Iframe(
-                src="/assets/fire_timeseries.html",
+                src="/assets/fire_timeseries.html",  # TODO MOVE THIS TO ENV ROOT
                 style={"width": "100%", "height": "600px", "border": "none"}
             )
         ])
@@ -93,37 +94,55 @@ def render_tab_content(tab):
         return html.Div([
             html.H3("Dashboard Information"),
             html.Iframe(
-                src="/assets/model-info.html",
+                src="/assets/model-info.html",  # TODO MOVE THIS TO ENV ROOT
                 style={"width": "100%", "height": "600px", "border": "none"}
             )
         ])
 
 
+# Recenters Map
 @app.callback(Output("map", "viewport"),
               Input("recenter", "n_clicks"),
               prevent_initial_call=True)
 def recenter(_):
+    """
+    Recenters the Map
+    :param _:
+    :return:
+    """
     return dict(center=[40, -95], zoom=4, transition="flyTo")
 
 
+# Loads a new day into the map
 @app.callback(Output('lc', 'children'),
-              Output('hex_ids', 'data'),
               Input('date-picker', 'date'),
               )
-def update_map(date):
-    return generate_layers(date)
+def update_map(date_str: str):
+    """
+    Queries the data by date, calls generate layers, then updates the map
+    :param date_str:
+    :return:
+    """
+    year, month, day = date_str.split('-')
+    condition_year = data['year'] == int(year)
+    condition_month = data['month'] == int(month)
+    condition_day = data['day'] == int(day)
+    subset = data[condition_year & condition_month & condition_day]
+    return generate_layers(subset)
 
 
 @app.callback(Output('output-container', 'children'),
-              Input('layer', 'clickData'),
               Input('map', 'clickData'),
               )
-def show_click_data(lclickData, mclickData):
+def show_click_data(clickData):
     result = f"""
-    layer: {json.dumps(lclickData)}
-    map: {json.dumps(mclickData)}
+    map: {json.dumps(clickData)}
     """
+    lat = clickData['latlng']['lat']
+    lon = clickData['latlng']['lng']
+    cell = latlng_to_cell(lat, lon, CELL_RESOLUTION)
     return result
+
 
 @app.callback(
     Output("colorbar", "children"),

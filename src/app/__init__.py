@@ -1,78 +1,38 @@
-import datetime
-from datetime import date
-from pathlib import Path
-
-import geopandas as gpd
 import dash_leaflet as dl
-
+import geopandas as gpd
 import matplotlib.colors as mcolors
-from dash import html, dcc
+from dash import html
+from dash_leaflet import Polygon, BaseLayer
 
 from .utils import *
 
-PLOT_DATA_ROOT = Path(__file__).resolve().parents[2] / "model_output"
-print(PLOT_DATA_ROOT.absolute())
 
-# Date Picker Component
-date_picker = dcc.DatePickerSingle(
-    id="date-picker",
-    min_date_allowed=date(2000, 1, 1),
-    max_date_allowed=date(2025, 2, 28),
-    initial_visible_month=date(2020, 1, 1),
-    date=date(2020, 1, 1),
-)
-
-date_slider = dcc.Slider(
-    id='date-picker',
-    min=0,
-    max=365,
-    value=0,
-    marks={i: (datetime.datetime(2023, 1, 1) + datetime.timedelta(days=i)).strftime('%Y-%m-%d') for i in range(0, 366)},
-    step=1
-)
-
-
-def read_data(dt):
-    """
-    read the plot_{date}.parquet for the correct date, return a colorized gdf
-    :rtype: gpd.GeoDataFrame
-    """
-    file_path = PLOT_DATA_ROOT / f"Model_Output_{dt}.parquet"
-    print(f"READING DATA FROM {file_path}")
-    return gpd.read_parquet(file_path, )
-    # columns=["Hexagon_ID", "geometry", field])
-
-
-def generate_polys(gdf, field):
+def generate_polys(gdf: gpd.GeoDataFrame, field: str) -> list[Polygon]:
     """
     return a list of polys to be passed into a layergroup
     """
-    print(f"GENERATING POLYGONS FOR {field}")
     cmap = get_colormap_choice(field)
 
-    # print(gdf[field])
-    polygons = []
+    polygons: [dl.Polygon] = []
     for _, row in gdf.iterrows():
         polygon = row["geometry"]
         coordinates = [[lat, lon] for lat, lon in polygon.exterior.coords]  # TODO is this necessary
         color = mcolors.to_hex(cmap(row[field]))
-        # color = mcolors.to_hex(cmap(row["tmax_avg"]))
-        polygons.append(dl.Polygon(id=str(row['Hexagon_ID']),positions=coordinates, color=color, fillColor=color, fillOpacity=0.6, weight=1))
-    return polygons, gdf["Hexagon_ID"]
+        polygons.append(
+            dl.Polygon(id=str(row['Hexagon_ID']), positions=coordinates, color=color, fillColor=color, fillOpacity=0.6,
+                       weight=1))
+    return polygons
 
-
-def generate_layers(date):
-    gdf = read_data(date)
-    overlays = []
+def generate_layers(gdf: gpd.GeoDataFrame) -> list[BaseLayer]:
+    overlays: [dl.BaseLayer] = []
     for field in field_identifiers:
         gdf = normalize_to_field_range(gdf, field)
-        polys, hex_ids = generate_polys(gdf, field)
+        polys = generate_polys(gdf, field)
         poly_layer = dl.FeatureGroup(polys, id='layer', interactive=True,
-                                     bubblingMouseEvents=True,
-                                     clickData={'test': "This is from generate_layers()"}) # TODO this clickData needs to be dynamically read in the show_hex_data() callback
+                                     bubblingMouseEvents=True, )
         over = dl.BaseLayer(poly_layer, name=field, checked=False)
         overlays.append(over)
-    return overlays, hex_ids
+    return overlays
 
 
 def generate_colorbar(field, n_ticks):
