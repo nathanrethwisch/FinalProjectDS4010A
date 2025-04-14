@@ -10,7 +10,9 @@ import dash_leaflet as dl
 
 sys.path.append(str(Path(__file__).parent))
 sys.path.append(str(Path(__file__).parent / 'app'))
-from app import date_picker, generate_layers
+
+from app import read_data, generate_polys, generate_layers, generate_colorbar, date_picker
+from app.utils import *
 
 from datalake import Datalake
 
@@ -60,7 +62,8 @@ def render_tab_content(tab):
                         dl.TileLayer(),
                         dl.LayersControl([], id="lc", collapsed=False, position="bottomright")
                     ], center=[40, -95], zoom=4, style={'height': '50vh'}, id="map"),
-                    html.Button("Recenter", id="recenter")
+                    html.Div(id="colorbar", style={"height": "30px", "margin": "10px 0px"}),
+                    html.Button("Recenter", id="recenter"),
                 ], style={'width': '60%', 'display': 'inline-block', 'verticalAlign': 'top', 'padding': '10px'}),
 
                 html.Div([
@@ -121,6 +124,16 @@ def show_click_data(lclickData, mclickData):
     map: {json.dumps(mclickData)}
     """
     return result
+
+@app.callback(
+    Output("colorbar", "children"),
+    Input("lc", "baseLayer"),
+    Input("lc", "overlays"),
+    prevent_initial_call=True
+)
+def update_colorbar(base, overlays):
+    if base not in field_identifiers: return None
+    return generate_colorbar(base, n_ticks=11)
 
 
 if __name__ == "__main__":
