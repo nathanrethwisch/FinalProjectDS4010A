@@ -173,4 +173,22 @@ Note that sometimes, switching between dates can be somewhat slow. Our plan to f
  We are currently working on getting a heatmap from our model output into Dash. Here is an example of what our model will output:  
 
 
+## 2025-04-13: Add Models to Dashboard
+The model on the dashboard is a random forest model. The explanatory variables we chose to use in the model were Hexagon location, average elevation, month, and three-day averages of snowfall, precipitation, temperature maximum, and temperature minimum. We did not use evaporation due to the number of missing values it had. The output of the random forest model shows a 0-1 probability of the chance of a fire occurring in each hexagon location on a given day. Other missing values for our predicted were inputed by looking at the neighboring hexes for that particular date and taking an average of their values. If 1 hex was not enough, we moved 2 rings out. Although this may not be the most statistically accurate approach, due to the small number of missing values and relative geographical similarity between hexes, we felt that it was appropriate to use for missing value imputation. The model was trained on data from 2000-2019 and tested on data from 2020-2025. 
+We tested out many different models, including xgboost, logistic regresion, and naive bayes. We optimized the threshold for prediction by selecting the optimal F1 score among all models (which is the average of precision and recall), trying thresholds from 0-1 at a 0.01 interval. In the end, we selected a random forest model because it had the highest F1 score and recall, and because it is more interpretable than similar models. 
+ ![image](https://github.com/user-attachments/assets/b3502f2a-eb4f-47ff-9339-f671c7255c10)
+![image](https://github.com/user-attachments/assets/70349a3f-5052-4b68-bc2a-317d122eab4a)
+
+ 
+Once we decided on a random forest model, a randomized grid search was performed. We fit random forests with different hyperparameters, including different max depth, number of trees in the forest, and number of features needed to split a node. Overall, the optimal parameters were found to be 200 estimators with a depth of 30 and 3 features per split. We then retrained using this model, improving F1 score to 0.197029, which is still admittably not great, but given the volatile nature of wildfires and the fact that overall model accuracy is still 0.963756, we felt it was an acceptable threshold.
+
+Our model is shown on the dashboard by clicking on the “Normalized Probabilities” section of the map. We are planning to change this heading to “Relative Fire Risk” to prevent confusion as the values are currently normalized to range from 0-1, but the probability of a fire occurring is never 100%. The goal is to be able to click on an individual hex and have the probability from the random forest model as well as weather information be displayed on a table in the right sidebar. Right now, however, model output is just displayed by color on a hex map for dates from 2020-2025. 
+
+The dashboard is currently hosted at: https://wildfire-predictions-finalprojectds4010a.onrender.com
+This is what it currently looks like: 
+ 
+ ![image](https://github.com/user-attachments/assets/693ebed9-c2ae-44f5-acb6-6f9f2adb0a7b)
+![image](https://github.com/user-attachments/assets/996232d3-187b-4a3d-bb36-56ef317d0b31)
+
+
 

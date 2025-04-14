@@ -1,30 +1,30 @@
 import matplotlib as mpl
 import numpy as np
 
-field_identifiers = ['normalized_probabilities', 'prcp_avg', 'tmax_avg', 'tmin_avg', 'snow_avg']
+field_identifiers = ['Normalized Fire Probability', 'Precipitation (3-Day Average)', 'Temperature Maximum (3-Day Average)', 'Temperature Minimum (3-Day Average)', 'Snowfall (3-Day Average)']#, 'Average Elevation', 'Daily Average Wind (3-Day Avereage)']
 
 _field_colormaps = {
-    "normalized_probabilities": mpl.cm.get_cmap("RdYlGn_r"),  # green = low, red = high
-    "prcp_avg": mpl.cm.get_cmap("Blues"),  # blue scale for precipitation
-    "tmax_avg": mpl.cm.get_cmap("turbo"),  # hot for max temp
-    "tmin_avg": mpl.cm.get_cmap("turbo"),  # cool for min temp
-    "snow_avg": mpl.cm.get_cmap("PuBuGn"),  # purple-blue-green for snow
+    "Normalized Fire Probability": mpl.cm.get_cmap("RdYlGn_r"),  # green = low, red = high
+    "Precipitation (3-Day Average)": mpl.cm.get_cmap("Blues"),  # blue scale for precipitation
+    "Temperature Maximum (3-Day Average)": mpl.cm.get_cmap("turbo"),  # hot for max temp
+    "Temperature Minimum (3-Day Average)": mpl.cm.get_cmap("turbo"),  # cool for min temp
+    "Snowfall (3-Day Average)": mpl.cm.get_cmap("PuBuGn"),  # purple-blue-green for snow
 }
 _field_ranges = {
-    "normalized_probabilities": (0.0, 1.0),
-    "prcp_avg": (0, 400),  # 40 mm
-    "tmax_avg": (-240, 560),  # -25°C to 50°C
-    "tmin_avg": (-240, 560),  # -25°C to 50°C
-    "snow_avg": (0, 200),  # 20 mm
+    "Normalized Fire Probability": (0.0, 1.0),
+    "Precipitation (3-Day Average)": (0, 400),  # 40 mm
+    "Temperature Maximum (3-Day Average)": (-240, 560),  # -25°C to 50°C
+    "Temperature Minimum (3-Day Average)": (-240, 560),  # -25°C to 50°C
+    "Snowfall (3-Day Average)": (0, 200),  # 20 mm
 }
 _field_formatter_funcs = {
-    "normalized_probabilities": lambda s: f"{s:.0%}",
-    "prcp_avg": lambda s: f"{s / 10:.0f}mm",
-    # "tmax_avg": lambda s: f"{s / 10:.0f}°C",
-    "tmax_avg": lambda s: f"{s * 0.18 + 32:.0f}°F",
-    # "tmin_avg": lambda s: f"{s / 10:.0f}°C",
-    "tmin_avg": lambda s: f"{s * 0.18 + 32:.0f}°F",
-    "snow_avg": lambda s: f"{s / 10:.0f}mm",
+    "Normalized Fire Probability": lambda s: f"{s:.0%}",
+    "Precipitation (3-Day Average)": lambda s: f"{s / 10:.0f}mm",
+    # "Temperature Maximum (3-Day Average)": lambda s: f"{s / 10:.0f}°C",
+    "Temperature Maximum (3-Day Average)": lambda s: f"{s * 0.18 + 32:.0f}°F",
+    # "Temperature Minimum (3-Day Average)": lambda s: f"{s / 10:.0f}°C",
+    "Temperature Minimum (3-Day Average)": lambda s: f"{s * 0.18 + 32:.0f}°F",
+    "Snowfall (3-Day Average)": lambda s: f"{s / 10:.0f}mm",
 
 }
 

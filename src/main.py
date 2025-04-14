@@ -1,34 +1,43 @@
 import sys
+import json
+import os
 from pathlib import Path
 
 import dash
 import dash_bootstrap_components as dbc
-from dash import Output, Input
+from dash import Output, Input, html, dcc
+import dash_leaflet as dl
 
 sys.path.append(str(Path(__file__).parent))
-sys.path.append(str(Path(__file__).parent / "app"))
-from app import *
+sys.path.append(str(Path(__file__).parent / 'app'))
+from app import date_picker, generate_layers
 
-# TODO
-# 1. Define Base Layout
-# 2. Add Checkboxes for Field Selection
-# 3. Add Date selection( Pick a resolution)
-# 5. Generate a callback function which generates a new map_context for each change
-
-# TODO Workflow
-# 1. User selects date and field
-# 2. User clicks Render button(or auto render)
-# 3. Callback function takes inputs, creates query/loads data
-# 4. Map Updates
-
+from datalake import Datalake
 
 # Initialization
-# lake = Datalake("../data")
-app = dash.Dash(external_stylesheets=[dbc.themes.JOURNAL])
+lake = Datalake('../data')
+
+_, hex_ids = generate_layers("2020-06-03")
+del (_)
+print(hex_ids)
+
+app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY],
+                suppress_callback_exceptions=True)
 server = app.server
 
+app.layout = html.Div([
+    html.H2("Wildfire Dashboard", style={'textAlign': 'center'}),
+
+    dcc.Tabs(id='tabs', value='map-tab', children=[
+        dcc.Tab(label='Map View', value='map-tab'),
+        dcc.Tab(label="Time Series Plot", value='plot-tab'),
+        dcc.Tab(label="Dashboard Info", value='info-tab')
+    ]),
+
+    html.Div(id='tabs-content')
+])
+
 theme = {
-    # Define colorscheme here: https://coolors.co/07020d-5db7de-f25757-f1e9db-716a5c
     "Black": "07020d",
     "Aero": "5db7de",
     "Bittersweet": "f25757",
@@ -36,66 +45,57 @@ theme = {
     "Dim gray": "716a5c"
 }
 
-app.layout = html.Div([
-    # Top Navigation Bar
-    html.Div([
-        html.H2("Wildfire"),
-        # Add navigation links or components here
-    ], style={"width": "100%", "display": "block", "backgroundColor": "#f8f9fa", "padding": "10px",
-              "textAlign": "center"}
-    ),
-    # Primary Content Area
-    html.Div([
-        # Left Sidebar
-        html.Div([
-            # Add components for the left sidebar here
-            html.H3("Data"),
-            field_selection,
-            date_picker
-        ], style={"width": "20%", "display": "inline-block", "verticalAlign": "top", "backgroundColor": "#e9ecef",
-                  "padding": "10px"}
-        ),
 
-        # Center Content Area
-        html.Div(
-            [
-                html.H3("Map"),
-                html.Button("Recenter", id="recenter"),
-                dl.Map(children=[
-                    dl.TileLayer(),
-                    # dl.LayerGroup(id="hexes", interactive=True),
-                    dl.LayersControl([], id="lc", collapsed=False, position="bottomright")
+@app.callback(
+    Output('tabs-content', 'children'),
+    Input('tabs', 'value')
+)
+def render_tab_content(tab):
+    if tab == 'map-tab':
+        return html.Div([
+            html.Div([
+                html.Div([
+                    html.H3("Map"),
+                    dl.Map(children=[
+                        dl.TileLayer(),
+                        dl.LayersControl([], id="lc", collapsed=False, position="bottomright")
+                    ], center=[40, -95], zoom=4, style={'height': '50vh'}, id="map"),
+                    html.Button("Recenter", id="recenter")
+                ], style={'width': '60%', 'display': 'inline-block', 'verticalAlign': 'top', 'padding': '10px'}),
 
-                ], center=[40, -95], zoom=4, style={"height": "50vh"}, id="map"),
-                html.Div(id="colorbar", style={"height": "30px", "marginTop": "10px"}),
-            ],
-            style={"width": "60%", "display": "inline-block", "verticalAlign": "top", "padding": "10px"}
-        ),
-        # Right Sidebar
-        html.Div([
-            # Add components for the right sidebar here
-            html.H3("Model"),
-            # TODO HEX DETAILED TABLE
-        ], style={"width": "20%", "display": "inline-block", "verticalAlign": "top", "backgroundColor": "#e9ecef",
-                  "padding": "10px"}
-        ),
-    ], style={"width": "100%", "display": "block"}),
-    html.Div([
-        html.H3("Bottom Panel"),
-        html.Div(id="diagnostics")  # Displays Diagnostics on field/date selection
-    ], style={"padding": "10px"})
-])
+                html.Div([
+                    html.H3("Model"),
+                    html.Div(id='output-container'),
+                ], style={'width': '20%', 'display': 'inline-block', 'verticalAlign': 'top',
+                          'backgroundColor': '#e9ecef', 'padding': '10px'})
+            ], style={'width': '100%', 'display': 'block'}),
 
+            html.Div([
+                html.H3('Date'),
+                date_picker,
+                dcc.Store(id='hex_ids', storage_type='session'),
+            ], style={'padding': '10px'})
+        ])
 
-# updates bottom panel's diagnostics
-@app.callback(Output("diagnostics", "children"),
-              Input("field-checklist", "value"),
-              Input("date-picker", "date"), )
-def update_diagnostics(selected_field, date):
-    return f"Selected Fields: {selected_field} on {date} "
+    elif tab == 'plot-tab':
+        return html.Div([
+            html.H3("Fire Occurrence Over Time"),
+            html.Iframe(
+                src="/assets/fire_timeseries.html",
+                style={"width": "100%", "height": "600px", "border": "none"}
+            )
+        ])
+
+    elif tab == 'info-tab':
+        return html.Div([
+            html.H3("Dashboard Information"),
+            html.Iframe(
+                src="/assets/model-info.html",
+                style={"width": "100%", "height": "600px", "border": "none"}
+            )
+        ])
 
 
-# Reenters Map
 @app.callback(Output("map", "viewport"),
               Input("recenter", "n_clicks"),
               prevent_initial_call=True)
@@ -103,48 +103,28 @@ def recenter(_):
     return dict(center=[40, -95], zoom=4, transition="flyTo")
 
 
-# updates the map
-@app.callback(
-    Output("lc", "children"),
-    # Output("colorbar", "children"),
-    Input("date-picker", "date"),
-)
-def update_map(dt):
-    return generate_layers(dt)
+@app.callback(Output('lc', 'children'),
+              Output('hex_ids', 'data'),
+              Input('date-picker', 'date'),
+              )
+def update_map(date):
+    return generate_layers(date)
 
 
-@app.callback(
-    Output("colorbar", "children"),
-    Input("lc", "baseLayer"),
-    Input("lc", "overlays"),
-    prevent_initial_call=True
-)
-def update_colorbar(base, overlays):
-    if base not in field_identifiers: return None
-    return generate_colorbar(base, n_ticks=11)
+@app.callback(Output('output-container', 'children'),
+              Input('layer', 'clickData'),
+              Input('map', 'clickData'),
+              )
+def show_click_data(lclickData, mclickData):
+    result = f"""
+    layer: {json.dumps(lclickData)}
+    map: {json.dumps(mclickData)}
+    """
+    return result
 
-
-# @app.callback(
-#     [Output("hexes", "children"),
-#      Output("map", "viewport"),
-#      Output("diagnostics", "children")],
-#     [Input("field-checklist", "value"),
-#      Input("date-picker", "date"),
-#      Input("recenter", "n_clicks")]
-# )
-# def update_map(field, date, n_clicks):
-#     gdf = read_data(date)
-#     gdf = normalize(gdf, field)
-#     polys = generate_polys(gdf, field)
-#
-#     diagnostics = f"Selected Fields: {field} on {date}"
-#
-#     if n_clicks:
-#         viewport = dict(center=[40, -95], zoom=4, transition="flyTo")
-#     else:
-#         viewport = dash.no_update
-#
-#     return polys, viewport, diagnostics
 
 if __name__ == "__main__":
-    app.run(debug=True, dev_tools_hot_reload=True)
+    if os.getenv("ENVIRONMENT", "dev") == "prod":
+        app.run_server(host="0.0.0.0", port=8080, debug=False)
+    else:
+        app.run(debug=True, dev_tools_hot_reload=True)
