@@ -20,6 +20,7 @@ import geopandas as gpd
 
 # Initialization
 
+#ASSETS_ROOT = Path("C:/FinalProjectDS4010A - repair/data/assets")
 
 ASSETS_ROOT = Path(os.getenv('ASSETS_ROOT'))
 CELL_RESOLUTION = 3
@@ -41,6 +42,8 @@ app.layout = html.Div([
     ]),
 
     html.Div(id='tabs-content')
+    
+    
 ])
 
 
@@ -58,11 +61,13 @@ def render_tab_content(tab):
         return html.Div([
             html.Div([
                 html.Div([
-                    html.H3("Map"),
-                    dl.Map(children=[
-                        dl.TileLayer(),
-                        dl.LayersControl([], id="lc", collapsed=False, position="bottomright")
-                    ], center=[40, -95], zoom=4, style={'height': '50vh'}, id="map"),
+                     html.H3("Map"),
+                     dl.Map(children=[
+                     dl.TileLayer(),
+                     dl.LayersControl(id="lc", collapsed=False, position="bottomright", children=[
+                    ])
+                ], center=[40, -95], zoom=4, style={'height': '50vh'}, id="map"),
+
                     html.Div(id="colorbar", style={"height": "30px", "margin": "20px 20px"}),
                     html.Button("Recenter", id="recenter"),
                 ], style={'width': '75%', 'display': 'inline-block', 'verticalAlign': 'top', 'padding': '20px'}),
@@ -117,22 +122,25 @@ def recenter(_):
     return dict(center=[40, -95], zoom=4, transition="flyTo")
 
 
-# Loads a new day into the map
-@app.callback(Output('lc', 'children'),
-              Input('date-picker', 'date'),
-              )
-def update_map(date_str: str):
-    """
-    Queries the data by date, calls generate layers, then updates the map
-    :param date_str:
-    :return:
-    """
-    year, month, day = date_str.split('-')
-    condition_year = data['year'] == int(year)
-    condition_month = data['month'] == int(month)
-    condition_day = data['day'] == int(day)
-    subset = data[condition_year & condition_month & condition_day]
-    return generate_layers(subset)
+@app.callback(
+    Output('lc', 'children'),
+    Input('date-picker', 'date'),
+)
+def update_layers_control(date_str):
+    if not date_str:
+        return []
+
+    year, month, day = map(int, date_str.split('-'))
+    subset = data[
+        (data['year'] == year) & 
+        (data['month'] == month) & 
+        (data['day'] == day)
+    ]
+    layers = generate_layers(subset, date_str)
+    #raise Exception(f"Generated layers: {layers}")    
+    return generate_layers(subset, date_str)
+
+
 
 
 @app.callback(

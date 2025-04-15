@@ -59,21 +59,23 @@ def format_field_values(x: float, field: str) -> str:
 
 
 def normalize_to_field_range(gdf, field):
-    vmin, vmax = get_field_range(field)
-    gdf[field] = (gdf[field] - vmin) / (vmax - vmin)
-    gdf[field] = np.clip(gdf[field], 0, 1)
+    #vmin, vmax = get_field_range(field)
+    #gdf[field] = gdf[field].fillna(0)  # Handle NaN values
+    #gdf[field] = (gdf[field] - vmin) / (vmax - vmin)  # Normalize the data
+    #gdf[field] = np.clip(gdf[field], 0, 1)  # Clip values to the [0, 1] range
     return gdf
+
 
 
 # normalize_to_climate_range replaces this
-def normalize(gdf, field):
-    """
-    Assign Colors to values
-    """
-    min_val = gdf[field].min()
-    max_val = gdf[field].max()
-    gdf[field] = (gdf[field] - min_val) / (max_val - min_val)
-    # mean_shift = 0.5 - gdf[field].mean()
-    # gdf[field] += mean_shift
-    gdf[field] = np.clip(gdf[field], 0, 1)
-    return gdf
+#def normalize(gdf, field):
+    #"""
+    #Assign Colors to values
+    #"""
+    #min_val = gdf[field].min()
+    #max_val = gdf[field].max()
+    #gdf[field] = (gdf[field] - min_val) / (max_val - min_val)
+    ## mean_shift = 0.5 - gdf[field].mean()
+    ## gdf[field] += mean_shift
+    #gdf[field] = np.clip(gdf[field], 0, 1)
+    #return gdf

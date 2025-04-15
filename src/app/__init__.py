@@ -16,23 +16,42 @@ def generate_polys(gdf: gpd.GeoDataFrame, field: str) -> list[Polygon]:
     polygons: [dl.Polygon] = []
     for _, row in gdf.iterrows():
         polygon = row["geometry"]
-        coordinates = [[lat, lon] for lat, lon in polygon.exterior.coords]  # TODO is this necessary
-        color = mcolors.to_hex(cmap(row[field]))
+        coordinates = [[lat, lon] for lat, lon in polygon.exterior.coords]
+        value = row[field]  # Now the field value is normalized (0 to 1)
+        color = mcolors.to_hex(cmap(value))  # Apply colormap
+        
         polygons.append(
             dl.Polygon(positions=coordinates, color=color, fillColor=color, fillOpacity=0.6,
-                       weight=1,))#id=str(row['Hexagon_ID'])))
+                       weight=1,)
+        )
     return polygons
 
-def generate_layers(gdf: gpd.GeoDataFrame) -> list[BaseLayer]:
-    overlays: [dl.BaseLayer] = []
-    for field in field_identifiers:
-        gdf = normalize_to_field_range(gdf, field)
-        polys = generate_polys(gdf, field)
-        poly_layer = dl.FeatureGroup(polys,  interactive=True,
-                                     bubblingMouseEvents=True,)# id='layer',)
-        over = dl.BaseLayer(poly_layer, name=field, checked=False)
-        overlays.append(over)
+
+def generate_layers(gdf: gpd.GeoDataFrame, date_str: str) -> list[dl.BaseLayer]:
+    overlays: list[dl.BaseLayer] = []
+    for i, field in enumerate(field_identifiers):
+        gdf_copy = gdf.copy()
+        gdf_copy = normalize_to_field_range(gdf_copy, field)
+        polys = generate_polys(gdf_copy, field)
+
+        poly_layer = dl.FeatureGroup(
+            polys,
+            interactive=True,
+            id=f"group-{field}-{date_str}"
+        )
+
+        overlay = dl.BaseLayer(
+            poly_layer,
+            name=field,
+            id=f"overlay-{field}-{date_str}",
+            checked=(i == 0)  # Only the first field is selected by default
+        )
+
+        overlays.append(overlay)
+
     return overlays
+
+
 
 
 def generate_colorbar(field, n_ticks):
