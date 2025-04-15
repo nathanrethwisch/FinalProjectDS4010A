@@ -37,7 +37,10 @@ gdf.columns = ['HEX_ID',
                'PROB-NORM2',
                'PROB-NORM']
 
+gdf = gdf[gdf['YEAR'] == 2024]
+
 gdf.drop(columns=['YEAR', 'MONTH', 'DAY'], inplace=True)
+
 def swap_coords(geom):
     if geom.geom_type == 'Polygon':
         return Polygon([(y,x) for x, y in geom.exterior.coords])

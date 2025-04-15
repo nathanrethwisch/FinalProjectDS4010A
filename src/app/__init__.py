@@ -19,8 +19,8 @@ def generate_polys(gdf: gpd.GeoDataFrame, field: str) -> list[Polygon]:
         coordinates = [[lat, lon] for lat, lon in polygon.exterior.coords]  # TODO is this necessary
         color = mcolors.to_hex(cmap(row[field]))
         polygons.append(
-            dl.Polygon(id=str(row['Hexagon_ID']), positions=coordinates, color=color, fillColor=color, fillOpacity=0.6,
-                       weight=1))
+            dl.Polygon(positions=coordinates, color=color, fillColor=color, fillOpacity=0.6,
+                       weight=1,))#id=str(row['Hexagon_ID'])))
     return polygons
 
 def generate_layers(gdf: gpd.GeoDataFrame) -> list[BaseLayer]:
@@ -28,8 +28,8 @@ def generate_layers(gdf: gpd.GeoDataFrame) -> list[BaseLayer]:
     for field in field_identifiers:
         gdf = normalize_to_field_range(gdf, field)
         polys = generate_polys(gdf, field)
-        poly_layer = dl.FeatureGroup(polys, id='layer', interactive=True,
-                                     bubblingMouseEvents=True, )
+        poly_layer = dl.FeatureGroup(polys,  interactive=True,
+                                     bubblingMouseEvents=True,)# id='layer',)
         over = dl.BaseLayer(poly_layer, name=field, checked=False)
         overlays.append(over)
     return overlays
