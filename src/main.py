@@ -17,6 +17,7 @@ from h3 import latlng_to_cell
 from app import generate_layers, generate_colorbar
 from app.utils import *
 import geopandas as gpd
+import pandas as pd
 
 # Initialization
 
@@ -25,6 +26,27 @@ import geopandas as gpd
 ASSETS_ROOT = Path(os.getenv('ASSETS_ROOT'))
 CELL_RESOLUTION = 3
 data = gpd.read_parquet(ASSETS_ROOT / 'model_output.parquet')
+
+#Gets min and max date from the data
+min_date = data['date'].min().date()
+max_date = data['date'].max().date()
+
+#Generates Date Range
+date_range = pd.date_range(start=min_date, end=max_date, freq="D")
+
+#Labels the slider every 6 months
+date_marks = {
+    i: d.strftime("%b %Y")
+    for i, d in enumerate(date_range)
+    if d.day == 1 and d.month in [1, 7]  # Jan and July
+}
+
+#Maps the date and index to each other
+date_to_index = {d.date(): i for i, d in enumerate(date_range)}
+index_to_date = {i: d.date() for i, d in enumerate(date_range)}
+
+#Gets all available dates instead of timestamps
+available_dates = date_range.date
 
 
 # hex_ids = data['Hexagon_ID'].unique().tolist()  # TODO DON'T THINK THIS IS NEEDED ANYMORE
@@ -77,18 +99,26 @@ def render_tab_content(tab):
                 ], style={'width': '20%', 'display': 'inline-block', 'verticalAlign': 'top',
                           'backgroundColor': '#e9ecef', 'padding': '10px'})
             ], style={'width': '100%', 'display': 'block'}),
-
-            html.Div([
-                html.H3('Select Date'),
-                dcc.DatePickerSingle(
-                    id="date-picker",
-                    min_date_allowed=date(2000, 1, 1),
-                    max_date_allowed=date(2025, 2, 28),
-                    initial_visible_month=date(2020, 1, 1),
-                    date=date(2020, 1, 1),
-                )
-            ], style={'padding': '10px'})
-        ])
+            #Tells selected date based on the slider
+             html.Div([
+                html.Div([
+                    html.H3('Selected Date: ', style={'display': 'inline-block', 'marginRight': '20px'}),
+                    html.Span(id='selected-date-label', style={'fontSize': '30px'})
+                ], style={'marginBottom': '10px'}),
+            #Adding in the date slider
+            dcc.Slider(
+                id='date-slider',
+                min=0,
+                max=len(date_range) - 1,
+                step=1,
+                value=date_to_index[date(2020, 1, 1)],
+                marks=date_marks,
+                tooltip={
+                    "placement": "bottom",  
+                    "always_visible": False              }
+            )
+        ], style={'padding': '10px', 'marginBottom': '20px'})
+    ])
 
     elif tab == 'plot-tab':
         return html.Div([
@@ -109,6 +139,15 @@ def render_tab_content(tab):
         ])
 
 
+#Updates the label of the selected date
+@app.callback(
+    Output('selected-date-label', 'children'),
+    Input('date-slider', 'value')
+)
+def update_date_label(date_index):
+    return available_dates[date_index].strftime('%Y-%m-%d')
+
+
 # Recenters Map
 @app.callback(Output("map", "viewport"),
               Input("recenter", "n_clicks"),
@@ -124,39 +163,36 @@ def recenter(_):
 
 @app.callback(
     Output('lc', 'children'),
-    Input('date-picker', 'date'),
+    Input('date-slider', 'value'),
 )
-def update_layers_control(date_str):
-    if not date_str:
+def update_layers_control(date_index):
+    if date_index is None:
         return []
-
-    year, month, day = map(int, date_str.split('-'))
-    subset = data[
-        (data['year'] == year) & 
-        (data['month'] == month) & 
-        (data['day'] == day)
-    ]
-    layers = generate_layers(subset, date_str)
-    #raise Exception(f"Generated layers: {layers}")    
-    return generate_layers(subset, date_str)
-
+    selected_date = available_dates[date_index]
+    year, month, day = selected_date.year, selected_date.month, selected_date.day
+    subset = data[(data['year'] == year) & (data['month'] == month) & (data['day'] == day)]
+    return generate_layers(subset, selected_date.strftime('%Y-%m-%d'))
 
 
 
 @app.callback(
     Output('output-container', 'children'),
     Input('map', 'clickData'),
-    Input('date-picker', 'date'),
+    Input('date-slider', 'value'),
 )
-def show_click_data(clickData, date_str):
-    if not clickData or not date_str:
-        return f"Click on a hexagon to view model predictions for {date_str}."
+def show_click_data(clickData, date_index):
+    if not clickData or date_index is None:
+        readable_date = available_dates[date_index].strftime('%Y-%m-%d') 
+        return f"Click on a hexagon to view model predictions for {readable_date}."
 
     lat = clickData['latlng']['lat']
     lon = clickData['latlng']['lng']
     cell = latlng_to_cell(lat, lon, CELL_RESOLUTION)
 
-    year, month, day = map(int, date_str.split('-'))
+    selected_date = available_dates[date_index]
+    year, month, day = selected_date.year, selected_date.month, selected_date.day    
+
+   # year, month, day = map(int, date_str.split('-'))
     filtered = data[
         (data['year'] == year) &
         (data['month'] == month) &
