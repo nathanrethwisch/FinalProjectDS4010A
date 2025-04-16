@@ -46,7 +46,7 @@ date_to_index = {d.date(): i for i, d in enumerate(date_range)}
 index_to_date = {i: d.date() for i, d in enumerate(date_range)}
 
 #Gets all available dates instead of timestamps
-available_dates = date_range.date
+available_dates = list(date_range.date)
 
 
 # hex_ids = data['Hexagon_ID'].unique().tolist()  # TODO DON'T THINK THIS IS NEEDED ANYMORE
@@ -113,10 +113,8 @@ def render_tab_content(tab):
                 step=1,
                 value=date_to_index[date(2020, 1, 1)],
                 marks=date_marks,
-                tooltip={
-                    "placement": "bottom",  
-                    "always_visible": False              }
-            )
+                tooltip={"always_visible": True, "transform": "numberToDate"},
+                ),
         ], style={'padding': '10px', 'marginBottom': '20px'})
     ])
 
