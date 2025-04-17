@@ -217,6 +217,10 @@ def show_click_data(clickData, date_index):
     filtered['Snowfall (3-Day Average)'] = filtered['Snowfall (3-Day Average)'].apply(lambda s: f"{s / 10:.4f}mm")
     filtered['Precipitation (3-Day Average)'] = filtered['Precipitation (3-Day Average)'].apply(lambda s: f"{s / 10:.4f}mm")
     filtered['Predicted Fire Probability'] = filtered['Predicted Fire Probability'].apply(lambda s: f"{s:.5f}")
+    filtered["Average Elevation"] = filtered["Average Elevation"].apply(lambda s: f"{(s * 3.28084):,.0f} ft",   )
+    filtered["Daily Average Wind (3-Day Average)"] = filtered["Daily Average Wind (3-Day Average)"].apply(lambda s: f"{(s * 0.1 * 2.23694):,.2f} mph")
+    
+
     
     
     filtered = filtered.round(5)
@@ -242,9 +246,13 @@ def show_click_data(clickData, date_index):
     Input("lc", "overlays"),
     prevent_initial_call=True
 )
-def update_colorbar(base, overlays):
-    if base not in field_identifiers: return None
-    return generate_colorbar(base, n_ticks=11)
+def update_colorbar(base, overlays):  
+    if not base:
+        #Set the default state
+        base = "Predicted Fire Probability"
+        
+        #Have to re-add the word Normalized so it works within the _viz_helpers.py framework
+    return generate_colorbar("Normalized " + base, n_ticks=11)
 
 
 if __name__ == "__main__":
