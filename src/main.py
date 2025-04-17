@@ -113,7 +113,7 @@ def render_tab_content(tab):
                 step=1,
                 value=date_to_index[date(2020, 1, 1)],
                 marks=date_marks,
-                tooltip={"always_visible": True, "transform": "numberToDate"},
+                tooltip={"always_visible": False, "transform": "numberToDate"},
                 ),
         ], style={'padding': '10px', 'marginBottom': '20px'})
     ])
@@ -122,7 +122,7 @@ def render_tab_content(tab):
         return html.Div([
             html.H3("Fire Occurrence Over Time"),
             html.Iframe(
-                src="/fire_timeseries.html",  # TODO MOVE THIS TO ENV ROOT
+                src="/assets/fire_timeseries.html",  # TODO MOVE THIS TO ENV ROOT
                 style={"width": "100%", "height": "600px", "border": "none"}
             )
         ])
