@@ -1,5 +1,8 @@
 FROM python:3.12-slim
-LABEL authors="dhruv"
+LABEL authors="Dhruv Dole"
+LABEL authors="Nathan Rethwisch"
+LABEL authors="Thanh Mai"
+LABEL authors="Colin Russel"
 
 WORKDIR /app
 
