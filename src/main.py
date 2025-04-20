@@ -255,6 +255,9 @@ def update_colorbar(base, overlays):
     return generate_colorbar("Normalized " + base, n_ticks=11)
 
 
+
+
+
 if __name__ == "__main__":
     if os.getenv("ENVIRONMENT", "dev") == "prod":
         app.run(host="0.0.0.0", port=8080, debug=False)

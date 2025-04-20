@@ -6,10 +6,15 @@ LABEL authors="Colin Russel"
 
 WORKDIR /app
 
-COPY ./src /app/src
+COPY ./src /app
 
 COPY requirements-dash.txt /requirements.txt
 
 RUN pip install -r /requirements.txt
 
-CMD ["python3", "src/main.py"]
+ENV ASSETS_ROOT=/app/assets
+ENV ENVIRONMENT=prod
+
+EXPOSE 8080
+
+CMD gunicorn -w ${GUNICORN_WORKERS:-4} -b 0.0.0.0:8080 --access-logfile - --error-logfile - main:server

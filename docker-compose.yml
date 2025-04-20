@@ -1,10 +1,9 @@
 services:
   dashboard:
     build: .
+    image: wildfire-dashboard
     restart: unless-stopped
     ports:
-      - "8080:8080"
-    volumes:
-      - ./model_output:/app/model_output:ro
+      - "0.0.0.0:8080:8080" # this Maps a host port(left) to a container port(right). The Container listens on port 8080
     environment:
-      ENVIRONMENT: prod
+      GUNICORN_WORKERS: 4 # Defaults to 4 if not set here
