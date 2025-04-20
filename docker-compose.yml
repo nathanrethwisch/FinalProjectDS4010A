@@ -1,0 +1,10 @@
+services:
+  dashboard:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./model_output:/app/model_output:ro
+    environment:
+      ENVIRONMENT: prod
