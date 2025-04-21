@@ -7,7 +7,7 @@ from pathlib import Path
 import dash
 import dash_bootstrap_components as dbc
 import dash_leaflet as dl
-from dash import Output, Input, html, dcc
+from dash import Output, Input, html, dcc, State
 
 from h3 import latlng_to_cell
 
@@ -21,7 +21,7 @@ import pandas as pd
 
 # Initialization
 
-#ASSETS_ROOT = Path("C:/FinalProjectDS4010A - repair/data/assets")
+# ASSETS_ROOT = Path("C:/FinalProjectDS4010A - repair/data/assets")
 
 ASSETS_ROOT = Path(os.getenv('ASSETS_ROOT'))
 CELL_RESOLUTION = 3
@@ -161,15 +161,20 @@ def recenter(_):
 
 @app.callback(
     Output('lc', 'children'),
+    Output("lc", "baseLayer"),
     Input('date-slider', 'value'),
+    Input("lc", "baseLayer")
 )
-def update_layers_control(date_index):
+def update_layers_control(date_index, active_layer):
     if date_index is None:
-        return []
+        return [], []
     selected_date = available_dates[date_index]
     year, month, day = selected_date.year, selected_date.month, selected_date.day
     subset = data[(data['year'] == year) & (data['month'] == month) & (data['day'] == day)]
-    return generate_layers(subset, selected_date.strftime('%Y-%m-%d'))
+
+    print(f"{active_layer=}")
+    new_layers = generate_layers(subset, selected_date.strftime('%Y-%m-%d'), active_layer)
+    return new_layers, active_layer
 
 
 
