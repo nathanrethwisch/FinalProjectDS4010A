@@ -35,7 +35,6 @@ parquet_files = glob.glob(os.path.join(assets_root, '*.parquet'))
 # Load and concatenate all Parquet files
 data = gpd.GeoDataFrame(pd.concat([gpd.read_parquet(file) for file in parquet_files], ignore_index=True))
 
-
 # Gets min and max date from the data
 min_date = data['date'].min().date()
 max_date = data['date'].max().date()
@@ -59,8 +58,11 @@ available_dates = list(date_range.date)
 
 # hex_ids = data['Hexagon_ID'].unique().tolist()  # TODO DON'T THINK THIS IS NEEDED ANYMORE
 
-app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY],
-                suppress_callback_exceptions=True)
+app = dash.Dash(
+    external_stylesheets=[dbc.themes.FLATLY],
+    suppress_callback_exceptions=True,
+    title="Wildfire Dashboard"
+)
 server = app.server
 
 app.layout = html.Div([
