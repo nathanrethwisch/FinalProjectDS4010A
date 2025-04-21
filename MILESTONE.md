@@ -190,5 +190,12 @@ This is what it currently looks like:
  ![image](https://github.com/user-attachments/assets/693ebed9-c2ae-44f5-acb6-6f9f2adb0a7b)
 ![image](https://github.com/user-attachments/assets/996232d3-187b-4a3d-bb36-56ef317d0b31)
 
+## 2025-04-20: Dashboard Peer Review
+Our dashboard is mostly complete – three are just a few minor things we want to implement. Right now, the main tab shows a map of the US. Depending on what the user selects, there is a hex of heatmaps that shows predicted fire probability, snowfall, precipitation, etc. The user can then select a hex and get information about each of these variables on a given date. There is also a date slider at the bottom of the screen to control what date is selected. Other tabs include a time series plot of fire count over time and a model info tab that gives information about the dashboard and model.  
+
+For future steps, we want to make the dashboard more appealing based on peer feedback. We also want to comment and clean some of the code. The docker file is ready to go, so these changes should be easy to implement, and then we are done! 
+
+Here is a link to the render: https://finalprojectds4010a.onrender.com. It is a little slow (because we are using the free version of onRedner with very limited RAM), so we are likely to run off Dhruv’s PC for the peer review as we present it to other teams. 
+
 
 
