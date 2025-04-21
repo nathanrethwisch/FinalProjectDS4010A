@@ -51,6 +51,7 @@ def generate_polys(gdf: gpd.GeoDataFrame, field: str) -> list[Polygon]:
 
 
 def generate_layers(gdf: gpd.GeoDataFrame, date_str: str, active_layer: str = None) -> list[dl.BaseLayer]:
+    # print(f"Generating layers {date_str} ({active_layer} is selected)")
     overlays: list[dl.BaseLayer] = []
     for i, field in enumerate(field_identifiers):
         # Takes off the word normalized for display
@@ -63,7 +64,7 @@ def generate_layers(gdf: gpd.GeoDataFrame, date_str: str, active_layer: str = No
             id=f"group-{field}-{date_str}"
         )
 
-        # new stuff here
+        # Select currently active layer. If None, use the first layer
         checked = (display_name == active_layer) if active_layer else (i == 0)
         overlay = dl.BaseLayer(
             poly_layer,
