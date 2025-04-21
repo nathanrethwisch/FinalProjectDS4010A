@@ -264,7 +264,8 @@ def update_colorbar(base, overlays):
 
 
 if __name__ == "__main__":
+    port: int = int(os.getenv("PORT", 10000))
     if os.getenv("ENVIRONMENT", "dev") == "prod":
-        app.run(host="0.0.0.0", port=8080, debug=False)
+        app.run(host="0.0.0.0", port=port, debug=False)
     else:
         app.run(debug=True, dev_tools_hot_reload=True)
