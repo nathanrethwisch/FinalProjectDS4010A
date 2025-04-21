@@ -195,7 +195,8 @@ Our dashboard is mostly complete – three are just a few minor things we want t
 
 For future steps, we want to make the dashboard more appealing based on peer feedback. We also want to comment and clean some of the code. The docker file is ready to go, so these changes should be easy to implement, and then we are done! 
 
-Here is a link to the render: https://finalprojectds4010a.onrender.com. It is a little slow (because we are using the free version of onRedner with very limited RAM), so we are likely to run off Dhruv’s PC for the peer review as we present it to other teams. 
+Because the dashboard uses so much memory, we could not use onRender. However, we will host it using Dhruv's computer for peer review. Here's a video link of a demo of the dashboard: https://iowastate-my.sharepoint.com/:v:/g/personal/dsdole_iastate_edu/EUgxpFD1u8pJoRd9fWlRq70BANWB52Itajhrhf8ZwlaSSw?e=IC33sr
+
 
 
 
