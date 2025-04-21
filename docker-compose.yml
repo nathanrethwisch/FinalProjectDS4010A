@@ -4,6 +4,6 @@ services:
     image: wildfire-dashboard
     restart: unless-stopped
     ports:
-      - "0.0.0.0:8080:8080" # this Maps a host port(left) to a container port(right). The Container listens on port 8080
+      - "0.0.0.0:10000:10000" # this Maps a host port(left) to a container port(right). The Container listens on port 8080
     environment:
       GUNICORN_WORKERS: 4 # Defaults to 4 if not set here
