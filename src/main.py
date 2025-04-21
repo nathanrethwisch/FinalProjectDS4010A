@@ -1,5 +1,6 @@
 import json
 import os
+import glob
 import sys
 from datetime import date
 from pathlib import Path
@@ -25,7 +26,15 @@ import pandas as pd
 
 ASSETS_ROOT = Path(os.getenv('ASSETS_ROOT'))
 CELL_RESOLUTION = 3
-data = gpd.read_parquet(ASSETS_ROOT / 'model_output.parquet')
+
+assets_root = os.getenv('ASSETS_ROOT', '/app/assets')
+
+# Find all Parquet files in the directory
+parquet_files = glob.glob(os.path.join(assets_root, '*.parquet'))
+
+# Load and concatenate all Parquet files
+data = gpd.GeoDataFrame(pd.concat([gpd.read_parquet(file) for file in parquet_files], ignore_index=True))
+
 
 # Gets min and max date from the data
 min_date = data['date'].min().date()
