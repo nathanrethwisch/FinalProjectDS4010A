@@ -22,12 +22,12 @@ import pandas as pd
 
 # Initialization
 
-# ASSETS_ROOT = Path("C:/FinalProjectDS4010A - repair/data/assets")
+#ASSETS_ROOT = Path("C:/FinalProjectDS4010A")
 
 ASSETS_ROOT = Path(os.getenv('ASSETS_ROOT'))
 CELL_RESOLUTION = 3
 
-assets_root = os.getenv('ASSETS_ROOT', '/app/assets')
+assets_root = os.getenv('ASSETS_ROOT', 'assets')
 
 # Find all Parquet files in the directory
 parquet_files = glob.glob(os.path.join(assets_root, '*.parquet'))
@@ -260,8 +260,22 @@ def show_click_data(clickData, date_index):
     # table = dbc.Table.from_dataframe(filtered.drop(columns='geometry'), striped=True, bordered=True, hover=True)
 
     return html.Div([
-        html.Div(table, style={"font-size": "12px"})
-    ])
+        
+    #Adding in the table
+    html.Div(table, style={"font-size": "12px", "marginBottom": "10px"}),
+    
+    #Adding the copy table to clipboard button
+    html.Button("Copy Table to Clipboard", id="copy-button", n_clicks=0, style={"marginBottom": "8px"}),
+
+    # Holds the text that we need to copy
+    html.Textarea(
+        id="clipboard-content",
+        children=transposed.to_csv(index=False),
+        style={"position": "absolute", "left": "-1000px", "top": "-1000px"}  # Hide offscreen
+    ),
+
+    html.Div(id="copy-status", style={"fontSize": "12px", "marginTop": "10px", "color": "green"})
+])
 
 
 @app.callback(
@@ -278,6 +292,12 @@ def update_colorbar(base, overlays):
         # Have to re-add the word Normalized so it works within the _viz_helpers.py framework
     return generate_colorbar("Normalized " + base, n_ticks=11)
 
+# Logic to copy to clipboard - Javascript
+app.clientside_callback(
+    "function(n_clicks){if(!n_clicks)return '';var t=document.getElementById('clipboard-content');t.select();document.execCommand('copy');return 'Copied!';}",
+    Output("copy-status", "children"),
+    Input("copy-button", "n_clicks")
+)
 
 if __name__ == "__main__":
     port: int = int(os.getenv("PORT", 10000))
