@@ -1,4 +1,4 @@
-## 2-14-2025
+## 2-14-2025: Acquire Data Milestone
 ### Project Goals
 The primary research goals of this project currently includes identifying and analyzing environmental, meteorological, and geographical factors that have the potential to influence the risk and severity of wildfires. We also aim to develop a live monitoring system of risk factors to assess and predict the likelihood of wildfire threats.  
 
@@ -17,7 +17,7 @@ So far, we are progressing nicely towards our project goals – we have started 
 
 - Our current wildfire data contains a base longitude/latitude as well as fire size but does not include a geospatial perimeter around the whole fire. This may limit our analysis in some ways unless we can find this data.
 
-## 2-21-2025
+## 2-21-2025: Project Goals Milestone
 ### Project Goals
 - Target audience – Ultimately, our target audience would be homeowners, real estate investors, and those planning trips to areas of high wildfire risk. However, given the scope of  
 
