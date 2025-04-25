@@ -1,3 +1,6 @@
+## Team Formation Milestone
+To pick our team name, we used chatGPT to come up with a list of “funny” team names that we liked. We hadn’t picked a group project at the time yet, but “P-value posse” was the only thing that made us laugh, so that’s what we decided to go with. We haven’t been using the team name very much and typically refer to ourselves as team A. 
+
 ## 2-14-2025: Acquire Data Milestone
 ### Project Goals
 The primary research goals of this project currently includes identifying and analyzing environmental, meteorological, and geographical factors that have the potential to influence the risk and severity of wildfires. We also aim to develop a live monitoring system of risk factors to assess and predict the likelihood of wildfire threats.  
@@ -195,6 +198,8 @@ Our dashboard is mostly complete – three are just a few minor things we want t
 
 For future steps, we want to make the dashboard more appealing based on peer feedback. We also want to comment and clean some of the code. The docker file is ready to go, so these changes should be easy to implement, and then we are done! 
 
+## 2025-04-27: Finalize Dashboard 
+To finalize the dashboard, we made some minor adjustments, including adding a title and cleaning some of the files. We made a docker file, so we are ready to send out the dashboard and host it. Right now, it is being hosted at https://wildfire.ddole.net/. Over the last week, we added a copy to clipboard button for the model output. There are some minor changes we are considering making. One thing that we want to do is make a css style file that allows us to make dashboard features look better. We also want to add a few graphs that show how certain weather variables – precipitation, snowfall, temperature, etc. have changed over time. There are also a few changes we want to make to the info tab to make it more informative based on peer feedback. Other than that, we feel pretty good with where we’re at, and any additional changes will be if we have any extra time. 
 Because the dashboard uses so much memory, we could not use onRender. However, we will host it using Dhruv's computer for peer review. Here's a video link of a demo of the dashboard: https://iowastate-my.sharepoint.com/:v:/g/personal/dsdole_iastate_edu/EUgxpFD1u8pJoRd9fWlRq70BANWB52Itajhrhf8ZwlaSSw?e=IC33sr
 
 
