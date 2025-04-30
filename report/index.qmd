@@ -1,0 +1,12 @@
+---
+title: Final Report
+authors:
+  - name: Dhruv Dole
+    affiliation: Iowa State University
+    roles: writing
+  # add your names here
+bibliography: references.bib
+---
+
+## Section
+This is a simple placeholder for the manuscript's main document [@knuth84].
