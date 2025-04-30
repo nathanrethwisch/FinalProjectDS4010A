@@ -59,7 +59,7 @@ available_dates = list(date_range.date)
 # hex_ids = data['Hexagon_ID'].unique().tolist()  # TODO DON'T THINK THIS IS NEEDED ANYMORE
 
 app = dash.Dash(
-    external_stylesheets=[dbc.themes.FLATLY],
+    external_stylesheets=[dbc.themes.SLATE],
     suppress_callback_exceptions=True,
     title="Wildfire Dashboard"
 )
@@ -67,15 +67,25 @@ server = app.server
 
 app.layout = html.Div([
     html.H2("Wildfire Dashboard", style={'textAlign': 'center'}),
-    dcc.Tabs(id='tabs', value='map-tab', children=[
-        dcc.Tab(label='Map View', value='map-tab'),
-        dcc.Tab(label="Time Series Plot", value='plot-tab'),
-        dcc.Tab(label="Dashboard Info", value='info-tab')
-    ]),
+    dcc.Tabs(
+    id='tabs',
+    value='map-tab',
+    children=[
+        dcc.Tab(label='Map View', value='map-tab', style={'backgroundColor': '#272b30', 'color': 'white'},
+                selected_style={'backgroundColor': '#111111', 'color': 'white'}),
+        dcc.Tab(label='Time Series Plot', value='plot-tab', style={'backgroundColor': '#272b30', 'color': 'white'},
+                selected_style={'backgroundColor': '#111111', 'color': 'white'}),
+        dcc.Tab(label='Dashboard Info', value='info-tab', style={'backgroundColor': '#272b30', 'color': 'white'},
+                selected_style={'backgroundColor': '#111111', 'color': 'white'})
+    ],
+    style={'backgroundColor': '#383838'}
+),
 
-    html.Div(id='tabs-content')
 
-])
+    html.Div(id='tabs-content', style={"height": "calc(100vh - 120px)"})  # Ensure content fills screen and prevents scrolling
+
+],
+                      )
 
 
 @app.callback(
@@ -92,7 +102,7 @@ def render_tab_content(tab):
         return html.Div([
             html.Div([
                 html.Div([
-                    html.H3("Map"),
+                    html.H3(""),
                     dl.Map(children=[
                         dl.TileLayer(),
                         dl.LayersControl(id="lc", collapsed=False, position="bottomright", children=[
@@ -100,19 +110,19 @@ def render_tab_content(tab):
                     ], center=[40, -95], zoom=4, style={'height': '50vh'}, id="map"),
 
                     html.Div(id="colorbar", style={"height": "30px", "margin": "20px 20px"}),
-                    html.Button("Recenter", id="recenter"),
+                    html.Button("Recenter", id="recenter", style = {'marginTop': '15px'}),
                 ], style={'width': '75%', 'display': 'inline-block', 'verticalAlign': 'top', 'padding': '20px'}),
                 html.Div([
                     html.H3("Model"),
                     html.Div(id='output-container'),
                 ], style={'width': '20%', 'display': 'inline-block', 'verticalAlign': 'top',
-                          'backgroundColor': '#e9ecef', 'padding': '10px'})
+                           'padding': '10px'})
             ], style={'width': '100%', 'display': 'block'}),
             # Tells selected date based on the slider
             html.Div([
                 html.Div([
-                    html.H3('Selected Date: ', style={'display': 'inline-block', 'marginRight': '20px'}),
-                    html.Span(id='selected-date-label', style={'fontSize': '30px'})
+                    html.H3('Selected Date: ', style={'display': 'inline-block', 'marginRight': '20px', 'fontSize': '25px'}),
+                    html.Span(id='selected-date-label', style={'fontSize': '25px'})
                 ], style={'marginBottom': '10px'}),
                 # Adding in the date slider
                 dcc.Slider(
@@ -129,19 +139,19 @@ def render_tab_content(tab):
 
     elif tab == 'plot-tab':
         return html.Div([
-            html.H3("Fire Occurrence Over Time"),
+            html.H3(""),
             html.Iframe(
                 src="/assets/fire_timeseries.html",  # TODO MOVE THIS TO ENV ROOT
-                style={"width": "100%", "height": "600px", "border": "none"}
+                style={"width": "100%", "height": "calc(100vh - 150px)", "border": "none"}
             )
         ])
 
     elif tab == 'info-tab':
         return html.Div([
-            html.H3("Dashboard Information"),
+            html.H3(""),
             html.Iframe(
                 src="/assets/model-info.html",  # TODO MOVE THIS TO ENV ROOT
-                style={"width": "100%", "height": "600px", "border": "none"}
+                style={"width": "100%", "height": "calc(100vh - 150px)", "border": "none"}
             )
         ])
 
