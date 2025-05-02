@@ -20,13 +20,13 @@ format:
     toc: true
     embed-resources: true
     page-layout: full
-  # pdf:
-  #   toc: false        
-  #   number-sections: true 
-  #   pdf-engine: xelatex  
-  #   mainfont: "Times New Roman"
-  #   fontsize: 12pt
-  #   fig-pos: "H"
+  pdf:
+    toc: true        
+    number-sections: true 
+    pdf-engine: xelatex  
+    mainfont: "Times New Roman"
+    fontsize: 12pt
+    fig-pos: "H"
 editor:
   markdown:
     wrap: 72
@@ -165,19 +165,22 @@ and the pipeline was re-run. See @tbl-2010.parquet for the resultant table.
 - Purpose and issues for each major transformation
 
 ### Storage and Query Engine
+To handle selections, projections, and group by aggregations on larger-than-memory datasets, 
+[PyArrow](https://arrow.apache.org/docs/python/index.html) and Parquet were chosen for their support of lazy evaluation and predicate pushdown, 
+which reduced query time by as much as 700%. These tools also support easy conversion to Pandas dataframes
+ and there is also an [Arrow for R](https://arrow.apache.org/docs/r/) package.
 
-- Query Requirements and implementation  
-  - Need to run selections, projections, and group by aggregations on a larger than memory datasets. (limited by developer hardware).  
-  - Need to be able to query both datatables across the same dimensions  
-  - Chose Pyarrow and Parquet as primary system because it allows lazy predicate evaluation on larger than memory datasets. Pyarrow datasets and tables can be easily converted to pandas dataframes, and there is a fully featured Arrow package for R.  
-- Selection and implementation of storage to satisfy said requirements  
-  - Don’t want to pay for storage or bandwidth  
-  - Data versioning is unnecessary  
-  - Multiple people need to have concurrent read access, only one person will be writing to a table at a time.  
-  - Data is too large for free github LFS  
-  - Dataset is stored in a shared onedrive folder, which is symlinked into the local repo by each user. This allows code to use a single uniform path, while keeping data access up to the individual developer(other developers can download the data to repo/data).
 
-- We assumed needing to have the entire dataset available to the dashboard, turns out we only needed the 3-day averages available produced for the model output. This allows us to load the dashboard’s live data into memory on initialization.
+The largest operational issue was that the dataset needed to be identical across each developer's machines.
+To avoid paying for cloud resources, the data was stored in a shared OneDrive folder and symlinked into the
+ local repository by each user, ensuring uniform access paths while allowing individual developers to 
+ manage their data access. This setup allowed each user to download the dataset to their local 
+ system on demand, while keeping their copy up-to-date.
+
+Initially, the assumption was that the entire dataset needed to be available to the dashboard, but 
+later it was realized that only the 3-day averages produced as part of the model training were necessary.
+ This allowed the dashboard’s live data to be loaded into memory on initialization. This means that 
+ the dashboard does not require high througput IO access.
 
 ## Exploration and Analysis
 
@@ -289,5 +292,8 @@ Using historical fire data from the United States Forest Service (USFS) and weat
 ### Further Discussion
 
 Given more time, we would aim to expand our analysis by incorporating additional datasets to enhance our predictive accuracy. We would include factors such as soil conditions and wind direction in specific areas as key predictors. Additionally, we would like to explore the probability of a fire occurring again in a region that has already had a recent wildfire. If we had access to greater computational resources, we would refine our predictions by using smaller hexagonal grids, allowing for more precise insights into distinct geographical climates. Moreover, the dashboard could be enhanced to support future fire prediction efforts. By using upcoming weather forecasts, we could provide a forecasted probability of fire occurrence in specific areas. These ideas lay the foundation for ongoing exploration and continued development of the dashboard.
+
+
+**In the future, this data should be moved into cloud object storage.**
 
 ### Sources

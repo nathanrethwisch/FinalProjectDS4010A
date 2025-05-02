@@ -1,5 +1,5 @@
 project:
-  type: manuscript
+  type: default
 
 manuscript:
   article: index.qmd
@@ -12,7 +12,7 @@ format:
   jats: default
 
   # (other formats)
-  # pdf: default
+  pdf: default
 
 execute:
   freeze: true
