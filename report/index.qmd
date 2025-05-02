@@ -72,9 +72,8 @@ The data is partitioned by year, with a single compressed csv for each year. Sou
 range of $1776$ to $2025$, however before the year $2000$ there is a comparatively small amount of data.
 It was decided to focus on data from $2000$ onwards.
 
-#### Fire Data
-
-### Acquisition
+#### National US Forest Service Fire Occurence Point
+The FireOccurrence point layer represents ignition points, or points of origin, from which individual USFS wildland fires started. Data are maintained at the Forest/District level, or their equivalent, to track the occurrence and the origin of individual USFS wildland fires. It includes variables such as Discovery Date, Total Acres, Stat Cause, LatitudeDD83, LongitudeDD83 and much more. All of the information is publicly avaliable at [Link Text](https://catalog.data.gov/dataset/national-usfs-fire-occurrence-point-feature-layer-d3233). There are multiple formats that the data can be downloaded in, but our group used a csv file. 
 
 #### GHCND
 
@@ -103,9 +102,57 @@ AEM00041217  24.4330   54.6510   26.8    ABU DHABI INTL                         
 ###
 
 #### Fire Data
+The transformations to the fire occurence dataset were done using R. The major issue with the dataset was there were a lot of null values, some of the 44 variables were unusable due to the amount of missing data. The variables our group decided to include were UNIQFIREID, FIREYEAR, DISCOVERYDATETIME, FIREOUTDATETIME, SIZECLASS, TOTALACRES, STATCAUSE, LATDD83, and LONGDD83. 
 
 
-### Transformations
+The transformation steps are shown in this diagram:
+```mermaid
+  graph TD
+    A[Read CSV from data.gov] --> B[Select relevant columns]
+    B --> C[Remove NA values]
+    C --> D[Filter invalid FIREYEAR values]
+    D --> E[Spot-check SIZECLASS vs TOTALACRES]
+    E --> F[Sample and inspect LAT/LONG]
+    F --> G[Audit blank or missing fields]
+    G --> H[Group by FIREYEAR]
+    H --> I[Generate exploratory plots]
+```
+
+##### First 5 lines of Fire Occurence
+```
+          X        Y  OBJECTID                               GLOBALID                         FIREOCCURID CN                   REVDATE                            
+1 -106.4278 39.84611 231055009 {540C6E70-51FD-4CCC-A1B3-8A6C914E34A3}   2B1B9A1B-7828-4688-A14C-4BD7CEE62226    2023/03/29 11:10:56+00
+2 -107.9356 39.37278 231055010 {ACE77CF8-1281-4A81-BE3D-4D55669CB134}   A2454D64-EBB7-4895-81BC-9782B3D1391E    2023/03/29 11:10:59+00
+3 -106.7233 39.11833 231055011 {D8EA7329-A0D0-4B64-A6F2-7A7FD86A3505}                                           2023/03/29 11:10:56+00
+4 -106.5900 39.65667 231055012 {67A72390-0E2B-411E-9CDE-6657101645E4}                                           2023/03/29 11:10:56+00
+5 -107.3173 40.01929 231055013 {DFFF8D93-DE89-451C-830C-1F65FD550B3D}   558D5D61-AB04-4AC3-8143-2E0EBE7CB506    2024/03/27 14:21:08+00
+6 -106.5183 39.58833 231055014 {B7FC6338-897C-44AC-BD8B-7D1EB63EC7D8}                                           2023/03/29 11:10:56+00
+
+                   FIRENAME COMPLEXNAME FIREYEAR        UNIQFIREID SOFIRENUM  LOCALFIRENUM SECURITYID       DISCOVERYDATETIME SIZECLASS TOTALACRES    STATCAUSE
+1             Elliott Ridge                 2016 2016-COWRF-000679       039           679       0215  2016/10/22 00:00:01+00         A       0.25      Camping
+2 Battlement Mesa Reservoir                 2016 2016-COWRF-000452       018           452       0215  2016/08/07 00:00:01+00         A       0.10      Camping
+3                 Difficult                 1997   1997-COWRF-000        013                     0215  1997/07/26 00:00:01+00         A       0.10    Lightning
+4                                           1993   1993-COWRF-000        022                     0215  1993/08/23 00:00:01+00         A       0.10 Undetermined
+5                  Paradise                 2020 2020-COWRF-000504                     504       0215  2020/10/14 13:16:01+00         A       0.10      Camping
+6                      B.C.                 1994   1994-COWRF-000        039                     0215  1994/07/29 00:00:01+00         A       0.10    Lightning
+
+  COMMENTS DATASOURCE        FIREOUTDATETIME OWNERAGENCY UNITIDOWNER   PROTECTIONAGENCY UNITIDPROTECT  LATDD83  LONGDD83 FIRETYPECATEGORY POINTTYPE
+1                  24 2017/02/06 11:54:01+00        USFS       COWRF               USFS         COWRF 39.84611 -106.4278               WF   General
+2                  24 2016/08/12 11:20:01+00        USFS       COWRF               USFS         COWRF 39.37278 -107.9356               WF   General
+3                  24 1997/07/28 16:57:01+00        USFS       COWRF               USFS         COWRF 39.11833 -106.7233               WF   General
+4                  24 1993/08/23 23:00:01+00        USFS       COWRF               USFS         COWRF 39.11833 -106.7233               WF   General
+5                  24 2020/11/12 14:30:01+00        USFS       COWRF               USFS         COWRF 39.65667 -106.5900               WF   General
+6                  24 1994/07/29 18:00:01+00        USFS       COWRF               USFS         COWRF 39.58833 -106.5183               WF   General
+
+  PERIMEXISTS FIRERPTQC DBSOURCEID           DBSOURCEDATE ACCURACY SHAPE
+1           N       Yes        215 2024/09/24 04:01:09+00    24000    NA
+2           N       Yes        215 2024/09/24 04:01:15+00    24000    NA
+3           N       Yes        215 2024/09/24 04:01:15+00    24000    NA
+4           N       Yes        215 2024/09/24 04:01:15+00    24000    NA
+5           Y       Yes        215 2024/09/24 04:01:15+00    24000    NA
+6           N       Yes        215 2024/09/24 04:01:15+00    24000    NA
+```
+
 
 #### GHCND
 The transformations for the GHCN Daily data is a single script because the required transformations
