@@ -17,7 +17,7 @@ def get_memory_usage(directory):
     return total_memory_usage
 
 # Example usage
-directory_path = 'C:\\Users\\dhruv\\IdeaProjects\\FinalProjectDS4010A\\data\\curated\\ModelOutput'
+directory_path = input('enter path to dataset directory')
 total_memory = get_memory_usage(directory_path)
 print(f"Total memory usage: {total_memory} gb")
 
