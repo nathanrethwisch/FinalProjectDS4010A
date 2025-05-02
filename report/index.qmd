@@ -1,12 +1,186 @@
 ---
-title: Final Report
-authors:
-  - name: Dhruv Dole
-    affiliation: Iowa State University
-    roles: writing
-  # add your names here
+title: "Final Report"
+author:
+  - name: "Dhruv Dole"
+    affiliation: "Iowa State University"
+    role: "writing"
+  - name: "Nathan Rethwisch"
+    affiliation: "Iowa State University"
+    role: "writing"
+  - name: "Colin Russell"
+    affiliation: "Iowa State University"
+    role: "writing"
+  - name: "Thanh Mai"
+    affiliation: "Iowa State University"
+    role: "writing"
 bibliography: references.bib
+format:
+  pdf:
+    toc: false        
+    number-sections: true 
+    pdf-engine: xelatex  
+    mainfont: "Times New Roman"
+    fontsize: 12pt
+    fig-pos: "H" 
+editor:
+  markdown:
+    wrap: 72
 ---
 
-## Section
-This is a simple placeholder for the manuscript's main document [@knuth84].
+
+## Introduction/Project Description
+
+Wildfires are a major problem in the United States, costing between $394 billion and $893 billion per year, according to the Joint Economic Committee [@jec2023wildfires]. Identifying where and why wildfires occur is key to preventing wildfires, which protects lives, preserves property, and minimizes economic losses. The goal of this project is to estimate areas of high fire risk based on historical weather patterns and wildfire data. We aim to provide a platform where users can obtain information about past weather conditions and their association with wildfires at a quick glance. This dashboard is designed for a broad audience, including high-level policymakers involved in wildfire prevention strategies and local officials responsible for establishing rules and regulations based on regional wildfire risk.
+
+![Estimated Cost of Wildfires in 2022](WildfireCost.png){#fig-WildfireCost}
+
+ 
+
+
+## Data Pipeline
+
+### Acquisition
+
+- Description of sources (api, data format)  
+  - GHCN daily (temperature, wind, precipitation, snowfall): Issues with lack of documentation, fixed-width files, NOAA servers went down for a while in january(politics), A few different available file formats, found a public mirror on s3.  
+  - USFS fire perimeter, fire occurrence (coordinates and perimeters of each fire incident)  
+  - map polygons and rasters  
+  - other datasets explored but not used: openmeteo api, copernicus data, gnatsgo soil data  
+- Acquisitions, rate limits…  
+- Process itself
+
+### Transformation
+
+The transformations for the GHCN Daily data is a single script because the required transformations were changing almost every day, and it was often necessary to rebuild the dataset outright. This also allows for anyone to reproduce the dataset.
+
+- (TODO: go back to code to get exact steps)  
+- Each transformation applied  
+- Purpose and issues for each major transformation
+
+### Data Cube Storage and Query
+
+- Query Requirements and implementation  
+  - Need to run selections, projections, and group by aggregations on a larger than memory datasets. (limited by developer hardware).  
+  - Need to be able to query both datatables across the same dimensions  
+  - Chose Pyarrow and Parquet as primary system because it allows lazy predicate evaluation on larger than memory datasets. Pyarrow datasets and tables can be easily converted to pandas dataframes, and there is a fully featured Arrow package for R.  
+- Selection and implementation of storage to satisfy said requirements  
+  - Don’t want to pay for storage or bandwidth  
+  - Data versioning is unnecessary  
+  - Multiple people need to have concurrent read access, only one person will be writing to a table at a time.  
+  - Data is too large for free github LFS  
+  - Dataset is stored in a shared onedrive folder, which is symlinked into the local repo by each user. This allows code to use a single uniform path, while keeping data access up to the individual developer(other developers can download the data to repo/data).
+
+- We assumed needing to have the entire dataset available to the dashboard, turns out we only needed the 3-day averages available produced for the model output. This allows us to load the dashboard’s live data into memory on initialization.
+
+## Exploration and Analysis
+
+![An example of Uber’s H3 Cell Grid](UberH3.png){#fig-UberH3 width=50%}
+
+After cleaning the data and performing exploratory data analysis, we realized we needed a way to process data that contained both geospatial and time information. One additional challenge we faced was the lack of negative data. Our dataset contained a list of places where fires occurred, but not where they *did not* occur. Thus, this makes it difficult to create a binary prediction model of fire probability, because we only have cases where the fires occurred to train models on. To solve these problems, we turned to Uber’s H3 cell grid, shown in @fig-UberH3. H3 cells are a series of hexagonal cells that can be used to cover the surface of the globe at different resolutions. Although perhaps not as precise as certain geographical boundaries for prediction, H3 hexagons are advantageous because of their computational speed and equidistant between neighboring cells. In our case, we fit a grid of cells to the US, with each hexagon representing approximately 4785 square miles, totaling 712 cells. For each day, we marked whether or not a fire occurred in each hex. Meteorological stations within a cell were aggregated to compute mean calculations for weather data. The additional advantage of these cells was that we no longer needed to spatially join the fire and weather data to perform calculations. Once we had the index of the cell, we knew exactly which stations were paired with which fires, saving us the time and computation of continuous joins.
+
+Another challenge was missing data. If all of the weather stations in a cell gave null values for a variable on a certain date, they were imputed with the average from neighboring cells. We also removed precipitation from our analysis because over 50% of the precipitation data was missing. 
+
+## Modeling
+
+### Data Preparation
+
+With the addition of H3 cells and negative data for cells without a fire, we fit a model to predict $Y_ij$, the probability of a fire occurring in cell $i$ on day $j$, bounded by $[0,1]$. We averaged the weather variables over three days, the two days before the fire and the day the fire occurred, for our predictors.  
+Prediction variables were as follows:
+
+* $x_1$: Hexagon location  
+* $x_2$: Average Elevation  
+* $x_3$: Temperature Maximum (3-day average)  
+* $x_4$: Temperature Minimum (3-day average)  
+* $x_5$: Daily Average Wind Speed (3-day average)  
+* $x_6$: Precipitation (3-day average)  
+* $x_7$: Snowfall (3-day average)  
+* $x_7$: Month
+
+### Model Selection
+
+We split the data into a training and a testing set. The training data ranges from January 1, 2000, to December 31, 2019\. The testing data was from January 1, 2020, to March 23, 2025\. I encoded the hexagonal location as numeric variables and ran 4 separate models: logistic regression, random forest, XGBoost, and Naive Bayes. After running the models, I then simulated thresholds from 0-1 at a 0.01 interval and selected the optimal prediction threshold for each model that maximized the F1 score, which can be defined as $\frac{\text{precision} \cdot \text{recall}}{\text{precision} + \text{recall}}$. 
+
+- Precision is defined as how often a positive wildfire prediction is correctly positive. It can be defined as $\frac{\text{TP}}{\text{TP} + \text{FP}}$.   
+- Recall describes the rate at which the model can correctly identify true positives from all possible values. It can be defined as $\frac{\text{TP}}{\text{TP} + \text{FN}}$. 
+
+F1 score is preferential to accuracy in this case, because the dataset is imbalanced and we have very few actual positive cases of wildfires, so models that maximize accuracy are likely to underestimate the probability of a fire occurring, a more costly mistake than a false positive. 
+
+@fig-thresholds shows the optimal thresholds curves, while @fig-modelTable displays statistics for each model in the selection process.
+
+![Thresholds for the optimal F1 score using each model](thresholds.png){#fig-thresholds width=50% height=50%}
+
+![Statistics for each model fit on historical weather data](modelStats.jpg){#fig-modelTable fig-cap-location="top"}
+
+
+Based on these results, we decided to go with a random forest model. Although the XGBoost and random forest models performed similarly, the random forest model had a higher F1 score as well as higher accuracy. Furthermore, we are more familiar with working with random forests. Given more time, we would explore the XGBoost model, especially since it has higher recall, which is desirable given that the cost of a false negative is high. 
+
+### Hyperparameter Selection
+
+After deciding on a random forest as the optimal model, we performed a grid search with 3-fold cross-validation to fine-tune model parameters. We used a random sample of 10% of the data due to storage limits. The parameters of interest were the number of estimators in the forest (50, 100, 200), the maximum depth of each tree considered (None, 10, 20, 30), and the number of features considered at each split (2, 3). Therefore, 24 possible combinations were considered. Using a decision threshold of 0.22, we selected the model with the highest F1 score. Ultimately, this was selected to be one with 200 estimators, a max depth of 30, and 3 features considered at each split. @fig-codeRF shows the trained random forest using this 
+
+![Code for Training the Optimal Random Forest](BestRandomForest.png){#fig-codeRF}
+
+
+### Results
+
+After fitting the fine-tuned model to the training and testing data, we ended with @fig-bestModelStats. Hyperparameter tuning was able to marginally improve F1 score (0.193 to 0.197) and recall (0.305 to 0.330). Although these scores are still fairly low, this is somewhat expected due to the limit of our data and the variability of fire causes. @fig-featureImportance shows a table of the most important features, showing that location, elevation, and temperature were seen as key predictors of wildfires. 
+
+![Statistics for our Random Forest after Hyperpararmeter Tuning](bestModelStats.png){#fig-bestModelStats fig-cap-location="top"}  
+
+![Feature Importance](featureImportance.png){#fig-featureImportance fig-cap-location="top" width=70% height=70%}  
+
+After running the model, the output was saved as a parquet file and loaded later into the dashboard.
+
+### Challenges
+
+One of the key challenges faced when running the model was the large amount of data we faced. Because we are dealing with both time and spatial data, we were dealing with a dataframe that has a row for every unique combination of dates from 2020-2025 and hexagon locations (of which there are 712). This gives a dataset with a total of 188,240,121 rows. This was too large to load into memory on our local devices, so we used The Catalyst. This is a high-performance computer that is reservable for students at the Iowa State Library. We loaded the data and were able to save the model output through OneDrive.
+
+## Dashboard
+
+### Exploration
+
+We originally explored ArcGIS’s online dashboarding tools due to its seamless integration with geospatial data. However, loading hexagonal maps with predictions for each date proved to be too large a task for the software to handle, leading to incredible slow loading times. As a result, we turned to Python’s Dash library. This was able to handle large amounts of data and gave the option to add map layers easily. 
+
+### Dashboard Creation
+
+- Explored arcgis(slow, generally too limited in feature set)  
+- Chose dash because data was large and required cu  
+- stom real-time querying, needed efficient real-time map generation and rendering  
+- Stack: mixed python/r, dash, leaflet, containerized with docker, self-hosted  
+- Key visualization: fire risk probability, climate data  
+- Precomputed all values and plots needed for dashboard. The only realtime workload is selecting a single day’s render fields.  
+- many many pictures
+
+All of the values for the dashboard were precomputed from the model. For the colors of the map, output was normalized using the following formula:   
+$$\frac{x - x_{min}}{x_{max} - x_{min}}$$  
+However, the actual predicted output and color bar on the map reverse this normalization so that the labels match the real predicted and weather values.
+
+### Interface
+
+The dashboard has three main tabs. The map view allows users to set a date to view an overlay of wildfire predictions within hexagons on a map of the United States. The user can select the date displayed using a date slider at the bottom of the page. They can also select different variables in the tab menu on the map to get weather data for that date, allowing users to easily visualize weather patterns and areas of high fire probability. When viewing the map, users can click on a specific hex to get both model output and weather for that area on that selected date. Model output can be copied to clipboard for advanced analytics and reporting. 
+
+The time series plot was created in Python using Plotly and is hosted as an HTML file. This gives information on the number of fires occurring on a weekly, monthly, and yearly basis. 
+
+Finally, the dashboard info tab gives information about the underlying model and how to use the dashboard. It was created in R using Quarto and is also implemented as an HTML.
+
+![An example wildfire prediction dashboard](dashboard.png){#fig-dashboard}
+
+### Challenges
+
+- Major issues and solutions (dash-leaflet immutability)
+
+### Availability/Source Code Location
+
+All of the source code can be found at [https://github.com/nathanrethwisch/FinalProjectDS4010A](https://github.com/nathanrethwisch/FinalProjectDS4010A). The dashboard is currently hosted at [https://wildfire.ddole.net/](https://wildfire.ddole.net/). 
+
+## Conclusion
+
+### Summary
+
+Using historical fire data from the United States Forest Service (USFS) and weather data from the National Oceanic and Atmospheric Administration (NOAA), we were able to create a random forest model and associated dashboard that predicted the probability of a fire occurring in a given area on a certain date. The dashboard allows users to explore dates and weather trends that lead to a high fire probability. This can be used for setting policy and garnering a greater understanding of the relationship between weather and wildfires.
+
+### Further Discussion
+
+Given more time, we would aim to expand our analysis by incorporating additional datasets to enhance our predictive accuracy. We would include factors such as soil conditions and wind direction in specific areas as key predictors. Additionally, we would like to explore the probability of a fire occurring again in a region that has already had a recent wildfire. If we had access to greater computational resources, we would refine our predictions by using smaller hexagonal grids, allowing for more precise insights into distinct geographical climates. Moreover, the dashboard could be enhanced to support future fire prediction efforts. By using upcoming weather forecasts, we could provide a forecasted probability of fire occurrence in specific areas. These ideas lay the foundation for ongoing exploration and continued development of the dashboard.
+
+### Sources
