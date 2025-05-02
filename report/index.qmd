@@ -1,5 +1,6 @@
 ---
 title: "Final Report"
+description: "DS 4010 - Wildfire Dashboard"
 author:
   - name: "Dhruv Dole"
     affiliation: "Iowa State University"
@@ -15,13 +16,18 @@ author:
     role: "writing"
 bibliography: references.bib
 format:
+  html:
+    toc: true
+    embed-resources: true
   pdf:
     toc: false        
     number-sections: true 
     pdf-engine: xelatex  
     mainfont: "Times New Roman"
     fontsize: 12pt
-    fig-pos: "H" 
+    fig-pos: "H"
+  
+
 editor:
   markdown:
     wrap: 72
@@ -37,9 +43,22 @@ Wildfires are a major problem in the United States, costing between $394 billion
  
 
 
-## Data Pipeline
+## Data
+
+### Sources
+
+#### Global Historical Climatology Network daily (GHCND)
+
+The Global Historical Climatology Network daily (GHCND) is an integrated database of daily climate summaries from land surface stations worldwide. It includes records from over 100,000 stations in 180 countries, providing data on variables such as temperature, precipitation, snowfall, and snow depth. This data is provided in its raw form by the National Oceanic and Atmospheric Administration [here](https://www.ncei.noaa.gov/products/land-based-station/global-historical-climatology-network-daily). The same data is available in  different formats published as an AWS Open Data [dataset](https://registry.opendata.aws/noaa-ghcn/).
+
+#### Fire Data
 
 ### Acquisition
+
+#### GHCND
+
+#### Fire Data
+
 
 - Description of sources (api, data format)  
   - GHCN daily (temperature, wind, precipitation, snowfall): Issues with lack of documentation, fixed-width files, NOAA servers went down for a while in january(politics), A few different available file formats, found a public mirror on s3.  
@@ -49,7 +68,11 @@ Wildfires are a major problem in the United States, costing between $394 billion
 - Acquisitions, rate limits…  
 - Process itself
 
-### Transformation
+### Transformations
+
+#### GHCND
+
+#### Fire Data
 
 The transformations for the GHCN Daily data is a single script because the required transformations were changing almost every day, and it was often necessary to rebuild the dataset outright. This also allows for anyone to reproduce the dataset.
 
