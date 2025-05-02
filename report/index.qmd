@@ -45,21 +45,7 @@ Wildfires are a major problem in the United States, costing between $394 billion
 
 ## Data
 
-### Sources
-
-#### Global Historical Climatology Network daily (GHCND)
-
-The Global Historical Climatology Network daily (GHCND) is an integrated database of daily climate summaries from land surface stations worldwide. It includes records from over 100,000 stations in 180 countries, providing data on variables such as temperature, precipitation, snowfall, and snow depth. This data is provided in its raw form by the National Oceanic and Atmospheric Administration [here](https://www.ncei.noaa.gov/products/land-based-station/global-historical-climatology-network-daily). The same data is available in  different formats published as an AWS Open Data [dataset](https://registry.opendata.aws/noaa-ghcn/).
-
-#### Fire Data
-
-### Acquisition
-
-#### GHCND
-
-#### Fire Data
-
-
+```
 - Description of sources (api, data format)  
   - GHCN daily (temperature, wind, precipitation, snowfall): Issues with lack of documentation, fixed-width files, NOAA servers went down for a while in january(politics), A few different available file formats, found a public mirror on s3.  
   - USFS fire perimeter, fire occurrence (coordinates and perimeters of each fire incident)  
@@ -67,20 +53,56 @@ The Global Historical Climatology Network daily (GHCND) is an integrated databas
   - other datasets explored but not used: openmeteo api, copernicus data, gnatsgo soil data  
 - Acquisitions, rate limits…  
 - Process itself
+```
+### Sources
+
+#### Global Historical Climatology Network daily (GHCND)
+
+The Global Historical Climatology Network daily (GHCND) is an integrated database of daily climate summaries
+from land surface stations worldwide. It includes records from over 100,000 stations in 180 countries,
+providing data on variables such as temperature, precipitation, snowfall, and snow depth. This data is
+provided in its raw form by the National Oceanic and Atmospheric Administration
+[here](https://www.ncei.noaa.gov/products/land-based-station/global-historical-climatology-network-daily).
+The same data is available in  different formats published as an AWS Open Data [dataset](https://registry.opendata.aws/noaa-ghcn/).
+The latter dataset was selected because it provides data as comma-separated-values instead of fixed-width tables.
+
+There are two raw 'tables' available from the dataset: `stations` and `daily`. `stations` is available as
+a single fixed-width text file, and provides a mapping of weather station IDs and geographic coordinates.
+`daily` is made up of csv records, where each record corresponds to a single observation made by a station.
+The data is partitioned by year, with a single compressed csv for each year. Source data exists for the year
+range of $1776$ to $2025$, however before the year $2000$ there is a comparatively small amount of data.
+It was decided to focus on data from $2000$ onwards.
+
+#### Fire Data
+
+### Acquisition
+
+#### GHCND
+
+In order to create cleaned tables, it was necessary first to mirror the needed data locally. A python script 
+was written which parses the s3 bucket [manifest](https://noaa-ghcn-pds.s3.amazonaws.com/) and downloads all 
+`daily` files with the `csv.gz` suffix for years after $1999$. The script also downloads a copy of the file 
+`stations.txt`, the raw source for `stations`
+
+#### Fire Data
+
 
 ### Transformations
 
 #### GHCND
+The transformations for the GHCN Daily data is a single script because the required transformations
+ were changing almost every day, and it was often necessary to rebuild the dataset outright. 
+ This also allows for anyone to reproduce the dataset.
 
 #### Fire Data
 
-The transformations for the GHCN Daily data is a single script because the required transformations were changing almost every day, and it was often necessary to rebuild the dataset outright. This also allows for anyone to reproduce the dataset.
+
 
 - (TODO: go back to code to get exact steps)  
 - Each transformation applied  
 - Purpose and issues for each major transformation
 
-### Data Cube Storage and Query
+### Storage and Query Engine
 
 - Query Requirements and implementation  
   - Need to run selections, projections, and group by aggregations on a larger than memory datasets. (limited by developer hardware).  
