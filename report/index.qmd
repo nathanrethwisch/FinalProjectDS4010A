@@ -19,15 +19,14 @@ format:
   html:
     toc: true
     embed-resources: true
-  pdf:
-    toc: false        
-    number-sections: true 
-    pdf-engine: xelatex  
-    mainfont: "Times New Roman"
-    fontsize: 12pt
-    fig-pos: "H"
-  
-
+    page-layout: full
+  # pdf:
+  #   toc: false        
+  #   number-sections: true 
+  #   pdf-engine: xelatex  
+  #   mainfont: "Times New Roman"
+  #   fontsize: 12pt
+  #   fig-pos: "H"
 editor:
   markdown:
     wrap: 72
@@ -79,10 +78,29 @@ It was decided to focus on data from $2000$ onwards.
 
 #### GHCND
 
-In order to create cleaned tables, it was necessary first to mirror the needed data locally. A python script 
-was written which parses the s3 bucket [manifest](https://noaa-ghcn-pds.s3.amazonaws.com/) and downloads all 
-`daily` files with the `csv.gz` suffix for years after $1999$. The script also downloads a copy of the file 
-`stations.txt`, the raw source for `stations`
+In order to create cleaned tables, it was necessary first to mirror the raw data locally to avoid the need 
+for repeated downloads of the same files. A python script was written which parses the s3 bucket 
+[manifest](https://noaa-ghcn-pds.s3.amazonaws.com/) and downloads all `daily` files with the `csv.gz` 
+suffix for years after $1999$. The script also downloads a copy of the file `stations.txt`, the raw
+source for `stations`. 
+
+##### First 5 lines of daily file 2010.csv.gz
+```
+AE000041196,20100101,TMAX,259,,,S,
+AE000041196,20100101,TMIN,120,,,S,
+AE000041196,20100101,TAVG,181,H,,S,
+AEM00041194,20100101,TMAX,250,,,S,
+AEM00041194,20100101,TMIN,168,,,S,
+```
+##### First 5 lines of stations.txt
+```
+ACW00011604  17.1167  -61.7833   10.1    ST JOHNS COOLIDGE FLD                       
+ACW00011647  17.1333  -61.7833   19.2    ST JOHNS                                    
+AE000041196  25.3330   55.5170   34.0    SHARJAH INTER. AIRP            GSN     41196
+AEM00041194  25.2550   55.3640   10.4    DUBAI INTL                             41194
+AEM00041217  24.4330   54.6510   26.8    ABU DHABI INTL                         41217
+```
+###
 
 #### Fire Data
 
@@ -92,7 +110,51 @@ was written which parses the s3 bucket [manifest](https://noaa-ghcn-pds.s3.amazo
 #### GHCND
 The transformations for the GHCN Daily data is a single script because the required transformations
  were changing almost every day, and it was often necessary to rebuild the dataset outright. 
- This also allows for anyone to reproduce the dataset.
+ This also allows for anyone to reproduce the dataset. 
+ 
+The raw daily data includes one column designating the type of observation, and one the actual value recorded.
+The desired end result was a single table, with a column for each desired observation type or `element`.
+Once joined with station locations, the data was indexed using the [h3](https://h3geo.org/) library. 
+This has many benefits which are described [below](#exploration-and-analysis)
+
+The basic steps are as follows: `stations.txt` needs to be converted from a fixed-width text file to a
+ typed parquet file. Each daily file needs to be decompressed, typed, and reoriented into the correct format.
+
+The transformation steps are shown in this diagram:
+
+```mermaid
+graph TD
+    A[stations.txt] --> D
+    D[read fwf] --> H
+
+    C[raw daily] --> B[decompress]
+    B --> E[process dates]
+    E --> F[drop unwanted columns]
+    F --> G[create single element tables]
+    G --> I[join element tables]
+    I --> J[join with stations]
+    J --> K[generate point geometries]
+    K --> L[index with h3]
+    L --> H
+
+    H[save as parquet]
+
+    M[read stations.parquet] --> J
+```
+Once the data was in a viewable format, columns to drop were chosen based by generating percentage nulls. 
+Each time it was decided to keep or drop a column, the column was added or removed from a `keep_columns` list,
+and the pipeline was re-run. See @tbl-2010.parquet for the resultant table.
+
+
+
+| station\_id | year | month | day | prcp | snow | snwd | tmax | tmin | awnd | awdr | evap | latitude | longitude | elevation | state | geometry | Hexagon\_ID |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| CA001011500 | 2010 | 1 | 1 | 245 | 0 | 0 | 85 | 35 | null | null | null | 48.9333 | -123.75 | 75 | BC | 0x0101000000ACADD85F767748400000000000F05EC0 | 8328dcfffffffff |
+| CA001011500 | 2010 | 1 | 2 | 2 | 0 | 0 | 100 | 55 | null | null | null | 48.9333 | -123.75 | 75 | BC | 0x0101000000ACADD85F767748400000000000F05EC0 | 8328dcfffffffff |
+| CA001011500 | 2010 | 1 | 3 | 78 | 0 | 0 | 70 | 30 | null | null | null | 48.9333 | -123.75 | 75 | BC | 0x0101000000ACADD85F767748400000000000F05EC0 | 8328dcfffffffff |
+| CA001011500 | 2010 | 1 | 4 | 205 | 0 | 0 | 65 | 50 | null | null | null | 48.9333 | -123.75 | 75 | BC | 0x0101000000ACADD85F767748400000000000F05EC0 | 8328dcfffffffff |
+| CA001011500 | 2010 | 1 | 5 | 6 | 0 | 0 | 80 | 50 | null | null | null | 48.9333 | -123.75 | 75 | BC | 0x0101000000ACADD85F767748400000000000F05EC0 | 8328dcfffffffff |
+:First 5 rows of 2010.parquet {#tbl-2010.parquet}
 
 #### Fire Data
 
