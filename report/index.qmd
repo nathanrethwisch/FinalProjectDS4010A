@@ -102,20 +102,21 @@ AEM00041217  24.4330   54.6510   26.8    ABU DHABI INTL                         
 ###
 
 #### Fire Data
-The transformations to the fire occurence dataset were done using R. The major issue with the dataset was there were a lot of null values, some of the 44 variables were unusable due to the amount of missing data. The variables our group decided to include were UNIQFIREID, FIREYEAR, DISCOVERYDATETIME, FIREOUTDATETIME, SIZECLASS, TOTALACRES, STATCAUSE, LATDD83, and LONGDD83. 
+The transformations to the fire occurence dataset were done using R. The major issue with the dataset was there were a lot of null values, some of the 44 variables were unusable due to the amount of missing data. The variables our group decided to include were UNIQFIREID, FIREYEAR, DISCOVERYDATETIME, FIREOUTDATETIME, SIZECLASS, TOTALACRES, STATCAUSE, LATDD83, and LONGDD83. Most of these variables only had NA/null values that needed to be removed. The hardest part was attempting to clean the Stat Cause column because of the sheer amount of misslabeled causes of fire. After dealing with these issues the dataset was reduced from 580,000 rows and 35 variables to 245,000 rows and 10 variables. Lastly, the finalized dataset was exported as a parquet file to preserve variable types and remove the need to repedeatly run the cleaning script.
+
+
 
 
 The transformation steps are shown in this diagram:
 ```mermaid
   graph TD
-    A[Read CSV from data.gov] --> B[Select relevant columns]
+    A[Read CSV] --> B[Select relevant columns]
     B --> C[Remove NA values]
-    C --> D[Filter invalid FIREYEAR values]
-    D --> E[Spot-check SIZECLASS vs TOTALACRES]
+    C --> D[Clean FIREYEAR ]
+    D --> E[Verify SIZECLASS vs TOTALACRES]
     E --> F[Sample and inspect LAT/LONG]
-    F --> G[Audit blank or missing fields]
-    G --> H[Group by FIREYEAR]
-    H --> I[Generate exploratory plots]
+    F --> G[Clean STATCAUSE]
+    G --> H[Export as a parquet file]
 ```
 
 ##### First 5 lines of Fire Occurence
@@ -316,7 +317,7 @@ However, the actual predicted output and color bar on the map reverse this norma
 
 The dashboard has three main tabs. The map view allows users to set a date to view an overlay of wildfire predictions within hexagons on a map of the United States. The user can select the date displayed using a date slider at the bottom of the page. They can also select different variables in the tab menu on the map to get weather data for that date, allowing users to easily visualize weather patterns and areas of high fire probability. When viewing the map, users can click on a specific hex to get both model output and weather for that area on that selected date. Model output can be copied to clipboard for advanced analytics and reporting. 
 
-The time series plot was created in Python using Plotly and is hosted as an HTML file. This gives information on the number of fires occurring on a weekly, monthly, and yearly basis. 
+The time series plot was created in R using Plotly and is hosted as a HTML file. The plot shows 2 lines the red line depcits the fires occured per week and the green line depcits the average acres burned that week. There buttons in the top left corner that allow users to view in 6 month or year long increments
 
 Finally, the dashboard info tab gives information about the underlying model and how to use the dashboard. It was created in R using Quarto and is also implemented as an HTML.
 
