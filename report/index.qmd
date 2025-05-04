@@ -20,13 +20,13 @@ format:
     toc: true
     embed-resources: true
     page-layout: full
-  pdf:
-    toc: true        
-    number-sections: true 
-    pdf-engine: xelatex  
-    mainfont: "Times New Roman"
-    fontsize: 12pt
-    fig-pos: "H"
+#  pdf:
+#    toc: true        
+#    number-sections: true 
+#    pdf-engine: xelatex  
+#    mainfont: "Times New Roman"
+#    fontsize: 12pt
+#    fig-pos: "H"
 editor:
   markdown:
     wrap: 72
@@ -141,7 +141,9 @@ needs to be decompressed, typed, and reoriented into the correct format.
 
 The transformation steps are shown in this diagram:
 
-``` mermaid
+
+```{mermaid}
+>>>>>>> 5ff6c1ecdec7e0fa07d24109c1aa0d8d792417d5
 graph TD
     A[stations.txt] --> D
     D[read fwf] --> H
@@ -195,7 +197,8 @@ need to repeatedly run the cleaning script.
 
 The transformation steps are shown in this diagram:
 
-``` mermaid
+```{mermaid}
+>>>>>>> 5ff6c1ecdec7e0fa07d24109c1aa0d8d792417d5
   graph TD
     A[Read CSV] --> B[Select relevant columns]
     B --> C[Remove NA values]
