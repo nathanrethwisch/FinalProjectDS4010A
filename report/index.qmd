@@ -20,13 +20,13 @@ format:
     toc: true
     embed-resources: true
     page-layout: full
-  pdf:
-    toc: true        
-    number-sections: true 
-    pdf-engine: xelatex  
-    mainfont: "Times New Roman"
-    fontsize: 12pt
-    fig-pos: "H"
+#  pdf:
+#    toc: true        
+#    number-sections: true 
+#    pdf-engine: xelatex  
+#    mainfont: "Times New Roman"
+#    fontsize: 12pt
+#    fig-pos: "H"
 editor:
   markdown:
     wrap: 72
@@ -120,7 +120,7 @@ The basic steps are as follows: `stations.txt` needs to be converted from a fixe
 
 The transformation steps are shown in this diagram:
 
-```mermaid
+```{mermaid}
 graph TD
     A[stations.txt] --> D
     D[read fwf] --> H
@@ -168,7 +168,7 @@ that needed to be removed. The hardest part was attempting to clean the Stat Cau
 
 
 The transformation steps are shown in this diagram:
-```mermaid
+```{mermaid}
   graph TD
     A[Read CSV] --> B[Select relevant columns]
     B --> C[Remove NA values]
