@@ -1,3 +1,9 @@
 /.quarto/
 
 _manuscript/
+
+*.html
+
+*.tex
+*.auc
+*.pdf

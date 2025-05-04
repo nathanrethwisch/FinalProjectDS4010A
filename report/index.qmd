@@ -20,13 +20,13 @@ format:
     toc: true
     embed-resources: true
     page-layout: full
-#  pdf:
-#    toc: true        
-#    number-sections: true 
-#    pdf-engine: xelatex  
-#    mainfont: "Times New Roman"
-#    fontsize: 12pt
-#    fig-pos: "H"
+  pdf:
+    toc: true        
+    number-sections: true 
+    pdf-engine: xelatex  
+    mainfont: "Times New Roman"
+    fontsize: 12pt
+    fig-pos: "H"
 editor:
   markdown:
     wrap: 72
@@ -143,7 +143,6 @@ The transformation steps are shown in this diagram:
 
 
 ```{mermaid}
->>>>>>> 5ff6c1ecdec7e0fa07d24109c1aa0d8d792417d5
 graph TD
     A[stations.txt] --> D
     D[read fwf] --> H
@@ -198,7 +197,6 @@ need to repeatedly run the cleaning script.
 The transformation steps are shown in this diagram:
 
 ```{mermaid}
->>>>>>> 5ff6c1ecdec7e0fa07d24109c1aa0d8d792417d5
   graph TD
     A[Read CSV] --> B[Select relevant columns]
     B --> C[Remove NA values]
@@ -464,10 +462,22 @@ Library were utilized. These machines, available for reservation by
 students through the Iowa State Library, provided the enough computing
 resources to handle the data efficiently. Once the data was processed
 and the model trained, the outputs were saved and transferred using
-OneDrive for further use. \## Dashboard
+OneDrive for further use. 
 
-### Exploration
+## Dashboard
 
+-   Explored arcgis(slow, generally too limited in feature set)\
+-   Chose dash because data was large and required custom real-time
+    querying, needed efficient real-time map generation and rendering\
+-   Stack: mixed python/r, dash, leaflet, containerized with docker,
+    self-hosted\
+-   Key visualization: fire risk probability, climate data\
+-   Precomputed all values and plots needed for dashboard. The only
+    realtime workload is selecting a single day’s render fields.\
+-   many many pictures
+
+
+### Initial Planning (Arch GIS feasability and problems)
 Initially, ArcGIS’s online dashboarding tools were considered for
 visualizing the model outputs due to their strong integration with
 geospatial data. However, the platform struggled to efficiently render
@@ -481,17 +491,8 @@ This made it a more suitable choice for building a responsive and
 user-friendly dashboard capable of handling the project's data volume
 and complexity.
 
-### Dashboard Creation
+### UI/UX Design (what we wanted it to look like, what features we wanted)
 
--   Explored arcgis(slow, generally too limited in feature set)\
--   Chose dash because data was large and required custom real-time
-    querying, needed efficient real-time map generation and rendering\
--   Stack: mixed python/r, dash, leaflet, containerized with docker,
-    self-hosted\
--   Key visualization: fire risk probability, climate data\
--   Precomputed all values and plots needed for dashboard. The only
-    realtime workload is selecting a single day’s render fields.\
--   many many pictures
 
 All of the values for the dashboard were precomputed from the model. To
 assign colors on the map, the model outputs were normalized using the
@@ -501,7 +502,6 @@ However, both the final predicted outputs and the map’s color bar
 reverse this normalization to ensure that the displayed labels
 accurately reflect the actual predicted and observed weather values.
 
-### Interface
 
 The dashboard is organized into three main tabs, each offering distinct
 functionalities to enhance user experience:
@@ -534,8 +534,15 @@ functionalities to enhance user experience:
 ![An example wildfire prediction
 dashboard](dashboard.png){#fig-dashboard}
 
-### Challenges
 
+### Software Stack (language, libraries, deployment systems...)
+
+
+### Performance Considerations and Challenges 
+
+- disk vs in-memory
+- reducing duplicated memory for multiple clients
+- speeding map generation
 -   Major issues and solutions (dash-leaflet immutability)
 
 ### Availability/Source Code Location
