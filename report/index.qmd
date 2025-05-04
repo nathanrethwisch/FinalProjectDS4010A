@@ -32,22 +32,23 @@ editor:
     wrap: 72
 ---
 
-
 ## Introduction/Project Description
 
-Wildfires are a major problem in the United States, costing between $394 billion and $893 billion per year,
- according to the Joint Economic Committee [@jec2023wildfires]. Identifying where and why wildfires occur
-  is key to preventing wildfires, which protects lives, preserves property, and minimizes economic losses.
-   The goal of this project is to estimate areas of high fire risk based on historical weather patterns 
-   and wildfire data. We aim to provide a platform where users can obtain information about past weather 
-   conditions and their association with wildfires at a quick glance. This dashboard is designed for a broad 
-   audience, including high-level policymakers involved in wildfire prevention strategies and local officials
-    responsible for establishing rules and regulations based on regional wildfire risk.
+Wildfires pose a significant challenge in the United States, with annual
+costs estimated between \$394 billion and \$893 billion, according to
+the Joint Economic Committee [@jec2023wildfires]. Understanding the
+locations and causes of wildfires is essential for effective prevention,
+helping to safeguard lives, protect property, and reduce economic
+impact. This project focuses on estimating areas of elevated fire risk
+using historical weather patterns and wildfire data. The resulting
+dashboard provides access to information about past weather conditions
+and their connection with wildfire activity. Designed for a wide range
+of users, the dashboard serves aims to serve both high-level
+policymakers involved in wildfire prevention and local officials tasked
+with creating region-specific regulations.
 
-![Estimated Cost of Wildfires in 2022](WildfireCost.png){#fig-WildfireCost}
-
- 
-
+![Estimated Cost of Wildfires in
+2022](WildfireCost.png){#fig-WildfireCost}
 
 ## Data
 
@@ -55,29 +56,39 @@ Wildfires are a major problem in the United States, costing between $394 billion
 
 #### Global Historical Climatology Network daily (GHCND)
 
-The Global Historical Climatology Network daily (GHCND) is an integrated database of daily climate summaries
-from land surface stations worldwide. It includes records from over 100,000 stations in 180 countries,
-providing data on variables such as temperature, precipitation, snowfall, and snow depth. This data is
-provided in its raw form by the National Oceanic and Atmospheric Administration
+The Global Historical Climatology Network daily (GHCND) is an integrated
+database of daily climate summaries from land surface stations
+worldwide. It includes records from over 100,000 stations in 180
+countries, providing data on variables such as temperature,
+precipitation, snowfall, and snow depth. This data is provided in its
+raw form by the National Oceanic and Atmospheric Administration
 [here](https://www.ncei.noaa.gov/products/land-based-station/global-historical-climatology-network-daily).
-The same data is available in  different formats published as an AWS Open Data [dataset](https://registry.opendata.aws/noaa-ghcn/).
-The latter dataset was selected because it provides data as comma-separated-values instead of fixed-width tables.
+The same data is available in different formats published as an AWS Open
+Data [dataset](https://registry.opendata.aws/noaa-ghcn/). The latter
+dataset was selected because it provides data as comma-separated-values
+instead of fixed-width tables.
 
-There are two raw 'tables' available from the dataset: `stations` and `daily`. `stations` is available as
-a single fixed-width text file, and provides a mapping of weather station IDs and geographic coordinates.
-`daily` is made up of csv records, where each record corresponds to a single observation made by a station.
-The data is partitioned by year, with a single compressed csv for each year. Source data exists for the year
-range of $1776$ to $2025$, however before the year $2000$ there is a comparatively small amount of data.
-It was decided to focus on data from $2000$ onwards.
+There are two raw 'tables' available from the dataset: `stations` and
+`daily`. `stations` is available as a single fixed-width text file, and
+provides a mapping of weather station IDs and geographic coordinates.
+`daily` is made up of csv records, where each record corresponds to a
+single observation made by a station. The data is partitioned by year,
+with a single compressed csv for each year. Source data exists for the
+year range of $1776$ to $2025$, however before the year $2000$ there is
+a comparatively small amount of data. It was decided to focus on data
+from $2000$ onwards.
 
-In order to create cleaned tables, it was necessary first to mirror the raw data locally to avoid the need 
-for repeated downloads of the same files. A python script was written which parses the s3 bucket 
-[manifest](https://noaa-ghcn-pds.s3.amazonaws.com/) and downloads all `daily` files with the `csv.gz` 
-suffix for years after $1999$. The script also downloads a copy of the file `stations.txt`, the raw
-source for `stations`. 
+In order to create cleaned tables, it was necessary first to mirror the
+raw data locally to avoid the need for repeated downloads of the same
+files. A python script was written which parses the s3 bucket
+[manifest](https://noaa-ghcn-pds.s3.amazonaws.com/) and downloads all
+`daily` files with the `csv.gz` suffix for years after $1999$. The
+script also downloads a copy of the file `stations.txt`, the raw source
+for `stations`.
 
 ##### First 5 lines of daily file 2010.csv.gz
-```
+
+```         
 AE000041196,20100101,TMAX,259,,,S,
 AE000041196,20100101,TMIN,120,,,S,
 AE000041196,20100101,TAVG,181,H,,S,
@@ -86,7 +97,8 @@ AEM00041194,20100101,TMIN,168,,,S,
 ```
 
 ##### First 5 lines of stations.txt
-```
+
+```         
 ACW00011604  17.1167  -61.7833   10.1    ST JOHNS COOLIDGE FLD                       
 ACW00011647  17.1333  -61.7833   19.2    ST JOHNS                                    
 AE000041196  25.3330   55.5170   34.0    SHARJAH INTER. AIRP            GSN     41196
@@ -95,32 +107,41 @@ AEM00041217  24.4330   54.6510   26.8    ABU DHABI INTL                         
 ```
 
 #### National US Forest Service Fire Occurence Point
-The FireOccurrence point layer represents ignition points, or points of origin, from which individual 
-USFS wildland fires started. Data are maintained at the Forest/District level, or their equivalent, to 
-track the occurrence and the origin of individual USFS wildland fires. It includes variables such as 
-Discovery Date, Total Acres, Stat Cause, LatitudeDD83, LongitudeDD83 and much more. All of the information 
-is publicly avaliable [here](https://catalog.data.gov/dataset/national-usfs-fire-occurrence-point-feature-layer-d3233).
- There are multiple formats that the data can be downloaded in, but our group used a csv file. 
 
+The FireOccurrence point layer represents ignition points, or points of
+origin, from which individual USFS wildland fires started. Data are
+maintained at the Forest/District level, or their equivalent, to track
+the occurrence and the origin of individual USFS wildland fires. It
+includes variables such as Discovery Date, Total Acres, Stat Cause,
+LatitudeDD83, LongitudeDD83 and much more. All of the information is
+publicly avaliable
+[here](https://catalog.data.gov/dataset/national-usfs-fire-occurrence-point-feature-layer-d3233).
+There are multiple formats that the data can be downloaded in, but our
+group used a csv file.
 
 ### Transformations
 
 #### GHCND
-The transformations for the GHCN Daily data is a single script because the required transformations
- were changing almost every day, and it was often necessary to rebuild the dataset outright. 
- This also allows for anyone to reproduce the dataset. 
- 
-The raw daily data includes one column designating the type of observation, and one the actual value recorded.
-The desired end result was a single table, with a column for each desired observation type or `element`.
-Once joined with station locations, the data was indexed using the [h3](https://h3geo.org/) library. 
-This has many benefits which are described [below](#exploration-and-analysis)
 
-The basic steps are as follows: `stations.txt` needs to be converted from a fixed-width text file to a
- typed parquet file. Each daily file needs to be decompressed, typed, and reoriented into the correct format.
+The transformations for the GHCN Daily data is a single script because
+the required transformations were changing almost every day, and it was
+often necessary to rebuild the dataset outright. This also allows for
+anyone to reproduce the dataset.
+
+The raw daily data includes one column designating the type of
+observation, and one the actual value recorded. The desired end result
+was a single table, with a column for each desired observation type or
+`element`. Once joined with station locations, the data was indexed
+using the [h3](https://h3geo.org/) library. This has many benefits which
+are described [below](#exploration-and-analysis)
+
+The basic steps are as follows: `stations.txt` needs to be converted
+from a fixed-width text file to a typed parquet file. Each daily file
+needs to be decompressed, typed, and reoriented into the correct format.
 
 The transformation steps are shown in this diagram:
 
-```mermaid
+``` mermaid
 graph TD
     A[stations.txt] --> D
     D[read fwf] --> H
@@ -139,36 +160,42 @@ graph TD
 
     M[read stations.parquet] --> J
 ```
-Once the data was in a viewable format, columns to drop were chosen based by generating percentage nulls. 
-Each time it was decided to keep or drop a column, the column was added or removed from a `keep_columns` list,
-and the pipeline was re-run. See @tbl-2010.parquet for the resultant table.
 
+Once the data was in a viewable format, columns to drop were chosen
+based by generating percentage nulls. Each time it was decided to keep
+or drop a column, the column was added or removed from a `keep_columns`
+list, and the pipeline was re-run. See @tbl-2010.parquet for the
+resultant table.
 
-
-| station\_id | year | month | day | prcp | snow | snwd | tmax | tmin | awnd | awdr | evap | latitude | longitude | elevation | state | geometry | Hexagon\_ID |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| station_id | year | month | day | prcp | snow | snwd | tmax | tmin | awnd | awdr | evap | latitude | longitude | elevation | state | geometry | Hexagon_ID |
+|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|
 | CA001011500 | 2010 | 1 | 1 | 245 | 0 | 0 | 85 | 35 | null | null | null | 48.9333 | -123.75 | 75 | BC | 0x0101000000ACADD85F767748400000000000F05EC0 | 8328dcfffffffff |
 | CA001011500 | 2010 | 1 | 2 | 2 | 0 | 0 | 100 | 55 | null | null | null | 48.9333 | -123.75 | 75 | BC | 0x0101000000ACADD85F767748400000000000F05EC0 | 8328dcfffffffff |
 | CA001011500 | 2010 | 1 | 3 | 78 | 0 | 0 | 70 | 30 | null | null | null | 48.9333 | -123.75 | 75 | BC | 0x0101000000ACADD85F767748400000000000F05EC0 | 8328dcfffffffff |
 | CA001011500 | 2010 | 1 | 4 | 205 | 0 | 0 | 65 | 50 | null | null | null | 48.9333 | -123.75 | 75 | BC | 0x0101000000ACADD85F767748400000000000F05EC0 | 8328dcfffffffff |
 | CA001011500 | 2010 | 1 | 5 | 6 | 0 | 0 | 80 | 50 | null | null | null | 48.9333 | -123.75 | 75 | BC | 0x0101000000ACADD85F767748400000000000F05EC0 | 8328dcfffffffff |
-:First 5 rows of 2010.parquet {#tbl-2010.parquet}
 
+: First 5 rows of 2010.parquet {#tbl-2010.parquet}
 
 #### National US Forest Service Fire Occurence Point
-The transformations to the fire occurence dataset were done using R. The major issue with the dataset was 
-there were a lot of null values, some of the 44 variables were unusable due to the amount of missing data. 
-The variables our group decided to include were `UNIQFIREID`, `FIREYEAR`, `DISCOVERYDATETIME`, `FIREOUTDATETIME`, 
-`SIZECLASS`, `TOTALACRES`, `STATCAUSE`, `LATDD83`, and `LONGDD83`. Most of these variables only had `NA`/null values 
-that needed to be removed. The hardest part was attempting to clean the Stat Cause column because of the sheer
- amount of misslabeled causes of fire. After dealing with these issues the dataset was reduced from $580,000$ 
- rows and $35$ variables to $245,000$ rows and $10$ variables. Lastly, the finalized dataset was exported as a 
- parquet file to preserve variable types and remove the need to repedeatly run the cleaning script.
 
-
+The transformations to the fire occurrence dataset were done using R.
+The major issue with the dataset was the large number of null values;
+some of the 44 variables were unusable due to the amount of missing
+data. The variables our group decided to include were `UNIQFIREID`,
+`FIREYEAR`, `DISCOVERYDATETIME`, `FIREOUTDATETIME`, `SIZECLASS`,
+`TOTALACRES`, `STATCAUSE`, `LATDD83`, and `LONGDD83`. Most of these
+variables only had `NA`/null values that needed to be removed. The
+hardest part was attempting to clean the Stat Cause column because of
+the sheer amount of mislabeled causes of fire. After dealing with these
+issues the dataset was reduced from $580,000$ rows and $35$ variables to
+$245,000$ rows and $10$ variables. Lastly, the finalized dataset was
+exported as a parquet file to preserve variable types and remove the
+need to repeatedly run the cleaning script.
 
 The transformation steps are shown in this diagram:
-```mermaid
+
+``` mermaid
   graph TD
     A[Read CSV] --> B[Select relevant columns]
     B --> C[Remove NA values]
@@ -180,7 +207,8 @@ The transformation steps are shown in this diagram:
 ```
 
 ##### First 5 lines of Fire Occurence
-```
+
+```         
           X        Y  OBJECTID                               GLOBALID                         FIREOCCURID CN                   REVDATE                            
 1 -106.4278 39.84611 231055009 {540C6E70-51FD-4CCC-A1B3-8A6C914E34A3}   2B1B9A1B-7828-4688-A14C-4BD7CEE62226    2023/03/29 11:10:56+00
 2 -107.9356 39.37278 231055010 {ACE77CF8-1281-4A81-BE3D-4D55669CB134}   A2454D64-EBB7-4895-81BC-9782B3D1391E    2023/03/29 11:10:59+00
@@ -215,224 +243,312 @@ The transformation steps are shown in this diagram:
 ```
 
 ### Storage and Query Engine
-To handle selections, projections, and group by aggregations on larger-than-memory datasets, 
-[PyArrow](https://arrow.apache.org/docs/python/index.html) and Parquet were chosen for their support of lazy evaluation and 
-predicate pushdown, which reduced query time by as much as 700%. These tools also support easy conversion to Pandas dataframes
- and there is also an [Arrow for R](https://arrow.apache.org/docs/r/) package allowing some team members to use R where desired.
 
-The largest operational issue was that the dataset needed to be identical across each developer's machines.
-To avoid paying for cloud resources, the data was stored in a shared OneDrive folder and symlinked into the
- local repository by each user, ensuring uniform access paths while allowing individual developers to 
- manage their data access. This setup allowed each user to download the dataset to their local 
- system on demand, while keeping their copy up-to-date.
+To handle selections, projections, and group by aggregations on
+larger-than-memory datasets,
+[PyArrow](https://arrow.apache.org/docs/python/index.html) and Parquet
+were chosen for their support of lazy evaluation and predicate pushdown,
+which reduced query time by as much as 700%. These tools also support
+easy conversion to Pandas dataframes and there is also an [Arrow for
+R](https://arrow.apache.org/docs/r/) package allowing some team members
+to use R where desired.
 
-Initially, the assumption was that the entire dataset needed to be available to the dashboard, but 
-later it was realized that only the 3-day averages produced as part of the model training were necessary.
- This allowed the dashboard’s live data to be loaded into memory on initialization. This means that 
- the dashboard does not require high througput IO access.
+The largest operational issue was that the dataset needed to be
+identical across each developer's machines. To avoid paying for cloud
+resources, the data was stored in a shared OneDrive folder and symlinked
+into the local repository by each user, ensuring uniform access paths
+while allowing individual developers to manage their data access. This
+setup allowed each user to download the dataset to their local system on
+demand, while keeping their copy up-to-date.
 
-## Exploration and Analysis
+Initially, the assumption was that the entire dataset needed to be
+available to the dashboard, but later it was realized that only the
+3-day averages produced as part of the model training were necessary.
+This allowed the dashboard’s live data to be loaded into memory on
+initialization. This means that the dashboard does not require high
+througput IO access.
 
-![An example of Uber’s H3 Cell Grid](UberH3.png){#fig-UberH3 width=50%}
+## Exploration and Analysis {#exploration-and-analysis}
 
-After cleaning the data and performing exploratory data analysis, we realized we needed a way to process data that 
-contained both geospatial and time information. One additional challenge we faced was the lack of negative data. 
-Our dataset contained a list of places where fires occurred, but not where they *did not* occur. Thus, this makes 
-it difficult to create a binary prediction model of fire probability, because we only have cases where the fires 
-occurred to train models on. To solve these problems, we turned to Uber’s H3 cell grid, shown in @fig-UberH3. 
-H3 cells are a series of hexagonal cells that can be used to cover the surface of the globe at different resolutions.
- Although perhaps not as precise as certain geographical boundaries for prediction, H3 hexagons are advantageous
-  because of their computational speed and equidistant between neighboring cells. In our case, we fit a grid of 
-  cells to the US, with each hexagon representing approximately 4785 square miles, totaling 712 cells. For each day, 
-  we marked whether or not a fire occurred in each hex. Meteorological stations within a cell were aggregated to 
-  compute mean calculations for weather data. The additional advantage of these cells was that we no longer needed 
-  to spatially join the fire and weather data to perform calculations. Once we had the index of the cell, we knew 
-  exactly which stations were paired with which fires, saving us the time and computation of continuous joins.
+![An example of Uber’s H3 Cell Grid](UberH3.png){#fig-UberH3
+width="50%"}
 
-Another challenge was missing data. If all of the weather stations in a cell gave null values for a variable on a 
-certain date, they were imputed with the average from neighboring cells. We also removed precipitation from our 
-analysis because over 50% of the precipitation data was missing. 
+After cleaning the data and performing exploratory data analysis, it
+became evident that a method was needed to handle data containing both
+geospatial and temporal dimensions. One significatn challenge we faced
+was the lack of negative data. Our dataset contained a list of places
+where fires occurred, but not where they *did not* occur. This
+complicates the development of binary classification models for
+predicting fire probability, as the training data includes only positive
+instances.
+
+To address these issues, Uber’s H3 spatial indexing system was adopted,
+as illustrated in @fig-UberH3. H3 divides the globe into hexagonal cells
+of varying resolutions. Although not as geographically precise as some
+administrative boundaries, H3 cells offer advantages in computational
+efficiency and consistent distances between neighboring cells. A grid of
+H3 cells was applied across the U.S., with each cell covering
+approximately 4,785 square miles, resulting in a total of 712 cells. For
+each day in the dataset, it was recorded whether or not a fire occurred
+within each cell. Weather station data within each hexagon was
+aggregated to calculate average meteorological values.
+
+Using H3 cells also eliminated the need for repeated spatial joins
+between fire and weather datasets. Once the cell index was known, the
+relevant weather stations and fire incidents could be directly
+connected, significantly reducing computational overhead.
+
+Another challenge involved missing data. If all weather stations within
+a cell provided null values for a given variable on a specific day,
+those values were imputed using the average from neighboring cells.
+Precipitation data was excluded from the analysis entirely, as over 50%
+of its values were missing.
 
 ## Modeling
 
 ### Data Preparation
 
-With the addition of H3 cells and negative data for cells without a fire, we fit a model to predict $Y_ij$, 
-the probability of a fire occurring in cell $i$ on day $j$, bounded by $[0,1]$. We averaged the weather variables 
-over three days, the two days before the fire and the day the fire occurred, for our predictors.  
+With the addition of H3 cells and inclusion of negative negative data
+for cells without a fire, a predictive model was developed to estimate
+$Y_ij$, the probability of a fire occurring in cell $i$ on day $j$,
+constrained by $[0,1]$. To construct the predictor variables, weather
+data was averaged over a three-day window: the two days preceding the
+fire and the day of the fire itself.\
 Prediction variables were as follows:
 
-* $x_1$: Hexagon location  
-* $x_2$: Average Elevation  
-* $x_3$: Temperature Maximum (3-day average)  
-* $x_4$: Temperature Minimum (3-day average)  
-* $x_5$: Daily Average Wind Speed (3-day average)  
-* $x_6$: Precipitation (3-day average)  
-* $x_7$: Snowfall (3-day average)  
-* $x_7$: Month
+-   $x_1$: Hexagon location\
+-   $x_2$: Average Elevation\
+-   $x_3$: Temperature Maximum (3-day average)\
+-   $x_4$: Temperature Minimum (3-day average)\
+-   $x_5$: Daily Average Wind Speed (3-day average)\
+-   $x_6$: Precipitation (3-day average)\
+-   $x_7$: Snowfall (3-day average)\
+-   $x_7$: Month
 
 ### Model Selection
 
-We split the data into a training and a testing set. The training data ranges from January 1, 2000, to 
-December 31, 2019\. The testing data was from January 1, 2020, to March 23, 2025\. I encoded the hexagonal 
-location as numeric variables and ran 4 separate models: logistic regression, random forest, XGBoost, and Naive 
-Bayes. After running the models, I then simulated thresholds from 0-1 at a 0.01 interval and selected the optimal 
-prediction threshold for each model that maximized the F1 score, which can be defined as
- $\frac{\text{precision} \cdot \text{recall}}{\text{precision} + \text{recall}}$. 
+The dataset was divided into training and testing sets, with the
+training period spanning from January 1, 2000, to December 31, 2019, and
+the testing period covering January 1, 2020, to March 23, 2025.
+Hexagonal cell locations were encoded as numeric variables to be used as
+features in the modeling process. Four different models were trained:
+logistic regression, random forest, XGBoost, and Naive Bayes. To
+evaluate model performance, prediction thresholds ranging from 0 to 1
+were simulated in 0.01 increments. For each model, the threshold that
+maximized the F1 score was selected as optimal. The F1 score is defined
+as:
+$\frac{\text{precision} \cdot \text{recall}}{\text{precision} + \text{recall}}$.
 
-- Precision is defined as how often a positive wildfire prediction is correctly positive. 
-It can be defined as $\frac{\text{TP}}{\text{TP} + \text{FP}}$.   
-- Recall describes the rate at which the model can correctly identify true positives from all possible values.
- It can be defined as $\frac{\text{TP}}{\text{TP} + \text{FN}}$. 
+-   Precision measures how often a positive wildfire prediction is
+    correctly positive. It can be defined as
+    $\frac{\text{TP}}{\text{TP} + \text{FP}}$ where TP represents true
+    positives and FP represents false positives.\
+-   Recall measures the model’s ability to correctly identify actual
+    wildfire events from all real cases. It is defined as:
+    $\frac{\text{TP}}{\text{TP} + \text{FN}}$ where FN represents false
+    negatives.
 
-F1 score is preferential to accuracy in this case, because the dataset is imbalanced and we have very few 
-actual positive cases of wildfires, so models that maximize accuracy are likely to underestimate the probability 
-of a fire occurring, a more costly mistake than a false positive. 
+In this context, the F1 score is favored over accuracy due to the
+imbalanced nature of the dataset, where the occurrence of wildfires is
+relatively rare. Relying on accuracy would bias the model toward
+predicting non-fire outcomes, potentially minimizing false positives at
+the risk of missing true fire events. Since false negatives (failing to
+predict an actual wildfire) are more consequential than false positives,
+optimizing for F1 score better balances precision and recall, making it
+a more appropriate metric for evaluating model performance in wildfire
+prediction.
 
-@fig-thresholds shows the optimal thresholds curves, while @fig-modelTable displays statistics for each model 
-in the selection process.
+@fig-thresholds shows the optimal thresholds curves, while
+@fig-modelTable displays statistics for each model in the selection
+process.
 
-![Thresholds for the optimal F1 score using each model](thresholds.png){#fig-thresholds width=50% height=50%}
+![Thresholds for the optimal F1 score using each
+model](thresholds.png){#fig-thresholds width="50%" height="50%"}
 
-![Statistics for each model fit on historical weather data](modelStats.jpg){#fig-modelTable fig-cap-location="top"}
+![Statistics for each model fit on historical weather
+data](modelStats.jpg){#fig-modelTable fig-cap-location="top"}
 
-
-Based on these results, we decided to go with a random forest model. Although the XGBoost and random forest models 
-performed similarly, the random forest model had a higher F1 score as well as higher accuracy. Furthermore, we are 
-more familiar with working with random forests. Given more time, we would explore the XGBoost model, especially since 
-it has higher recall, which is desirable given that the cost of a false negative is high. 
+Based on the evaluation results, the random forest model was selected
+for deployment. Although both XGBoost and random forest performed
+comparably, the random forest model achieved a higher F1 score and
+greater overall accuracy. Additionally, familiarity with the random
+forest algorithm supported its use in this project. However, it is worth
+noting that the XGBoost model demonstrated higher recall—a valuable
+trait in this context, given the high cost associated with false
+negatives. With additional time and resources, further exploration and
+tuning of the XGBoost model would be a logical next step to potentially
+enhance detection of true wildfire events.
 
 ### Hyperparameter Selection
 
-After deciding on a random forest as the optimal model, we performed a grid search with 3-fold cross-validation to 
-fine-tune model parameters. We used a random sample of 10% of the data due to storage limits. The parameters of 
-interest were the number of estimators in the forest (50, 100, 200), the maximum depth of each tree considered 
-(None, 10, 20, 30), and the number of features considered at each split (2, 3). Therefore, 24 possible combinations 
-were considered. Using a decision threshold of 0.22, we selected the model with the highest F1 score. Ultimately, 
-this was selected to be one with 200 estimators, a max depth of 30, and 3 features considered at each split.
- @fig-codeRF shows the trained random forest using this 
+After selecting the random forest as the optimal model, hyperparameter
+tuning was conducted using a grid search with 3-fold cross-validation.
+Due to storage constraints, this tuning was performed on a
+randomly-selected subset of 10% of the data. The grid search explored
+the following parameter combinations:
 
-![Code for Training the Optimal Random Forest](BestRandomForest.png){#fig-codeRF}
+-   Number of estimators: 50, 100, 200
 
+-   Maximum tree depth: None, 10, 20, 30
+
+-   Number of features considered at each split: 2, 3
+
+This resulted in 24 total parameter combinations. The model selection
+was based on the F1 score, evaluated at a decision threshold of 0.22.
+The best-performing configuration included 200 estimators, a maximum
+depth of 30, and 3 features considered per split.
+
+The resulting trained model is visualized in @fig-codeRF.
+
+![Code for Training the Optimal Random
+Forest](BestRandomForest.png){#fig-codeRF}
 
 ### Results
 
-After fitting the fine-tuned model to the training and testing data, we ended with @tbl-model-metrics. Hyperparameter 
-tuning was able to marginally improve F1 score (0.193 to 0.197) and recall (0.305 to 0.330). Although these scores are
- still fairly low, this is somewhat expected due to the limit of our data and the variability of fire causes. 
- @tbl-feature-importance shows a table of the most important features, showing that location, elevation, and 
- temperature were seen as key predictors of wildfires.
+After training the fine-tuned model on both the training and testing
+datasets, the final performance metrics are summarized in
+@tbl-model-metrics. Hyperparameter tuning led to a modest improvement in
+key metrics, with the F1 score increasing from 0.193 to 0.197 and recall
+improving from 0.305 to 0.330. While these values remain relatively low,
+such results are not unexpected given the limitations of the dataset and
+the inherent unpredictability of wildfire events.
+
+Feature importance analysis, presented in @tbl-feature-importance,
+highlights that location, elevation, and temperature were among the most
+influential predictors, underscoring the relevance of geographic and
+meteorological context in modeling wildfire risk.
 
 <!-- ![Statistics for our Random Forest after Hyperpararmeter Tuning](bestModelStats.png){#fig-bestModelStats fig-cap-location="top"}   -->
 
+| Metric            | Value    |
+|-------------------|----------|
+| Optimal Threshold | 0.21     |
+| Accuracy          | 0.957575 |
+| Precision         | 0.148936 |
+| Recall            | 0.333333 |
+| F1 Score          | 0.197802 |
 
-| Metric             | Value     |
-|--------------------|-----------|
-| Optimal Threshold  | 0.21      |
-| Accuracy           | 0.957575  |
-| Precision          | 0.148936  |
-| Recall             | 0.333333  |
-| F1 Score           | 0.197802  |
-:Model metrics for random forest after hyperparameter tuning {#tbl-model-metrics}
+: Model metrics for random forest after hyperparameter tuning
+{#tbl-model-metrics}
 
+| Feature                             | Importance Score |
+|-------------------------------------|------------------|
+| Hexagon Location                    | 0.2056           |
+| Average Elevation                   | 0.1826           |
+| Temperature Maximum (3-Day Average) | 0.1685           |
+| Temperature Minimum (3-Day Average) | 0.1611           |
+| Daily Average Wind (3-Day Average)  | 0.1345           |
+| Precipitation (3-Day Average)       | 0.1003           |
+| Month                               | 0.0414           |
+| Snowfall (3-Day Average)            | 0.0059           |
 
+: Feature Importance {#tbl-feature-importance}
 
-| Feature                                | Importance Score |
-|----------------------------------------|------------------|
-| Hexagon Location                       | 0.2056           |
-| Average Elevation                      | 0.1826           |
-| Temperature Maximum (3-Day Average)    | 0.1685           |
-| Temperature Minimum (3-Day Average)    | 0.1611           |
-| Daily Average Wind (3-Day Average)     | 0.1345           |
-| Precipitation (3-Day Average)          | 0.1003           |
-| Month                                  | 0.0414           |
-| Snowfall (3-Day Average)               | 0.0059           |
-:Feature Importance {#tbl-feature-importance}
-
-
-After running the model, the output was saved as a parquet file and loaded later into the dashboard.
+After running the model, the output was saved as a parquet file and
+loaded later into the dashboard.
 
 ### Challenges
 
-One of the key challenges faced when running the model was the large amount of data we faced. Because we are 
-dealing with both time and spatial data, we were dealing with a dataframe that has a row for every unique 
-combination of dates from 2020-2025 and hexagon locations (of which there are 712). This gives a dataset 
-with a total of 188,240,121 rows. This was too large to load into memory on our local devices, so we used 
-the workstations in the The Catalyst, a space in Parks Libary. These are high-performance workstations that are reservable 
-by students at the Iowa State Library. We loaded the data and were able to save the model output through OneDrive.
+One of the primary challenges encountered during model development was
+the sheer volume of data involved. Since the dataset incorporated both
+temporal and spatial dimensions, it contained a row for every unique
+combination of dates from 2020 to 2025 and each of the 712 H3 hexagon
+locations. This resulted in a total of approximately 188,240,121
+rows—far too large to load and process on local devices.
 
-## Dashboard
+To address this, high-performance workstations at The Catalyst in Parks
+Library were utilized. These machines, available for reservation by
+students through the Iowa State Library, provided the enough computing
+resources to handle the data efficiently. Once the data was processed
+and the model trained, the outputs were saved and transferred using
+OneDrive for further use. \## Dashboard
 
 ### Exploration
 
-We originally explored ArcGIS’s online dashboarding tools due to its seamless integration with geospatial data. 
-However, loading hexagonal maps with predictions for each date proved to be too large a task for the software to handle, 
-leading to incredible slow loading times. As a result, we turned to Python’s Dash library. This was able to handle large
- amounts of data and gave the option to add map layers easily. 
+Initially, ArcGIS’s online dashboarding tools were considered for
+visualizing the model outputs due to their strong integration with
+geospatial data. However, the platform struggled to efficiently render
+the hexagonal map layers with daily predictions, resulting in extremely
+slow loading times. Given these performance limitations, the decision
+was made to shift to Python’s Dash library.
+
+Dash offered the flexibility and scalability needed to manage large
+datasets and provided robust support for adding interactive map layers.
+This made it a more suitable choice for building a responsive and
+user-friendly dashboard capable of handling the project's data volume
+and complexity.
 
 ### Dashboard Creation
 
-- Explored arcgis(slow, generally too limited in feature set)  
-- Chose dash because data was large and required custom real-time querying, needed efficient real-time map generation and rendering  
-- Stack: mixed python/r, dash, leaflet, containerized with docker, self-hosted  
-- Key visualization: fire risk probability, climate data  
-- Precomputed all values and plots needed for dashboard. The only realtime workload is selecting a single day’s render fields.  
-- many many pictures
+-   Explored arcgis(slow, generally too limited in feature set)\
+-   Chose dash because data was large and required custom real-time
+    querying, needed efficient real-time map generation and rendering\
+-   Stack: mixed python/r, dash, leaflet, containerized with docker,
+    self-hosted\
+-   Key visualization: fire risk probability, climate data\
+-   Precomputed all values and plots needed for dashboard. The only
+    realtime workload is selecting a single day’s render fields.\
+-   many many pictures
 
-All of the values for the dashboard were precomputed from the model. For the colors of the map, output was normalized 
-using the following formula:   
-$$\frac{x - x_{min}}{x_{max} - x_{min}}$$  
-However, the actual predicted output and color bar on the map reverse this normalization so that the labels match 
-the real predicted and weather values.
+All of the values for the dashboard were precomputed from the model. To
+assign colors on the map, the model outputs were normalized using the
+following formula:\
+$$\frac{x - x_{min}}{x_{max} - x_{min}}$$\
+However, both the final predicted outputs and the map’s color bar
+reverse this normalization to ensure that the displayed labels
+accurately reflect the actual predicted and observed weather values.
 
 ### Interface
 
-The dashboard has three main tabs. The map view allows users to set a date to view an overlay of wildfire predictions 
-within hexagons on a map of the United States. The user can select the date displayed using a date slider at the bottom
- of the page. They can also select different variables in the tab menu on the map to get weather data for that date, 
- allowing users to easily visualize weather patterns and areas of high fire probability. When viewing the map, users
-  can click on a specific hex to get both model output and weather for that area on that selected date. Model output
-   can be copied to clipboard for advanced analytics and reporting. 
+The dashboard is organized into three main tabs, each offering distinct
+functionalities to enhance user experience:
 
-The time series plot was created in R using Plotly and is hosted as a HTML file. The plot shows 2 lines the red line
- depicts the fires occured per week and the green line depcits the average acres burned that week. There buttons in the 
- top left corner that allow users to view in 6 month or year long increments
+1.  Map View: This tab enables users to select a specific date and
+    visualize wildfire predictions across hexagonal regions on a map of
+    the United States. The date can be adjusted using a slider at the
+    bottom of the page. Additionally, users can choose different
+    variables from the tab menu to display relevant weather data for
+    that particular date, making it easy to analyze weather patterns and
+    areas with higher fire probability. Users can click on any
+    individual hexagon to view both the model output and the
+    corresponding weather data for that specific region and date. The
+    model output can be copied to the clipboard for further analysis and
+    reporting.
 
-Finally, the dashboard info tab gives information about the underlying model and how to use the dashboard. It was created 
-in R using Quarto and is also implemented as an HTML.
+2.  Time Series Plot: Created in R using Plotly and hosted as an HTML
+    file, this plot displays two lines: the red line represents the
+    number of fires occurring per week, while the green line indicates
+    the average acres burned during that week. The plot includes buttons
+    in the top-left corner, allowing users to toggle between 6-month and
+    yearly view increments, providing insights into wildfire trends over
+    different time periods.
 
-![An example wildfire prediction dashboard](dashboard.png){#fig-dashboard}
+3.  Dashboard Info: This tab offers details about the underlying model
+    and guidance on how to use the dashboard effectively. Developed in R
+    using Quarto and implemented as an HTML page, this section ensures
+    users understand the dashboard’s features and the model’s workings.
+
+![An example wildfire prediction
+dashboard](dashboard.png){#fig-dashboard}
 
 ### Challenges
 
-- Major issues and solutions (dash-leaflet immutability)
+-   Major issues and solutions (dash-leaflet immutability)
 
 ### Availability/Source Code Location
 
-All of the source code can be found at [https://github.com/nathanrethwisch/FinalProjectDS4010A](https://github.com/nathanrethwisch/FinalProjectDS4010A).
- The dashboard is currently hosted at [https://wildfire.ddole.net/](https://wildfire.ddole.net/). 
+All of the source code can be found at
+<https://github.com/nathanrethwisch/FinalProjectDS4010A>. The dashboard
+is currently hosted at <https://wildfire.ddole.net/>.
 
 ## Conclusion
 
 ### Summary
 
-Using historical fire data from the United States Forest Service (USFS) and weather data from the National Oceanic and 
-Atmospheric Administration (NOAA), we were able to create a random forest model and associated dashboard that predicted the 
-probability of a fire occurring in a given area on a certain date. The dashboard allows users to explore dates and weather 
-trends that lead to a high fire probability. This can be used for setting policy and garnering a greater understanding of the 
-relationship between weather and wildfires.
+Using historical fire data from the United States Forest Service (USFS) and weather data from the National Oceanic and Atmospheric Administration (NOAA), a random forest model and an associated interactive dashboard were developed to predict the probability of wildfires occurring in a specific area on a given date. The dashboard enables users to explore various dates and weather trends that contribute to higher fire probabilities. This tool can be valuable for informing policy decisions and improving the understanding of the relationship between weather patterns and wildfire occurrences.
 
 ### Further Discussion
 
-Given more time, we would aim to expand our analysis by incorporating additional datasets to enhance our predictive accuracy. 
-We would include factors such as soil conditions and wind direction in specific areas as key predictors. Additionally, we would 
-like to explore the probability of a fire occurring again in a region that has already had a recent wildfire. If we had access 
-to greater computational resources, we would refine our predictions by using smaller hexagonal grids, allowing for more precise 
-insights into distinct geographical climates. Moreover, the dashboard could be enhanced to support future fire 
-prediction efforts. By using upcoming weather forecasts, we could provide a forecasted probability of fire occurrence 
-in specific areas. These ideas lay the foundation for ongoing exploration and continued development of the dashboard.
-
-
-**In the future, this data should be moved into cloud object storage.**
+Given more time, the analysis could be expanded by incorporating additional datasets to improve predictive accuracy. Key factors such as soil conditions and wind direction in specific areas would be integrated as important predictors. Additionally, exploring the likelihood of a wildfire occurring again in regions that have recently experienced a fire would be a valuable area of focus. With access to greater computational resources, predictions could be further refined by using smaller hexagonal grids, offering more precise insights into distinct geographical climates. Furthermore, the dashboard could be enhanced to support future fire prediction efforts by incorporating upcoming weather forecasts, enabling the presentation of forecasted probabilities of fire occurrence in specific areas. To ensure scalability and improved data access, the datasets should also be migrated to cloud object storage. These ideas serve as a foundation for ongoing research and continued development of the dashboard.
 
 ### Sources
