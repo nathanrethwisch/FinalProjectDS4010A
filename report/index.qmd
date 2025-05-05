@@ -466,41 +466,22 @@ OneDrive for further use.
 
 ## Dashboard
 
--   Explored arcgis(slow, generally too limited in feature set)\
--   Chose dash because data was large and required custom real-time
-    querying, needed efficient real-time map generation and rendering\
--   Stack: mixed python/r, dash, leaflet, containerized with docker,
-    self-hosted\
--   Key visualization: fire risk probability, climate data\
--   Precomputed all values and plots needed for dashboard. The only
-    realtime workload is selecting a single day’s render fields.\
--   many many pictures
-
-
 ### Initial Planning (Arch GIS feasability and problems)
-Initially, ArcGIS’s online dashboarding tools were considered for
-visualizing the model outputs due to their strong integration with
-geospatial data. However, the platform struggled to efficiently render
-the hexagonal map layers with daily predictions, resulting in extremely
-slow loading times. Given these performance limitations, the decision
-was made to shift to Python’s Dash library.
-
-Dash offered the flexibility and scalability needed to manage large
-datasets and provided robust support for adding interactive map layers.
-This made it a more suitable choice for building a responsive and
-user-friendly dashboard capable of handling the project's data volume
-and complexity.
+Initially, it was thought that using a no-code dashboard system would allow the team
+to focus on the conent. To this end, we evaluated ArcGIS Online. While easy to use for ad hoc analysis,
+ArcGIS struggled to efficiently render map layers due to the size of the dataset.
+ Given these performance limitations, we decided use a code based, dashboarding 
+ framework. We evaluated Dash, Streamlit, and Shiny.
 
 ### UI/UX Design (what we wanted it to look like, what features we wanted)
 
-
-All of the values for the dashboard were precomputed from the model. To
+<!-- All of the values for the dashboard were precomputed from the model. To
 assign colors on the map, the model outputs were normalized using the
 following formula:\
 $$\frac{x - x_{min}}{x_{max} - x_{min}}$$\
 However, both the final predicted outputs and the map’s color bar
 reverse this normalization to ensure that the displayed labels
-accurately reflect the actual predicted and observed weather values.
+accurately reflect the actual predicted and observed weather values. -->
 
 
 The dashboard is organized into three main tabs, each offering distinct
@@ -537,13 +518,35 @@ dashboard](dashboard.png){#fig-dashboard}
 
 ### Software Stack (language, libraries, deployment systems...)
 
+When selecting the dashboard framework, the two major options were Python Dash, and R Shiny.
+We selected Dash because the majority of the ETL code was already written in python.
+
+#### Python Libraries
+
+- [dash](https://dash.plotly.com/): Framework for builidng data web apps
+- [dash-leaflet](https://www.dash-leaflet.com/): A collection of Dash components implementing LeafletJS for interactive mapping
+- [shapely](https://shapely.readthedocs.io/en/stable/): Provides pythonic geospatial data types and operations
+- [geopandas](https://geopandas.org/en/stable/): An extension of [pandas](https://pandas.pydata.org/) which supports shapely types and operations.
+- [geoArrow](https://geoarrow.org/): An extension of Arrow which allows for the storage of geospatial data types
+- [PyArrow](https://arrow.apache.org/docs/python/index.html): Python bindings for Apache Arrow, allows efficient processing of larger-than-memory data
+
+#### Deployment
+The application is deployed using a docker container. The source repository includes both a `Dockerfile` and a `docker-compose.yml`.
+This allows for many deployment options. It can be deployed locally using docker compose, or in the cloud using Vercel, Azure Web Apps, AWS Amplify, etc.
 
 ### Performance Considerations and Challenges 
 
-- disk vs in-memory
-- reducing duplicated memory for multiple clients
-- speeding map generation
--   Major issues and solutions (dash-leaflet immutability)
+We initially designed the application to query data directly from disk each time the map inputs changed. 
+This approach, resulted in noticeable delays in loading times: more than a 3 active clients would cause significant IO pressure.
+Because of this, it was decided to plot aggregated data instead of raw data, this reduced our data size to 1/100th of what it was
+ By loading the necessary data into memory (approximately 1.2 GB) during the  application's initialization phase,
+  we were able to use in-memory operations to manage our data. This had the added benefit on removing the need for making the full dataset
+  available to the app. The necessary parquet files are small enough to be packaged directly into the docker image.
+
+The only major issue we had was with dash-leaflet: the hexagon tile layer refused to update when the date input was changed,
+ This was due to internal caching behavior which reduces load by only rerendering components if the component's id changed.
+  This was resolved by including the selected date in the polygon layer's id, meaning that layers were unique across all dates.
+  This allowed the map to update properly.
 
 ### Availability/Source Code Location
 
@@ -555,10 +558,21 @@ is currently hosted at <https://wildfire.ddole.net/>.
 
 ### Summary
 
-Using historical fire data from the United States Forest Service (USFS) and weather data from the National Oceanic and Atmospheric Administration (NOAA), a random forest model and an associated interactive dashboard were developed to predict the probability of wildfires occurring in a specific area on a given date. The dashboard enables users to explore various dates and weather trends that contribute to higher fire probabilities. This tool can be valuable for informing policy decisions and improving the understanding of the relationship between weather patterns and wildfire occurrences.
+Using historical fire data from the United States Forest Service (USFS) and weather data from the National Oceanic and Atmospheric Administration (NOAA),
+ a random forest model and an associated interactive dashboard were developed to predict the probability of wildfires occurring in a specific area on a given date. 
+ The dashboard enables users to explore various dates and weather trends that contribute to higher fire probabilities. 
+ This tool can be valuable for informing policy decisions and improving the understanding of the relationship between weather patterns and wildfire occurrences.
 
 ### Further Discussion
 
-Given more time, the analysis could be expanded by incorporating additional datasets to improve predictive accuracy. Key factors such as soil conditions and wind direction in specific areas would be integrated as important predictors. Additionally, exploring the likelihood of a wildfire occurring again in regions that have recently experienced a fire would be a valuable area of focus. With access to greater computational resources, predictions could be further refined by using smaller hexagonal grids, offering more precise insights into distinct geographical climates. Furthermore, the dashboard could be enhanced to support future fire prediction efforts by incorporating upcoming weather forecasts, enabling the presentation of forecasted probabilities of fire occurrence in specific areas. To ensure scalability and improved data access, the datasets should also be migrated to cloud object storage. These ideas serve as a foundation for ongoing research and continued development of the dashboard.
+Given more time, the analysis could be expanded by incorporating additional datasets to improve predictive accuracy.
+ Key factors such as soil conditions and wind direction in specific areas would be integrated as important predictors.
+  Additionally, exploring the likelihood of a wildfire occurring again in regions that have recently experienced a
+   fire would be a valuable area of focus. With access to greater computational resources, predictions could be further
+    refined by using smaller hexagonal grids, offering more precise insights into distinct geographical climates. 
+    Furthermore, the dashboard could be enhanced to support future fire prediction efforts by incorporating upcoming
+     weather forecasts, enabling the presentation of forecasted probabilities of fire occurrence in specific areas.
+      To ensure scalability and improved data access, the datasets should also be migrated to cloud object storage. 
+      These ideas serve as a foundation for ongoing research and continued development of the dashboard.
 
 ### Sources
