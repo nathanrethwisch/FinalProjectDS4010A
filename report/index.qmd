@@ -167,18 +167,37 @@ graph TD
 Once the data was in a viewable format, columns to drop were chosen
 based by generating percentage nulls. Each time it was decided to keep
 or drop a column, the column was added or removed from a `keep_columns`
-list, and the pipeline was re-run. See @tbl-2010.parquet for the
+list, and the pipeline was re-run. See @tbl-2010-parquet for the
 resultant table.
+```{r tbl-2010-parquet, echo = FALSE}
+library(knitr)
+data_sample <- data.frame(
+  station_id = rep("CA001011500", 5),
+  year = rep(2010, 5),
+  month = rep(1, 5),
+  day = 1:5,
+  prcp = c(245, 2, 78, 205, 6),
+  snow = rep(0, 5),
+  snwd = rep(0, 5),
+  tmax = c(85, 100, 70, 65, 80),
+  tmin = c(35, 55, 30, 50, 50),
+  awnd = rep(NA, 5),
+  awdr = rep(NA, 5),
+  evap = rep(NA, 5),
+  latitude = rep(48.9333, 5),
+  longitude = rep(-123.75, 5),
+  elevation = rep(75, 5),
+  state = rep("BC", 5),
+  geometry = rep("0x0101000000ACADD85F767748400000000000F05EC0", 5),
+  Hexagon_ID = rep("8328dcfffffffff", 5)
+)
 
-| station_id | year | month | day | prcp | snow | snwd | tmax | tmin | awnd | awdr | evap | latitude | longitude | elevation | state | geometry | Hexagon_ID |
-|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|
-| CA001011500 | 2010 | 1 | 1 | 245 | 0 | 0 | 85 | 35 | null | null | null | 48.9333 | -123.75 | 75 | BC | 0x0101000000ACADD85F767748400000000000F05EC0 | 8328dcfffffffff |
-| CA001011500 | 2010 | 1 | 2 | 2 | 0 | 0 | 100 | 55 | null | null | null | 48.9333 | -123.75 | 75 | BC | 0x0101000000ACADD85F767748400000000000F05EC0 | 8328dcfffffffff |
-| CA001011500 | 2010 | 1 | 3 | 78 | 0 | 0 | 70 | 30 | null | null | null | 48.9333 | -123.75 | 75 | BC | 0x0101000000ACADD85F767748400000000000F05EC0 | 8328dcfffffffff |
-| CA001011500 | 2010 | 1 | 4 | 205 | 0 | 0 | 65 | 50 | null | null | null | 48.9333 | -123.75 | 75 | BC | 0x0101000000ACADD85F767748400000000000F05EC0 | 8328dcfffffffff |
-| CA001011500 | 2010 | 1 | 5 | 6 | 0 | 0 | 80 | 50 | null | null | null | 48.9333 | -123.75 | 75 | BC | 0x0101000000ACADD85F767748400000000000F05EC0 | 8328dcfffffffff |
+kable(
+  data_sample,
+  caption = "First 5 rows of 2010.parquet"
+)
+```
 
-: First 5 rows of 2010.parquet {#tbl-2010.parquet}
 
 #### National US Forest Service Fire Occurence Point
 
@@ -362,14 +381,30 @@ a more appropriate metric for evaluating model performance in wildfire
 prediction.
 
 @fig-thresholds shows the optimal thresholds curves, while
-@fig-modelTable displays statistics for each model in the selection
+Table @tbl-modelTable displays statistics for each model in the selection
 process.
 
 ![Thresholds for the optimal F1 score using each
 model](thresholds.png){#fig-thresholds width="50%" height="50%"}
 
-![Statistics for each model fit on historical weather
-data](modelStats.jpg){#fig-modelTable fig-cap-location="top"}
+```{r tbl-modelTable, echo=FALSE}
+library(knitr)
+
+modelTable <- data.frame(
+  Model = c("RandomForest", "XGBoost", "LogisticRegression", "GaussianNB"),
+  `Optimal Threshold` = c(0.22, 0.18, 0.08, 0.65),
+  Accuracy = c(0.965690, 0.962545, 0.940636, 0.934992),
+  Precision = c(0.141321, 0.134693, 0.063594, 0.074689),
+  Recall = c(0.305115, 0.328602, 0.248456, 0.336228),
+  `F1 Score` = c(0.193171, 0.191068, 0.101268, 0.122227)
+)
+
+kable(modelTable, digits = 6, caption = "Statistics for each model fit on historical weather data")
+```
+
+
+<!--![Statistics for each model fit on historical weather
+data](modelStats.jpg){#fig-modelTable fig-cap-location="top"}-->
 
 Based on the evaluation results, the random forest model was selected
 for deployment. Although both XGBoost and random forest performed
@@ -423,29 +458,54 @@ meteorological context in modeling wildfire risk.
 
 <!-- ![Statistics for our Random Forest after Hyperpararmeter Tuning](bestModelStats.png){#fig-bestModelStats fig-cap-location="top"}   -->
 
-| Metric            | Value    |
-|-------------------|----------|
-| Optimal Threshold | 0.21     |
-| Accuracy          | 0.957575 |
-| Precision         | 0.148936 |
-| Recall            | 0.333333 |
-| F1 Score          | 0.197802 |
+```{r tbl-model-metrics, echo = FALSE}
+library(knitr)
 
-: Model metrics for random forest after hyperparameter tuning
-{#tbl-model-metrics}
+rf_metrics <- data.frame(
+  Metric = c("Optimal Threshold", "Accuracy", "Precision", "Recall", "F1 Score"),
+  Value = c(0.21, 0.957575, 0.148936, 0.333333, 0.197802)
+)
 
-| Feature                             | Importance Score |
-|-------------------------------------|------------------|
-| Hexagon Location                    | 0.2056           |
-| Average Elevation                   | 0.1826           |
-| Temperature Maximum (3-Day Average) | 0.1685           |
-| Temperature Minimum (3-Day Average) | 0.1611           |
-| Daily Average Wind (3-Day Average)  | 0.1345           |
-| Precipitation (3-Day Average)       | 0.1003           |
-| Month                               | 0.0414           |
-| Snowfall (3-Day Average)            | 0.0059           |
+kable(
+  rf_metrics,
+  digits = 6,
+  caption = "Model metrics for random forest after hyperparameter tuning"
+)
+```
 
-: Feature Importance {#tbl-feature-importance}
+
+```{r tbl-feature-importance, echo = FALSE}
+library(knitr)
+
+feature_importance <- data.frame(
+  Feature = c(
+    "Hexagon Location",
+    "Average Elevation",
+    "Temperature Maximum (3-Day Average)",
+    "Temperature Minimum (3-Day Average)",
+    "Daily Average Wind (3-Day Average)",
+    "Precipitation (3-Day Average)",
+    "Month",
+    "Snowfall (3-Day Average)"
+  ),
+  `Importance Score` = c(
+    0.2056,
+    0.1826,
+    0.1685,
+    0.1611,
+    0.1345,
+    0.1003,
+    0.0414,
+    0.0059
+  )
+)
+
+kable(
+  feature_importance,
+  digits = 4,
+  caption = "Feature importance for random forest model"
+)
+```
 
 After running the model, the output was saved as a parquet file and
 loaded later into the dashboard.
@@ -468,14 +528,14 @@ OneDrive for further use.
 
 ## Dashboard
 
-### Initial Planning (Arch GIS feasability and problems)
+### Initial Planning
 Initially, it was thought that using a no-code dashboard system would allow the team
 to focus on the conent. To this end, we evaluated ArcGIS Online. While easy to use for ad hoc analysis,
 ArcGIS struggled to efficiently render map layers due to the size of the dataset.
  Given these performance limitations, we decided use a code based, dashboarding 
  framework. We evaluated Dash, Streamlit, and Shiny.
 
-### UI/UX Design (what we wanted it to look like, what features we wanted)
+### UI/UX Design
 
 <!-- All of the values for the dashboard were precomputed from the model. To
 assign colors on the map, the model outputs were normalized using the
@@ -518,7 +578,7 @@ functionalities to enhance user experience:
 dashboard](dashboard.png){#fig-dashboard}
 
 
-### Software Stack (language, libraries, deployment systems...)
+### Software Stack
 
 When selecting the dashboard framework, the two major options were Python Dash, and R Shiny.
 We selected Dash because the majority of the ETL code was already written in python.
