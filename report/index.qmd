@@ -22,13 +22,13 @@ format:
     toc: true
     embed-resources: true
     page-layout: full
-  pdf:
-    toc: true        
-    number-sections: true 
-    pdf-engine: xelatex  
-    mainfont: "Times New Roman"
-    fontsize: 12pt
-    fig-pos: "H"
+  # pdf:
+  #   toc: true        
+  #   number-sections: true 
+  #   pdf-engine: xelatex  
+  #   mainfont: "Times New Roman"
+  #   fontsize: 12pt
+  #   fig-pos: "H"
 editor:
   markdown:
     wrap: 72
