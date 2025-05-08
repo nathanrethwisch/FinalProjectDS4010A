@@ -76,9 +76,9 @@ provides a mapping of weather station IDs and geographic coordinates.
 `daily` is made up of csv records, where each record corresponds to a
 single observation made by a station. The data is partitioned by year,
 with a single compressed csv for each year. Source data exists for the
-year range of $1776$ to $2025$, however before the year $2000$ there is
+year range of 1776 to 2025, however before the year 2000 there is
 a comparatively small amount of data. It was decided to focus on data
-from $2000$ onwards.
+from 2000 onwards.
 
 In order to create cleaned tables, it was necessary first to mirror the
 raw data locally to avoid the need for repeated downloads of the same
@@ -204,14 +204,14 @@ kable(
 The transformations to the fire occurrence dataset were done using R.
 The major issue with the dataset was the large number of null values;
 some of the 44 variables were unusable due to the amount of missing
-data. The variables our group decided to include were `UNIQFIREID`,
+data. The variables included were `UNIQFIREID`,
 `FIREYEAR`, `DISCOVERYDATETIME`, `FIREOUTDATETIME`, `SIZECLASS`,
 `TOTALACRES`, `STATCAUSE`, `LATDD83`, and `LONGDD83`. Most of these
 variables only had `NA`/null values that needed to be removed. The
 hardest part was attempting to clean the Stat Cause column because of
 the sheer amount of mislabeled causes of fire. After dealing with these
-issues the dataset was reduced from $580,000$ rows and $35$ variables to
-$245,000$ rows and $10$ variables. Lastly, the finalized dataset was
+issues the dataset was reduced from 580,000 rows and 35 variables to
+245,000 rows and 10 variables. Lastly, the finalized dataset was
 exported as a parquet file to preserve variable types and remove the
 need to repeatedly run the cleaning script.
 
@@ -297,8 +297,7 @@ width="50%"}
 
 After cleaning the data and performing exploratory data analysis, it
 became evident that a method was needed to handle data containing both
-geospatial and temporal dimensions. One significatn challenge we faced
-was the lack of negative data. Our dataset contained a list of places
+geospatial and temporal dimensions. A significant challenge in the analysis was the lack of negative data. The dataset contained a list of places
 where fires occurred, but not where they *did not* occur. This
 complicates the development of binary classification models for
 predicting fire probability, as the training data includes only positive
@@ -529,11 +528,8 @@ OneDrive for further use.
 ## Dashboard
 
 ### Initial Planning
-Initially, it was thought that using a no-code dashboard system would allow the team
-to focus on the conent. To this end, we evaluated ArcGIS Online. While easy to use for ad hoc analysis,
-ArcGIS struggled to efficiently render map layers due to the size of the dataset.
- Given these performance limitations, we decided use a code based, dashboarding 
- framework. We evaluated Dash, Streamlit, and Shiny.
+Initially, it was assumed that using a no-code dashboard system would allow greater focus on content development. To this end, ArcGIS Online was evaluated. While it proved easy to use for ad hoc analysis, it struggled to efficiently render map layers due to the size of the dataset. Given these performance limitations, a code-based dashboarding framework was chosen instead. Dash, Streamlit, and Shiny were all evaluated as potential options.
+
 
 ### UI/UX Design
 
@@ -581,7 +577,7 @@ dashboard](dashboard.png){#fig-dashboard}
 ### Software Stack
 
 When selecting the dashboard framework, the two major options were Python Dash, and R Shiny.
-We selected Dash because the majority of the ETL code was already written in python.
+Dash was selected because the majority of the ETL code was already written in python.
 
 #### Python Libraries
 
@@ -598,14 +594,14 @@ This allows for many deployment options. It can be deployed locally using docker
 
 ### Performance Considerations and Challenges 
 
-We initially designed the application to query data directly from disk each time the map inputs changed. 
+The application was initially designed to query data directly from disk each time the map inputs changed. 
 This approach, resulted in noticeable delays in loading times: more than a 3 active clients would cause significant IO pressure.
-Because of this, it was decided to plot aggregated data instead of raw data, this reduced our data size to 1/100th of what it was
+Because of this, it was decided to plot aggregated data instead of raw data, this reduced the data size to 1/100th of what it was
  By loading the necessary data into memory (approximately 1.2 GB) during the  application's initialization phase,
-  we were able to use in-memory operations to manage our data. This had the added benefit on removing the need for making the full dataset
+  the system was able to leverage in-memory operations for efficient data management. This had the added benefit on removing the need for making the full dataset
   available to the app. The necessary parquet files are small enough to be packaged directly into the docker image.
 
-The only major issue we had was with dash-leaflet: the hexagon tile layer refused to update when the date input was changed,
+The only major issue was with dash-leaflet: the hexagon tile layer refused to update when the date input was changed,
  This was due to internal caching behavior which reduces load by only rerendering components if the component's id changed.
   This was resolved by including the selected date in the polygon layer's id, meaning that layers were unique across all dates.
   This allowed the map to update properly.
