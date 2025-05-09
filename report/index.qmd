@@ -126,7 +126,7 @@ In order to create cleaned tables, it was necessary first to mirror the
 raw data locally to avoid the need for repeated downloads of the same
 files. A python script was written which parses the s3 bucket
 [manifest](https://noaa-ghcn-pds.s3.amazonaws.com/) and downloads all
-`daily` files with the `csv.gz` suffix for years after $1999$. The
+`daily` files with the `csv.gz` suffix for years after 1999. The
 script also downloads a copy of the file `stations.txt`, the raw source
 for `stations`.
 
@@ -379,9 +379,12 @@ features in the modeling process. Four different models were trained:
 logistic regression, random forest, XGBoost, and Naive Bayes. To
 evaluate model performance, prediction thresholds ranging from 0 to 1
 were simulated in 0.01 increments. For each model, the threshold that
-maximized the F1 score was selected as optimal. The F1 score is defined
+maximized the $F_1$ score was selected as optimal. The $F_1$ score is defined
 as:
-$\frac{\text{precision} \times \text{recall}}{\text{precision} + \text{recall}}$.
+$$
+F_1 = 2 \times  \frac{\text{precision} \times \text{recall}}{\text{precision} + \text{recall}}
+ = \frac{2TP}{2TP + FP + FN}
+ $$ .
 
 -   Precision measures how often a positive wildfire prediction is
     correctly positive. It can be defined as
@@ -392,13 +395,13 @@ $\frac{\text{precision} \times \text{recall}}{\text{precision} + \text{recall}}$
     $\frac{\text{TP}}{\text{TP} + \text{FN}}$ where FN represents false
     negatives.
 
-In this context, the F1 score is favored over accuracy due to the
+In this context, the $F_1$ score is favored over accuracy due to the
 imbalanced nature of the dataset, where the occurrence of wildfires is
 relatively rare. Relying on accuracy would bias the model toward
 predicting non-fire outcomes, potentially minimizing false positives at
 the risk of missing true fire events. Since false negatives (failing to
 predict an actual wildfire) are more consequential than false positives,
-optimizing for F1 score better balances precision and recall, making it
+optimizing for $F_1$ score better balances precision and recall, making it
 a more appropriate metric for evaluating model performance in wildfire
 prediction.
 
@@ -406,7 +409,7 @@ prediction.
 Table @tbl-modelTable displays statistics for each model in the selection
 process.
 
-![Thresholds for the optimal F1 score using each
+![Thresholds for the optimal $F_1$ score using each
 model](thresholds.png){#fig-thresholds width="50%" height="50%"}
 
 ```{r tbl-modelTable, echo=FALSE}
@@ -430,7 +433,7 @@ data](modelStats.jpg){#fig-modelTable fig-cap-location="top"}-->
 
 Based on the evaluation results, the random forest model was selected
 for deployment. Although both XGBoost and random forest performed
-comparably, the random forest model achieved a higher F1 score and
+comparably, the random forest model achieved a higher $F_1$ score and
 greater overall accuracy. Additionally, familiarity with the random
 forest algorithm supported its use in this project. However, it is worth
 noting that the XGBoost model demonstrated higher recall—a valuable
@@ -454,7 +457,7 @@ the following parameter combinations:
 -   Number of features considered at each split: 2, 3
 
 This resulted in 24 total parameter combinations. The model selection
-was based on the F1 score, evaluated at a decision threshold of 0.22.
+was based on the $F_1$ score, evaluated at a decision threshold of 0.22.
 The best-performing configuration included 200 estimators, a maximum
 depth of 30, and 3 features considered per split.
 
@@ -479,7 +482,7 @@ best_rf.fit(X_train, y_train)
 After training the fine-tuned model on both the training and testing
 datasets, the final performance metrics are summarized in
 @tbl-model-metrics. Hyperparameter tuning led to a modest improvement in
-key metrics, with the F1 score increasing from 0.193 to 0.197 and recall
+key metrics, with the $F_1$ score increasing from 0.193 to 0.197 and recall
 improving from 0.305 to 0.330. While these values remain relatively low,
 such results are not unexpected given the limitations of the dataset and
 the inherent unpredictability of wildfire events.
