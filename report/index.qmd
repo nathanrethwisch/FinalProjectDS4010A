@@ -1,5 +1,5 @@
 ---
-title: "Wildfire Dashboard"
+title: "Predicting Wildfires Using Environmental Phenomena"
 author:
   - name: "Dhruv Dole"
     affiliation: "Iowa State University"
@@ -610,7 +610,7 @@ The only major issue was with dash-leaflet: the hexagon tile layer refused to up
 
 All of the source code can be found at
 <https://github.com/nathanrethwisch/FinalProjectDS4010A>. The dashboard
-is currently hosted at <https://wildfire.ddole.net/>.
+is currently hosted at <https://wildfire.ddole.net/>. If the service is currently down, please contact one of the authors. 
 
 ## Conclusion
 
