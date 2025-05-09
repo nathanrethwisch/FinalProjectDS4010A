@@ -52,8 +52,47 @@ of users, the dashboard serves aims to serve both high-level
 policymakers involved in wildfire prevention and local officials tasked
 with creating region-specific regulations.
 
-![Estimated Cost of Wildfires in
-2022](WildfireCost.png){#fig-WildfireCost}
+```{python}
+#| echo: false
+import plotly.express as px
+import pandas as pd
+
+data = {
+    "Category": [
+        "Diminished Real Estate Value ",
+        "Exposure to Wildfire Smoke ",
+        "Income Loss From Wildfires ",
+        "Watershed Costs ",
+        "Insurance Payouts ",
+        "Timber Loss ",
+        "Property Damage ",
+        "Electricity Costs ",
+        "Other Costs"
+    ],
+    "Cost (Billions $)": [337.5, 202.5, 147.5, 146.9, 14.8, 12.0, 10.2, 10.0, 11.6],
+}
+
+fig = px.bar(
+    pd.DataFrame(data),
+    x="Cost (Billions $)",
+    y="Category",
+    orientation="h",
+    text="Cost (Billions $)",
+    title="Annual Total Costs and Losses from Climate-Exacerbated Wildfires"
+).update_traces(
+    textposition="outside",
+    texttemplate="%{text:.1f}B"
+).update_layout(
+    yaxis=dict(categoryorder="total ascending"),
+    uniformtext_minsize=8,
+    uniformtext_mode='hide',
+    xaxis_range=[0, 400]
+)
+
+fig
+```
+---
+
 
 ## Data
 
