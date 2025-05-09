@@ -230,39 +230,23 @@ The transformation steps are shown in this diagram:
 
 ##### First 5 lines of Fire Occurence
 
-```         
-          X        Y  OBJECTID                               GLOBALID                         FIREOCCURID CN                   REVDATE                            
-1 -106.4278 39.84611 231055009 {540C6E70-51FD-4CCC-A1B3-8A6C914E34A3}   2B1B9A1B-7828-4688-A14C-4BD7CEE62226    2023/03/29 11:10:56+00
-2 -107.9356 39.37278 231055010 {ACE77CF8-1281-4A81-BE3D-4D55669CB134}   A2454D64-EBB7-4895-81BC-9782B3D1391E    2023/03/29 11:10:59+00
-3 -106.7233 39.11833 231055011 {D8EA7329-A0D0-4B64-A6F2-7A7FD86A3505}                                           2023/03/29 11:10:56+00
-4 -106.5900 39.65667 231055012 {67A72390-0E2B-411E-9CDE-6657101645E4}                                           2023/03/29 11:10:56+00
-5 -107.3173 40.01929 231055013 {DFFF8D93-DE89-451C-830C-1F65FD550B3D}   558D5D61-AB04-4AC3-8143-2E0EBE7CB506    2024/03/27 14:21:08+00
-6 -106.5183 39.58833 231055014 {B7FC6338-897C-44AC-BD8B-7D1EB63EC7D8}                                           2023/03/29 11:10:56+00
+```{r, echo = FALSE}
+fire_data <- tibble::tribble(
+  ~X, ~Y, ~OBJECTID, ~GLOBALID, ~FIREOCCURID, ~REVDATE, ~FIRENAME, ~FIREYEAR, ~UNIQFIREID, ~DISCOVERYDATETIME, ~SIZECLASS, ~TOTALACRES, ~STATCAUSE,
+  -106.4278, 39.84611, 231055009, "{540C6E70-51FD-4CCC-A1B3-8A6C914E34A3}", "2B1B9A1B-7828-4688-A14C-4BD7CEE62226", "2023/03/29 11:10:56+00", "Elliott Ridge", 2016, "2016-COWRF-000679", "2016/10/22 00:00:01+00", "A", 0.25, "Camping",
+  -107.9356, 39.37278, 231055010, "{ACE77CF8-1281-4A81-BE3D-4D55669CB134}", "A2454D64-EBB7-4895-81BC-9782B3D1391E", "2023/03/29 11:10:59+00", "Battlement Mesa Reservoir", 2016, "2016-COWRF-000452", "2016/08/07 00:00:01+00", "A", 0.10, "Camping",
+  -106.7233, 39.11833, 231055011, "{D8EA7329-A0D0-4B64-A6F2-7A7FD86A3505}", "", "2023/03/29 11:10:56+00", "Difficult", 1997, "1997-COWRF-000", "1997/07/26 00:00:01+00", "A", 0.10, "Lightning",
+  -106.5900, 39.65667, 231055012, "{67A72390-0E2B-411E-9CDE-6657101645E4}", "", "2023/03/29 11:10:56+00", "", 1993, "1993-COWRF-000", "1993/08/23 00:00:01+00", "A", 0.10, "Undetermined",
+  -107.3173, 40.01929, 231055013, "{DFFF8D93-DE89-451C-830C-1F65FD550B3D}", "558D5D61-AB04-4AC3-8143-2E0EBE7CB506", "2024/03/27 14:21:08+00", "Paradise", 2020, "2020-COWRF-000504", "2020/10/14 13:16:01+00", "A", 0.10, "Camping",
+  -106.5183, 39.58833, 231055014, "{B7FC6338-897C-44AC-BD8B-7D1EB63EC7D8}", "", "2023/03/29 11:10:56+00", "B.C.", 1994, "1994-COWRF-000", "1994/07/29 00:00:01+00", "A", 0.10, "Lightning"
+)
 
-                   FIRENAME COMPLEXNAME FIREYEAR        UNIQFIREID SOFIRENUM  LOCALFIRENUM SECURITYID       DISCOVERYDATETIME SIZECLASS TOTALACRES    STATCAUSE
-1             Elliott Ridge                 2016 2016-COWRF-000679       039           679       0215  2016/10/22 00:00:01+00         A       0.25      Camping
-2 Battlement Mesa Reservoir                 2016 2016-COWRF-000452       018           452       0215  2016/08/07 00:00:01+00         A       0.10      Camping
-3                 Difficult                 1997   1997-COWRF-000        013                     0215  1997/07/26 00:00:01+00         A       0.10    Lightning
-4                                           1993   1993-COWRF-000        022                     0215  1993/08/23 00:00:01+00         A       0.10 Undetermined
-5                  Paradise                 2020 2020-COWRF-000504                     504       0215  2020/10/14 13:16:01+00         A       0.10      Camping
-6                      B.C.                 1994   1994-COWRF-000        039                     0215  1994/07/29 00:00:01+00         A       0.10    Lightning
-
-  COMMENTS DATASOURCE        FIREOUTDATETIME OWNERAGENCY UNITIDOWNER   PROTECTIONAGENCY UNITIDPROTECT  LATDD83  LONGDD83 FIRETYPECATEGORY POINTTYPE
-1                  24 2017/02/06 11:54:01+00        USFS       COWRF               USFS         COWRF 39.84611 -106.4278               WF   General
-2                  24 2016/08/12 11:20:01+00        USFS       COWRF               USFS         COWRF 39.37278 -107.9356               WF   General
-3                  24 1997/07/28 16:57:01+00        USFS       COWRF               USFS         COWRF 39.11833 -106.7233               WF   General
-4                  24 1993/08/23 23:00:01+00        USFS       COWRF               USFS         COWRF 39.11833 -106.7233               WF   General
-5                  24 2020/11/12 14:30:01+00        USFS       COWRF               USFS         COWRF 39.65667 -106.5900               WF   General
-6                  24 1994/07/29 18:00:01+00        USFS       COWRF               USFS         COWRF 39.58833 -106.5183               WF   General
-
-  PERIMEXISTS FIRERPTQC DBSOURCEID           DBSOURCEDATE ACCURACY SHAPE
-1           N       Yes        215 2024/09/24 04:01:09+00    24000    NA
-2           N       Yes        215 2024/09/24 04:01:15+00    24000    NA
-3           N       Yes        215 2024/09/24 04:01:15+00    24000    NA
-4           N       Yes        215 2024/09/24 04:01:15+00    24000    NA
-5           Y       Yes        215 2024/09/24 04:01:15+00    24000    NA
-6           N       Yes        215 2024/09/24 04:01:15+00    24000    NA
+# Display as a kable table
+kable(fire_data, format = "markdown", align = "l")
 ```
+
+
+
 
 ### Storage and Query Engine
 
@@ -297,7 +281,7 @@ width="50%"}
 
 After cleaning the data and performing exploratory data analysis, it
 became evident that a method was needed to handle data containing both
-geospatial and temporal dimensions. A significant challenge in the analysis was the lack of negative data. The dataset contained a list of places
+geospatial and temporal dimensions. A significant challenge in the analysis was only having positive data. The dataset contained a list of places
 where fires occurred, but not where they *did not* occur. This
 complicates the development of binary classification models for
 predicting fire probability, as the training data includes only positive
@@ -337,14 +321,14 @@ data was averaged over a three-day window: the two days preceding the
 fire and the day of the fire itself.\
 Prediction variables were as follows:
 
--   $x_1$: Hexagon location\
--   $x_2$: Average Elevation\
--   $x_3$: Temperature Maximum (3-day average)\
--   $x_4$: Temperature Minimum (3-day average)\
--   $x_5$: Daily Average Wind Speed (3-day average)\
--   $x_6$: Precipitation (3-day average)\
--   $x_7$: Snowfall (3-day average)\
--   $x_7$: Month
+-   Hexagon location\
+-   Average Elevation\
+-   Temperature Maximum (3-day average)\
+-   Temperature Minimum (3-day average)\
+-   Daily Average Wind Speed (3-day average)\
+-   Precipitation (3-day average)\
+-   Snowfall (3-day average)\
+-   Month
 
 ### Model Selection
 
@@ -358,7 +342,7 @@ evaluate model performance, prediction thresholds ranging from 0 to 1
 were simulated in 0.01 increments. For each model, the threshold that
 maximized the F1 score was selected as optimal. The F1 score is defined
 as:
-$\frac{\text{precision} \cdot \text{recall}}{\text{precision} + \text{recall}}$.
+$\frac{\text{precision} \times \text{recall}}{\text{precision} + \text{recall}}$.
 
 -   Precision measures how often a positive wildfire prediction is
     correctly positive. It can be defined as
@@ -435,10 +419,21 @@ was based on the F1 score, evaluated at a decision threshold of 0.22.
 The best-performing configuration included 200 estimators, a maximum
 depth of 30, and 3 features considered per split.
 
-The resulting trained model is visualized in @fig-codeRF.
+The resulting trained model is shown in the following code:
 
-![Code for Training the Optimal Random
-Forest](BestRandomForest.png){#fig-codeRF}
+
+```{python, eval = FALSE}
+best_rf = RandomForestClassifier(
+    random_state=42, 
+    n_jobs=-1, 
+    n_estimators=best_params['n_estimators'],
+    max_depth=best_params['max_depth'],
+    max_features=best_params['max_features']
+)
+
+best_rf.fit(X_train, y_train)
+```
+
 
 ### Results
 
