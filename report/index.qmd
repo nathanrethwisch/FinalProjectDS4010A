@@ -1,18 +1,21 @@
 ---
-title: "Final Report"
-description: "DS 4010 - Wildfire Dashboard"
+title: "Wildfire Dashboard"
 author:
   - name: "Dhruv Dole"
     affiliation: "Iowa State University"
+    email: "dhruv@ddole.net"
     role: "writing"
   - name: "Nathan Rethwisch"
     affiliation: "Iowa State University"
+    email: "nathanrethwisch@gmail.com"
     role: "writing"
   - name: "Colin Russell"
     affiliation: "Iowa State University"
+    email: "colincr5@yahoo.com"
     role: "writing"
   - name: "Thanh Mai"
     affiliation: "Iowa State University"
+    email: "work@thanhm.com"
     role: "writing"
 bibliography: references.bib
 nocite: |
@@ -110,13 +113,10 @@ AEM00041217  24.4330   54.6510   26.8    ABU DHABI INTL                         
 
 #### National US Forest Service Fire Occurence Point
 
-The FireOccurrence point layer represents ignition points, or points of
+The Fire Occurrence point layer represents ignition points, or points of
 origin, from which individual USFS wildland fires started. Data are
 maintained at the Forest/District level, or their equivalent, to track
-the occurrence and the origin of individual USFS wildland fires. It
-includes variables such as Discovery Date, Total Acres, Stat Cause,
-LatitudeDD83, LongitudeDD83 and much more. All of the information is
-publicly avaliable
+the occurrence and the origin of individual USFS wildland fires. All of the information is publicly available
 [here](https://catalog.data.gov/dataset/national-usfs-fire-occurrence-point-feature-layer-d3233).
 There are multiple formats that the data can be downloaded in, but our
 group used a csv file.
@@ -452,6 +452,9 @@ meteorological context in modeling wildfire risk.
 
 <!-- ![Statistics for our Random Forest after Hyperpararmeter Tuning](bestModelStats.png){#fig-bestModelStats fig-cap-location="top"}   -->
 
+
+
+
 ```{r tbl-model-metrics, echo = FALSE}
 library(knitr)
 
@@ -500,6 +503,8 @@ kable(
   caption = "Feature importance for random forest model"
 )
 ```
+
+
 
 After running the model, the output was saved as a parquet file and
 loaded later into the dashboard.
