@@ -354,7 +354,7 @@ of its values were missing.
 
 With the addition of H3 cells and inclusion of negative negative data
 for cells without a fire, a predictive model was developed to estimate
-$Y_ij$, the probability of a fire occurring in cell $i$ on day $j$,
+$Y_{ij}$, the probability of a fire occurring in cell $i$ on day $j$,
 constrained by $[0,1]$. To construct the predictor variables, weather
 data was averaged over a three-day window: the two days preceding the
 fire and the day of the fire itself.\
@@ -383,16 +383,16 @@ maximized the $F_1$ score was selected as optimal. The $F_1$ score is defined
 as:
 $$
 F_1 = 2 \times  \frac{\text{precision} \times \text{recall}}{\text{precision} + \text{recall}}
- = \frac{2TP}{2TP + FP + FN}
- $$ .
+ = \frac{2\text{TP}}{2\text{TP} + \text{FP} + \text{FN}}
+ $$
 
 -   Precision measures how often a positive wildfire prediction is
     correctly positive. It can be defined as
-    $\frac{\text{TP}}{\text{TP} + \text{FP}}$ where TP represents true
-    positives and FP represents false positives.\
+    $\frac{\text{TP}}{\text{TP} + \text{FP}}$ where $\text{TP}$ represents true
+    positives and $\text{FP}$ represents false positives.\
 -   Recall measures the model’s ability to correctly identify actual
     wildfire events from all real cases. It is defined as:
-    $\frac{\text{TP}}{\text{TP} + \text{FN}}$ where FN represents false
+    $\frac{\text{TP}}{\text{TP} + \text{FN}}$ where $\text{FN}$ represents false
     negatives.
 
 In this context, the $F_1$ score is favored over accuracy due to the
