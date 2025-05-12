@@ -141,7 +141,7 @@ def render_tab_content(tab):
         return html.Div([
             html.H3(""),
             html.Iframe(
-                src="/assets/fire_timeseries.html",  # TODO MOVE THIS TO ENV ROOT
+                src="/assets/final_fire_timeseries.html",  # TODO MOVE THIS TO ENV ROOT
                 style={"width": "100%", "height": "calc(100vh - 150px)", "border": "none"}
             )
         ])
