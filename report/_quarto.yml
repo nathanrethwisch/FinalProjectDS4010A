@@ -13,7 +13,4 @@ format:
   # pdf: default
 
 execute:
-  freeze: true
-
-
-
+  freeze: false

@@ -150,7 +150,7 @@ AEM00041194  25.2550   55.3640   10.4    DUBAI INTL                             
 AEM00041217  24.4330   54.6510   26.8    ABU DHABI INTL                         41217
 ```
 
-#### National US Forest Service Fire Occurence Point
+#### National US Forest Service Fire Occurrence Point
 
 The Fire Occurrence point layer represents ignition points, or points of
 origin, from which individual USFS wildland fires started. Data are
@@ -238,7 +238,7 @@ kable(
 ```
 
 
-#### National US Forest Service Fire Occurence Point
+#### National US Forest Service Fire Occurrence Point
 
 The transformations to the fire occurrence dataset were done using R.
 The major issue with the dataset was the large number of null values;
@@ -257,17 +257,17 @@ need to repeatedly run the cleaning script.
 The transformation steps are shown in this diagram:
 
 ```{mermaid}
-  graph TD
-    A[Read CSV] --> B[Select relevant columns]
-    B --> C[Remove NA values]
-    C --> D[Clean FIREYEAR ]
-    D --> E[Verify SIZECLASS vs TOTALACRES]
-    E --> F[Sample and inspect LAT/LONG]
-    F --> G[Clean STATCAUSE]
-    G --> H[Export as a parquet file]
+graph TD
+  A[Read CSV] --> B[Select relevant columns]
+  B --> C[Remove NA values]
+  C --> D[Clean FIREYEAR ]
+  D --> E[Verify SIZECLASS vs TOTALACRES]
+  E --> F[Sample and inspect LAT-LONG]
+  F --> G[Clean STATCAUSE]
+  G --> H[Export as a parquet file]
 ```
 
-##### First 5 lines of Fire Occurence
+##### First 5 lines of Fire Occurrence
 
 ```{r, echo = FALSE}
 fire_data <- tibble::tribble(
@@ -311,7 +311,7 @@ available to the dashboard, but later it was realized that only the
 3-day averages produced as part of the model training were necessary.
 This allowed the dashboard’s live data to be loaded into memory on
 initialization. This means that the dashboard does not require high
-througput IO access.
+throughput IO access.
 
 ## Exploration and Analysis {#exploration-and-analysis}
 
@@ -492,7 +492,7 @@ highlights that location, elevation, and temperature were among the most
 influential predictors, underscoring the relevance of geographic and
 meteorological context in modeling wildfire risk.
 
-<!-- ![Statistics for our Random Forest after Hyperpararmeter Tuning](bestModelStats.png){#fig-bestModelStats fig-cap-location="top"}   -->
+<!-- ![Statistics for our Random Forest after hyperparameter Tuning](bestModelStats.png){#fig-bestModelStats fig-cap-location="top"}   -->
 
 
 
@@ -623,7 +623,7 @@ Dash was selected because the majority of the ETL code was already written in py
 
 #### Python Libraries
 
-- [dash](https://dash.plotly.com/): Framework for builidng data web apps
+- [dash](https://dash.plotly.com/): Framework for building data web apps
 - [dash-leaflet](https://www.dash-leaflet.com/): A collection of Dash components implementing LeafletJS for interactive mapping
 - [shapely](https://shapely.readthedocs.io/en/stable/): Provides pythonic geospatial data types and operations
 - [geopandas](https://geopandas.org/en/stable/): An extension of [pandas](https://pandas.pydata.org/) which supports shapely types and operations.
@@ -644,7 +644,7 @@ Because of this, it was decided to plot aggregated data instead of raw data, thi
   available to the app. The necessary parquet files are small enough to be packaged directly into the docker image.
 
 The only major issue was with dash-leaflet: the hexagon tile layer refused to update when the date input was changed,
- This was due to internal caching behavior which reduces load by only rerendering components if the component's id changed.
+ This was due to internal caching behavior which reduces load by only re-rendering components if the component's id changed.
   This was resolved by including the selected date in the polygon layer's id, meaning that layers were unique across all dates.
   This allowed the map to update properly.
 
